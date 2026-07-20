@@ -1,15 +1,15 @@
-# PR-14 — Member: Directory
+# Plan 14 — Member: Directory
 
 ## Goal
 
 `/member/directory` — merges *Yellow Pages*, *CONNECT with Leaders*, *MRT
 Group*, and *Prudential Indonesia* into one contacts directory, with
-leader-only contact lines gated by role (same pattern as PR-13).
+leader-only contact lines gated by role (same pattern as Plan 13).
 
 ## Depends on
 
-PR-06 (member shell/nav) — and PR-02's `requireRole()` helper for
-leader-only entries. Independent of PRs 07–13.
+Plan 06 (member shell/nav) — and Plan 02's `requireRole()` helper for
+leader-only entries. Independent of Plans 07–13.
 
 ## Source content (from sites.google.com/view/connecteam/yellow-pages)
 
@@ -24,7 +24,7 @@ leader-only entries. Independent of PRs 07–13.
 
 **CONNECT with Leaders** (`/connect-with-leaders`), **MRT Group**
 (`/mrt-group`), **Prudential Indonesia** (`/prudential-indonesia`): not
-captured during exploration — **this PR's implementer must visit all three
+captured during exploration — **this plan's implementer must visit all three
 pages while logged in** to build the content inventory before implementing.
 
 ## Scope
@@ -34,7 +34,7 @@ pages while logged in** to build the content inventory before implementing.
   Support, Leaders, Company Info).
 - `/member/directory` page: renders all entries for `leader` sessions;
   filters out `leaderOnly: true` entries for `agent` sessions server-side
-  (same enforcement pattern as PR-13, reuse the same role-filtering
+  (same enforcement pattern as Plan 13, reuse the same role-filtering
   approach rather than reinventing it).
 
 ## Unit tests

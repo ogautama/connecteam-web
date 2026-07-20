@@ -1,4 +1,4 @@
-# PR-05 — Calculator tool
+# Plan 05 — Calculator tool
 
 ## Goal
 
@@ -9,8 +9,8 @@ form-lead-generator tool referenced in the original request.
 
 ## Depends on
 
-PR-01 (layout). Soft-depends on PR-02 for lead capture (see Independence
-notes, same pattern as PR-04).
+Plan 01 (layout). Soft-depends on Plan 02 for lead capture (see Independence
+notes, same pattern as Plan 04).
 
 ## Scope
 
@@ -19,7 +19,7 @@ notes, same pattern as PR-04).
   rate assumptions) and returns a projected monthly/annual income estimate
   plus a breakdown (base scenario, stretch scenario). Commission
   assumptions sourced from the product commission data gathered during
-  exploration (see PR-09's content inventory) — kept as a separate,
+  exploration (see Plan 09's content inventory) — kept as a separate,
   clearly-commented constants module so the assumptions are easy to review
   and adjust independent of the calculation logic.
 - `/tools/calculator` — form UI (sliders/inputs for hours, target closes,
@@ -33,14 +33,14 @@ notes, same pattern as PR-04).
 
 ## Out of scope
 
-Any change to actual commission-table content pages (PR-09/10 own those);
-this PR only borrows illustrative assumption constants.
+Any change to actual commission-table content pages (Plans 09/10 own those);
+this plan only borrows illustrative assumption constants.
 
 ## Independence notes
 
-Same pattern as PR-04: calculation logic and UI are fully independent and
-testable; only final lead submission needs PR-02's `createLead()`, stubbed
-locally against the documented signature until PR-02 merges.
+Same pattern as Plan 04: calculation logic and UI are fully independent and
+testable; only final lead submission needs Plan 02's `createLead()`, stubbed
+locally against the documented signature until Plan 02 merges.
 
 ## Unit tests
 

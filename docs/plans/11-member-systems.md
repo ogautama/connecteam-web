@@ -1,4 +1,4 @@
-# PR-11 — Member: Official Systems
+# Plan 11 — Member: Official Systems
 
 ## Goal
 
@@ -8,7 +8,7 @@ the processes around them.
 
 ## Depends on
 
-PR-06 (member shell/nav). Independent of PRs 07–10, 12–14.
+Plan 06 (member shell/nav). Independent of Plans 07–10, 12–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
@@ -25,7 +25,7 @@ content** before building — it continues well past what was captured here.
 
 **Lisensi AAJI/AASI** (`/lisensi-aaji-aasi`), **PRU PayLink**
 (`/pru-paylink`), **Claim** (`/claim`), **Bukti Claim** (`/bukti-claim`):
-not captured during exploration — **this PR's implementer must visit each
+not captured during exploration — **this plan's implementer must visit each
 of these four pages while logged in** to build the content inventory
 before implementing.
 

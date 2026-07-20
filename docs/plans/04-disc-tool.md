@@ -1,4 +1,4 @@
-# PR-04 — DISC test tool
+# Plan 04 — DISC test tool
 
 ## Goal
 
@@ -8,7 +8,7 @@ Replace the external link to a 3rd-party DISC test
 
 ## Depends on
 
-PR-01 (layout). Soft-depends on PR-02 for lead capture (see Independence
+Plan 01 (layout). Soft-depends on Plan 02 for lead capture (see Independence
 notes).
 
 ## Scope
@@ -40,11 +40,11 @@ overview plan).
 ## Independence notes
 
 The question bank, scoring function, and results UI have zero dependency on
-PR-02. Only the final "save your result" lead-capture step needs
-`createLead()`; while PR-02 is unmerged, that step calls a local
-`createLead` stub matching PR-02's documented signature (see 02-data-auth.md)
+Plan 02. Only the final "save your result" lead-capture step needs
+`createLead()`; while Plan 02 is unmerged, that step calls a local
+`createLead` stub matching Plan 02's documented signature (see 02-data-auth.md)
 so the UI is fully built and tested, and swapping in the real
-`src/lib/leads.ts` import is a one-line change once PR-02 lands.
+`src/lib/leads.ts` import is a one-line change once Plan 02 lands.
 
 ## Unit tests
 

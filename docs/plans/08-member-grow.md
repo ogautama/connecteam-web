@@ -1,4 +1,4 @@
-# PR-08 — Member: Grow (recruitment kit)
+# Plan 08 — Member: Grow (recruitment kit)
 
 ## Goal
 
@@ -7,7 +7,7 @@ recruiting new partners into the business.
 
 ## Depends on
 
-PR-06 (member shell/nav). Independent of PRs 07, 09–14.
+Plan 06 (member shell/nav). Independent of Plans 07, 09–14.
 
 ## Source content (from sites.google.com/view/connecteam/recruitment-kit)
 
@@ -31,7 +31,7 @@ PR-06 (member shell/nav). Independent of PRs 07, 09–14.
 
 ## Unit tests
 
-- Content module schema validation (same pattern as PR-07).
+- Content module schema validation (same pattern as Plan 07).
 - Page renders all resource groups and the WA order link with correctly
   encoded query text.
 

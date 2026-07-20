@@ -1,4 +1,4 @@
-# PR-07 — Member: Get Started (onboarding)
+# Plan 07 — Member: Get Started (onboarding)
 
 ## Goal
 
@@ -7,13 +7,13 @@ pages into one new-agent onboarding hub.
 
 ## Depends on
 
-PR-06 (member shell/nav). Independent of PRs 08–14.
+Plan 06 (member shell/nav). Independent of Plans 08–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
 **Hi Partner** (`/hi-partner`):
 - Know Yourself: DISC test link (→ point at our own `/tools/disc` from
-  PR-04 instead of the external one), MBTI link
+  Plan 04 instead of the external one), MBTI link
   (`satupersen.net/psikotes-online-gratis/tes-16-kepribadian`), Self
   Motivation link (`satupersen.net/psikotes-online-gratis/tes-self-motivation`),
   profile upload (`forms.gle/fcneonKgvAX5Wd1F6`).
