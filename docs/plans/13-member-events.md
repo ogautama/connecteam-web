@@ -9,8 +9,11 @@ and must be hidden from `agent` sessions, not just labeled.
 
 ## Depends on
 
-Plan 06 (member shell/nav) — and specifically Plan 02's `requireRole()` helper
-for the leader-only item. Independent of Plans 07–12, 14.
+Plan 06 (member shell/nav) — and specifically
+[Plan 02b](02b-supabase-auth-google-oauth.md)'s `requireRole()` helper
+for the leader-only item (`requireRole` itself is unaffected by the
+Supabase/auth rework, only the doc pointer moved from Plan 02, superseded).
+Independent of Plans 07–12, 14.
 
 ## Source content (from sites.google.com/view/connecteam/support-system)
 
@@ -29,7 +32,7 @@ for the leader-only item. Independent of Plans 07–12, 14.
 - `src/content/events.ts` — typed structure: `{ title, description,
   schedule, leaderOnly: boolean, registerUrl? }[]`.
 - `/member/events` page: renders all events for `leader` sessions; filters
-  out `leaderOnly: true` events for `agent` sessions using Plan 02's role
+  out `leaderOnly: true` events for `agent` sessions using Plan 02b's role
   helper (server-side, not just CSS-hidden — an agent should not receive
   Power Monday's details in the page payload at all).
 

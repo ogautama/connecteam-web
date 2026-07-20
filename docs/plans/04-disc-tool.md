@@ -8,8 +8,10 @@ Replace the external link to a 3rd-party DISC test
 
 ## Depends on
 
-Plan 01 (layout). Soft-depends on Plan 02 for lead capture (see Independence
-notes).
+Plan 01 (layout). Soft-depends on [Plan 02b](02b-supabase-auth-google-oauth.md)
+for lead capture (see Independence notes). `createLead()` itself is
+unaffected by the Supabase/auth rework — only the doc pointer moved from
+Plan 02 (superseded) to 02b.
 
 ## Scope
 
@@ -40,11 +42,13 @@ overview plan).
 ## Independence notes
 
 The question bank, scoring function, and results UI have zero dependency on
-Plan 02. Only the final "save your result" lead-capture step needs
-`createLead()`; while Plan 02 is unmerged, that step calls a local
-`createLead` stub matching Plan 02's documented signature (see 02-data-auth.md)
-so the UI is fully built and tested, and swapping in the real
-`src/lib/leads.ts` import is a one-line change once Plan 02 lands.
+Plan 02b. Only the final "save your result" lead-capture step needs
+`createLead()`; while Plan 02b is unmerged, that step calls a local
+`createLead` stub matching the documented signature (see
+[02b-supabase-auth-google-oauth.md](02b-supabase-auth-google-oauth.md), same
+`createLead` signature Plan 02 originally documented) so the UI is fully
+built and tested, and swapping in the real `src/lib/leads.ts` import is a
+one-line change once Plan 02b lands.
 
 ## Unit tests
 

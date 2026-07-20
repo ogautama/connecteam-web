@@ -9,8 +9,10 @@ form-lead-generator tool referenced in the original request.
 
 ## Depends on
 
-Plan 01 (layout). Soft-depends on Plan 02 for lead capture (see Independence
-notes, same pattern as Plan 04).
+Plan 01 (layout). Soft-depends on [Plan 02b](02b-supabase-auth-google-oauth.md)
+for lead capture (see Independence notes, same pattern as Plan 04).
+`createLead()` is unaffected by the Supabase/auth rework — only the doc
+pointer moved from Plan 02 (superseded) to 02b.
 
 ## Scope
 
@@ -39,8 +41,8 @@ this plan only borrows illustrative assumption constants.
 ## Independence notes
 
 Same pattern as Plan 04: calculation logic and UI are fully independent and
-testable; only final lead submission needs Plan 02's `createLead()`, stubbed
-locally against the documented signature until Plan 02 merges.
+testable; only final lead submission needs Plan 02b's `createLead()`,
+stubbed locally against the documented signature until Plan 02b merges.
 
 ## Unit tests
 

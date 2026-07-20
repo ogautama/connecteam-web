@@ -2,10 +2,22 @@
 
 ## Status
 
-**Done** — implemented together with [Plan 02](02-data-auth.md) in
+**Done, but partially superseded (2026-07-21)** — implemented together with
+[Plan 02](02-data-auth.md) in
 [PR #5](https://github.com/ogautama/connecteam-web/pull/5), per the
 "Independence notes" below. Its fields aren't wired into any UI yet (per
 "Out of scope"); the follow-on plans listed below are still not started.
+
+**Partially superseded**: the tree/visibility model below (`recruiterId`,
+`getDescendantUserIds`, `canAccess`, `resolveRecruiter`,
+`reassignRecruiter`, `Position`) is unaffected by the Supabase/Google-OAuth
+switch and stays exactly as-is. What changes is `promoteApplicant` and the
+"Auth changes" section below — see [Plan 15b](15b-recruitment-tree-rework.md)
+(drops applicant→user promotion, since account creation is now the
+leader-driven invite flow in [Plan 02c](02c-leader-add-member.md)) and
+[Plan 02b](02b-supabase-auth-google-oauth.md) (supersedes the "Auth changes"
+section's JWT/revocation design — see that plan's accepted tradeoff on
+revocation timing).
 
 ## Goal
 
