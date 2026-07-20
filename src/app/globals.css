@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: var(--color-ink-900);
+}
+
+@theme {
+  /* Brand palette — purple/pink/blue youth energy, kept clean enough to
+     read as a licensed insurance brand rather than a consumer app. */
+  --color-brand-purple-50: #f5f3ff;
+  --color-brand-purple-100: #ede9fe;
+  --color-brand-purple-200: #ddd6fe;
+  --color-brand-purple-300: #c4b5fd;
+  --color-brand-purple-400: #a78bfa;
+  --color-brand-purple-500: #8b5cf6;
+  --color-brand-purple-600: #7c3aed;
+  --color-brand-purple-700: #6d28d9;
+  --color-brand-purple-800: #5b21b6;
+  --color-brand-purple-900: #4c1d95;
+
+  --color-brand-pink-50: #fdf2f8;
+  --color-brand-pink-100: #fce7f3;
+  --color-brand-pink-200: #fbcfe8;
+  --color-brand-pink-300: #f9a8d4;
+  --color-brand-pink-400: #f472b6;
+  --color-brand-pink-500: #ec4899;
+  --color-brand-pink-600: #db2777;
+  --color-brand-pink-700: #be185d;
+
+  --color-brand-blue-50: #eff6ff;
+  --color-brand-blue-100: #dbeafe;
+  --color-brand-blue-200: #bfdbfe;
+  --color-brand-blue-300: #93c5fd;
+  --color-brand-blue-400: #60a5fa;
+  --color-brand-blue-500: #3b82f6;
+  --color-brand-blue-600: #2563eb;
+  --color-brand-blue-700: #1d4ed8;
+
+  /* Neutrals with a faint purple cast, used for body text/surfaces instead
+     of flat gray so the "credible" side of the brand still feels warm. */
+  --color-ink-50: #faf9fc;
+  --color-ink-100: #e7e4f0;
+  --color-ink-300: #a9a3bf;
+  --color-ink-500: #6b6483;
+  --color-ink-700: #3f3859;
+  --color-ink-900: #17122b;
+
+  --color-success-500: #22c55e;
+  --color-warning-500: #f59e0b;
+  --color-danger-500: #ef4444;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Type scale — default sizes cover body copy; these two extend it for
+     marketing hero headlines. */
+  --text-display-sm: 2.75rem;
+  --text-display-sm--line-height: 1.1;
+  --text-display-lg: 3.75rem;
+  --text-display-lg--line-height: 1.05;
+
+  /* Spacing tokens for shared layout chrome (header/sidebar), on top of
+     Tailwind's default numeric spacing scale. */
+  --spacing-header: 4.5rem;
+  --spacing-sidebar: 16rem;
+  --container-content: 80rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
