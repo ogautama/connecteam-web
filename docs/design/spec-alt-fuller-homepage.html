@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONNECTeam — Alt: Fuller Homepage</title>
+<style>
+  :root {
+    --page-bg: #f9fafb;
+    --page-surface: #ffffff;
+    --page-border: #edeff2;
+    --page-text: #1b212d;
+    --page-text-muted: #6c7689;
+    --page-text-faint: #aeb5c2;
+    --accent: #183f87;
+    --accent-soft: #f3f5f9;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #1b212d; --page-surface: #232a38; --page-border: #3c4453;
+    --page-text: #f5f6f8; --page-text-muted: #b7bdc9; --page-text-faint: #6c7689;
+    --accent: #7088b5; --accent-soft: #232c42;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #1b212d; --page-surface: #232a38; --page-border: #3c4453;
+      --page-text: #f5f6f8; --page-text-muted: #b7bdc9; --page-text-faint: #6c7689;
+      --accent: #7088b5; --accent-soft: #232c42;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page-bg); color: var(--page-text); font-family: var(--sans); line-height: 1.5; }
+  .page { max-width: 1040px; margin: 0 auto; padding: 48px 24px 96px; display: flex; flex-direction: column; gap: 40px; }
+
+  .masthead { display: flex; flex-direction: column; gap: 10px; padding-bottom: 32px; border-bottom: 1px solid var(--page-border); }
+  .eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .masthead h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
+  .masthead p { margin: 0; max-width: 68ch; color: var(--page-text-muted); font-size: 1rem; }
+  .masthead .see-also { font-size: 0.875rem; }
+  .masthead .see-also a { color: var(--accent); }
+  .masthead code { font-family: var(--mono); font-size: 0.875em; }
+
+  .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .compare-card { border: 1px solid var(--page-border); border-radius: 10px; padding: 16px; background: var(--page-surface); display: flex; flex-direction: column; gap: 6px; }
+  .compare-card h3 { margin: 0; font-size: 0.9375rem; }
+  .compare-card p { margin: 0; font-size: 0.875rem; color: var(--page-text-muted); }
+  .compare-card.current h3 { color: var(--page-text-faint); }
+  .compare-card .src { font-size: 0.75rem; color: var(--page-text-faint); }
+
+  .note {
+    font-size: 0.8125rem; color: var(--page-text-muted); background: var(--accent-soft);
+    border-radius: 8px; padding: 10px 14px; max-width: 68ch;
+  }
+
+  /* ---------- Browser frame + desktop page content ---------- */
+
+  .desktop-scroll { overflow-x: auto; }
+
+  .browser-frame {
+    min-width: 760px;
+    border-radius: 12px; border: 1px solid var(--page-border); overflow: hidden;
+    background: #ffffff; box-shadow: 0 24px 48px -20px rgba(27, 33, 45, 0.18);
+  }
+  .browser-chrome { height: 36px; background: #edeff2; display: flex; align-items: center; gap: 6px; padding: 0 12px; }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser-url { margin-left: 10px; max-width: 320px; background: #fff; border-radius: 6px; padding: 4px 10px; font-family: var(--mono); font-size: 0.75rem; color: #6c7689; }
+
+  .d-header { height: 72px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #edeff2; }
+  .d-logo { font-size: 1.25rem; font-weight: 700; background: linear-gradient(to right, #183f87, #f04975, #f5ba01); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; }
+  .d-nav { display: flex; gap: 32px; }
+  .d-nav span { font-size: 0.875rem; font-weight: 600; color: #3c4453; white-space: nowrap; }
+  .d-login { background: #183f87; color: #fff; padding: 10px 22px; border-radius: 999px; font-size: 0.875rem; font-weight: 600; white-space: nowrap; }
+
+  .d-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; padding: 72px 40px 56px; }
+  .d-hero h1 { margin: 0; font-size: 3rem; line-height: 1.08; font-weight: 800; color: #1b212d; letter-spacing: -0.02em; }
+  .d-hero h1 span { display: block; background: linear-gradient(to right, #183f87, #f04975, #f5ba01); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .d-hero p { margin: 0; font-size: 1.125rem; color: #6c7689; max-width: 520px; }
+  .d-hero-ctas { display: flex; flex-direction: row; gap: 14px; margin-top: 8px; }
+  .d-btn-primary, .d-btn-secondary { border-radius: 999px; padding: 14px 30px; font-size: 0.9375rem; font-weight: 600; }
+  .d-btn-primary { background: #183f87; color: #fff; }
+  .d-btn-secondary { background: #fff; color: #3c4453; border: 1px solid #edeff2; }
+
+  .d-section { padding: 56px 40px; border-top: 1px solid #edeff2; }
+  .d-section-head { text-align: center; max-width: 560px; margin: 0 auto 36px; display: flex; flex-direction: column; gap: 8px; }
+  .d-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #f04975; }
+  .d-section-head h2 { margin: 0; font-size: 1.75rem; font-weight: 800; color: #1b212d; letter-spacing: -0.01em; }
+  .d-section-head p { margin: 0; font-size: 0.9375rem; color: #6c7689; }
+
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .pillar { display: flex; flex-direction: column; gap: 10px; }
+  .pillar-icon {
+    width: 44px; height: 44px; border-radius: 12px; background: #f3f5f9; color: #183f87;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pillar-icon svg { width: 22px; height: 22px; }
+  .pillar h3 { margin: 0; font-size: 0.9375rem; font-weight: 700; color: #1b212d; }
+  .pillar p { margin: 0; font-size: 0.8125rem; color: #6c7689; line-height: 1.5; }
+
+  .proof { background: #f9fafb; }
+  .stat-row { display: flex; justify-content: center; gap: 56px; margin-bottom: 40px; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat .n { font-size: 2rem; font-weight: 800; color: #183f87; letter-spacing: -0.02em; }
+  .stat .l { font-size: 0.75rem; color: #6c7689; margin-top: 2px; }
+  .testimonials { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .testimonial { background: #fff; border: 1px solid #edeff2; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .testimonial q { margin: 0; font-size: 0.9375rem; color: #1b212d; line-height: 1.6; quotes: none; }
+  .testimonial .who { display: flex; align-items: center; gap: 10px; }
+  .testimonial .avatar-dot { width: 32px; height: 32px; border-radius: 999px; background: #fde9ee; color: #ad3554; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  .testimonial .name { font-size: 0.8125rem; font-weight: 700; color: #1b212d; }
+  .testimonial .role { font-size: 0.75rem; color: #aeb5c2; }
+
+  .vision { text-align: center; }
+  .vision blockquote { margin: 0 auto; max-width: 620px; font-size: 1.5rem; font-weight: 700; color: #1b212d; letter-spacing: -0.01em; line-height: 1.4; }
+
+  .disc-teaser {
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    background: #fffcf2; border: 1px solid #fceab3; border-radius: 16px; padding: 28px 32px;
+  }
+  .disc-teaser .copy h3 { margin: 0 0 6px; font-size: 1.125rem; font-weight: 700; color: #1b212d; }
+  .disc-teaser .copy p { margin: 0; font-size: 0.875rem; color: #6c7689; max-width: 420px; }
+  .disc-teaser .go { background: #f5ba01; color: #1b212d; padding: 12px 22px; border-radius: 999px; font-size: 0.875rem; font-weight: 700; white-space: nowrap; }
+
+  .challenge {
+    background: linear-gradient(120deg, #183f87, #ad3554); color: #fff; text-align: center;
+    padding: 56px 40px; display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .challenge h2 { margin: 0; font-size: 1.75rem; font-weight: 800; }
+  .challenge p { margin: 0; font-size: 0.9375rem; opacity: 0.85; max-width: 480px; }
+  .challenge .go { background: #f5ba01; color: #1b212d; padding: 13px 28px; border-radius: 999px; font-size: 0.9375rem; font-weight: 700; margin-top: 4px; }
+
+  .d-footer { display: flex; align-items: center; justify-content: space-between; padding: 22px 40px; background: #f9fafb; border-top: 1px solid #edeff2; font-size: 0.8125rem; color: #6c7689; }
+  .d-footer .social { display: flex; gap: 20px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <span class="eyebrow">Design reference — rejected direction</span>
+    <h1>Rejected: fuller homepage — kept as a <code>/learn-more</code> seed</h1>
+    <p>
+      This started as a proposal to make <code>/</code> itself the full
+      recruiting funnel (hero, pillars, proof, vision, DISC teaser,
+      challenge CTA — the content <code>docs/plans/03-public-site.md</code>
+      scopes for the homepage). Feedback: too crowded, and it implied two
+      different homepages for mobile vs. desktop when really both should
+      stay the same simple hero. <code>/</code> stays hero-only with
+      "Learn more" / "Member login" CTAs — this content is kept below as
+      raw material for wherever "Learn more" eventually links to.
+    </p>
+    <p class="see-also">← Back to <a href="spec.html">primary spec (tokens + current shipped state)</a></p>
+  </header>
+
+  <section class="compare">
+    <div class="compare-card current">
+      <h3>Home (shipped &amp; staying this way)</h3>
+      <p>Hero only: headline, one line of body copy, "Learn more" + "Member login". Everything below the fold is empty — on purpose.</p>
+    </div>
+    <div class="compare-card">
+      <h3>Content below (not a homepage anymore)</h3>
+      <p>Pillars + proof + vision + DISC teaser + challenge CTA — parked here as a starting point for a future <code>/learn-more</code> page, not for <code>/</code> itself.</p>
+    </div>
+  </section>
+
+  <p class="note">
+    Stats and testimonial quotes below are placeholder illustrations of the
+    "proof section" PR-03 describes — not real numbers or real quotes from
+    real agents. They'd need to come from whoever owns those numbers before
+    this ships.
+  </p>
+
+  <div class="desktop-scroll">
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <span class="browser-dot" style="background:#f04975"></span>
+      <span class="browser-dot" style="background:#f5ba01"></span>
+      <span class="browser-dot" style="background:#22c55e"></span>
+      <span class="browser-url">connecteam.id</span>
+    </div>
+
+    <div class="d-header">
+      <span class="d-logo">CONNECTeam</span>
+      <nav class="d-nav"><span>Home</span><span>Join Us</span><span>DISC Test</span><span>Income Calculator</span></nav>
+      <span class="d-login">Login</span>
+    </div>
+
+    <div class="d-hero">
+      <h1>Kerja Ngak Harus<span>Ribet.</span></h1>
+      <p>CONNECTeam itu jaringan agen muda Prudential Indonesia — belajar bareng mentor asli, naik level bareng circle yang saling dukung.</p>
+      <div class="d-hero-ctas">
+        <span class="d-btn-primary">Gabung Sekarang</span>
+        <span class="d-btn-secondary">Login Member</span>
+      </div>
+    </div>
+
+    <div class="d-section">
+      <div class="d-section-head">
+        <span class="d-eyebrow">Kenapa CONNECTeam</span>
+        <h2>Bukan sekadar jualan polis</h2>
+      </div>
+      <div class="pillars">
+        <div class="pillar">
+          <span class="pillar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>
+          <h3>Mentor Beneran</h3>
+          <p>Didampingi leader berpengalaman sejak hari pertama gabung — bukan cuma modul PDF.</p>
+        </div>
+        <div class="pillar">
+          <span class="pillar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
+          <h3>Karier Ngebut</h3>
+          <p>Jenjang karier jelas — nggak nunggu bertahun-tahun buat naik level.</p>
+        </div>
+        <div class="pillar">
+          <span class="pillar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 18v3"/></svg></span>
+          <h3>Jago Digital</h3>
+          <p>Belajar bikin konten &amp; closing lewat medsos — bukan cuma nawarin dari pintu ke pintu.</p>
+        </div>
+        <div class="pillar">
+          <span class="pillar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></span>
+          <h3>Circle Suportif</h3>
+          <p>Lingkungan kerja yang saling dukung, bukan kompetisi yang toxic.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-section proof">
+      <div class="stat-row">
+        <div class="stat"><div class="n">200+</div><div class="l">Agen aktif</div></div>
+        <div class="stat"><div class="n">4.8/5</div><div class="l">Rating mentor</div></div>
+        <div class="stat"><div class="n">85%</div><div class="l">Retensi 1 tahun+</div></div>
+      </div>
+      <div class="testimonials">
+        <div class="testimonial">
+          <q>"Awalnya cuma iseng ikut info session, eh malah nemu circle yang beneran support progress aku."</q>
+          <div class="who"><span class="avatar-dot">A</span><div><div class="name">Agen, Jakarta</div><div class="role">Bergabung 2025 · ilustrasi</div></div></div>
+        </div>
+        <div class="testimonial">
+          <q>"Mentor aku selalu available buat review closing sebelum aku ketemu klien. Beda banget sama tempat lama."</q>
+          <div class="who"><span class="avatar-dot">B</span><div><div class="name">Agen, Bandung</div><div class="role">Bergabung 2024 · ilustrasi</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-section vision">
+      <span class="d-eyebrow">Visi CONNECTeam</span>
+      <blockquote style="margin-top:14px;">Kami percaya karier di asuransi bisa dimulai dari circle yang saling dukung — bukan dari kerja sendirian.</blockquote>
+    </div>
+
+    <div class="d-section" style="padding-top:0;">
+      <div class="disc-teaser">
+        <div class="copy">
+          <h3>Kenalan Sama Gaya Kerja Kamu</h3>
+          <p>Ikutan tes DISC 5 menit buat lihat gaya kerja &amp; potensi kamu di CONNECTeam.</p>
+        </div>
+        <span class="go">Coba Tes DISC →</span>
+      </div>
+    </div>
+
+    <div class="challenge">
+      <h2>Siap Mulai 7 Hari Pertama?</h2>
+      <p>Ikutan WA Challenge dan rasain langsung serunya jadi bagian CONNECTeam.</p>
+      <span class="go">Gabung Sekarang</span>
+    </div>
+
+    <div class="d-footer">
+      <span>© 2026 CONNECTeam. All rights reserved.</span>
+      <span class="social">Instagram · TikTok · WhatsApp</span>
+    </div>
+  </div>
+  </div>
+</div>
+</body>
+</html>

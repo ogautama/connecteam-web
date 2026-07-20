@@ -291,6 +291,91 @@
   @media (max-width: 640px) {
     .mock-grid { justify-content: center; }
   }
+
+  /* ---------- Desktop mockups ---------- */
+
+  .desktop-stack { display: flex; flex-direction: column; gap: 40px; }
+
+  .desktop-scroll { overflow-x: auto; }
+
+  .browser-frame {
+    min-width: 760px;
+    border-radius: 12px;
+    border: 1px solid var(--page-border);
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 24px 48px -20px rgba(27, 33, 45, 0.18);
+  }
+  .browser-chrome {
+    height: 36px; background: #edeff2; display: flex; align-items: center;
+    gap: 6px; padding: 0 12px; flex-shrink: 0;
+  }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser-url {
+    margin-left: 10px; max-width: 320px; background: #fff; border-radius: 6px;
+    padding: 4px 10px; font-family: var(--mono); font-size: 0.75rem; color: #6c7689;
+  }
+
+  .d-header {
+    height: 72px; padding: 0 40px; display: flex; align-items: center;
+    justify-content: space-between; border-bottom: 1px solid #edeff2;
+  }
+  .d-logo {
+    font-size: 1.25rem; font-weight: 700;
+    background: linear-gradient(to right, #183f87, #f04975, #f5ba01);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .d-nav { display: flex; gap: 32px; }
+  .d-nav a, .d-nav span { font-size: 0.875rem; font-weight: 600; color: #3c4453; text-decoration: none; white-space: nowrap; }
+  .d-login {
+    background: #183f87; color: #fff; padding: 10px 22px; border-radius: 999px;
+    font-size: 0.875rem; font-weight: 600; white-space: nowrap;
+  }
+
+  .d-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; padding: 64px 40px; }
+  .d-hero h1 { margin: 0; font-size: 2.75rem; line-height: 1.1; font-weight: 700; color: #1b212d; letter-spacing: -0.01em; }
+  .d-hero h1 span {
+    display: block;
+    background: linear-gradient(to right, #183f87, #f04975, #f5ba01);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .d-hero p { margin: 0; font-size: 1.0625rem; color: #6c7689; max-width: 480px; }
+  .d-hero-ctas { display: flex; flex-direction: row; gap: 14px; margin-top: 6px; }
+  .d-btn-primary, .d-btn-secondary { border-radius: 999px; padding: 13px 28px; font-size: 0.9375rem; font-weight: 600; }
+  .d-btn-primary { background: #183f87; color: #fff; }
+  .d-btn-secondary { background: #fff; color: #3c4453; border: 1px solid #edeff2; }
+
+  .d-footer {
+    display: flex; align-items: center; justify-content: space-between; padding: 22px 40px;
+    background: #f9fafb; border-top: 1px solid #edeff2; font-size: 0.8125rem; color: #6c7689;
+  }
+  .d-footer .social { display: flex; gap: 20px; }
+
+  .d-body-row { display: flex; }
+  .d-sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid #edeff2; }
+  .d-sidebar .d-logo-wrap { height: 72px; display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid #edeff2; }
+  .d-sidebar nav { padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .d-sidebar a { padding: 9px 12px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; color: #3c4453; text-decoration: none; }
+  .d-sidebar a.active { background: #f3f5f9; color: #183f87; }
+
+  .d-member-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .d-member-header { height: 72px; display: flex; align-items: center; justify-content: flex-end; padding: 0 32px; border-bottom: 1px solid #edeff2; }
+  .d-account-btn {
+    display: flex; align-items: center; gap: 8px; border: 1px solid #edeff2; border-radius: 999px;
+    padding: 5px 14px 5px 5px; font-size: 0.8125rem; font-weight: 600; color: #3c4453;
+  }
+  .d-dash-body { padding: 32px 40px; background: #f9fafb; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+  .d-welcome-card {
+    background: linear-gradient(120deg, #183f87, #f04975); border-radius: 14px; padding: 24px 28px;
+    color: #fff; display: flex; align-items: center; justify-content: space-between;
+  }
+  .d-welcome-card .k { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.85; }
+  .d-welcome-card .t { font-size: 1.25rem; font-weight: 700; margin-top: 6px; }
+  .d-welcome-card .go { background: rgba(255,255,255,0.16); border-radius: 999px; padding: 10px 18px; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; }
+  .d-card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .d-quick-card { background: #fff; border: 1px solid #edeff2; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .d-quick-card .t { font-size: 0.9375rem; font-weight: 700; color: #1b212d; }
+  .d-quick-card .d { font-size: 0.8125rem; color: #aeb5c2; }
 </style>
 </head>
 <body>
@@ -307,7 +392,11 @@
       the <code style="font-family: var(--mono); font-size: 0.875em;">md</code>
       breakpoint with no mobile replacement yet).
     </p>
-    <p class="see-also">See also: <a href="spec-alt-member-nav.html">alternative — bottom tab bar for the member area</a></p>
+    <p class="see-also">
+      See also:
+      <a href="spec-alt-member-nav.html">alternative mobile nav — bottom tab bar for the member area</a>
+      · <a href="spec-alt-fuller-homepage.html">rejected homepage direction — kept as a possible <code style="font-family: var(--mono); font-size: 0.875em;">/learn-more</code> seed</a>
+    </p>
   </header>
 
   <section>
@@ -352,6 +441,97 @@
 
   <section>
     <div class="section-head">
+      <h2>Desktop — current shipped state</h2>
+      <p>
+        Exactly what <code>npm run dev</code> renders today at desktop width
+        — the placeholder hero on <code>/</code> and the member shell. Full
+        header nav and sidebar are already there; nothing proposed here.
+      </p>
+    </div>
+
+    <div class="desktop-stack">
+      <div>
+        <div class="desktop-scroll">
+        <div class="browser-frame">
+          <div class="browser-chrome">
+            <span class="browser-dot" style="background:#f04975"></span>
+            <span class="browser-dot" style="background:#f5ba01"></span>
+            <span class="browser-dot" style="background:#22c55e"></span>
+            <span class="browser-url">connecteam.id</span>
+          </div>
+          <div class="d-header">
+            <span class="d-logo">CONNECTeam</span>
+            <nav class="d-nav">
+              <span>Home</span><span>Join Us</span><span>DISC Test</span><span>Income Calculator</span>
+            </nav>
+            <span class="d-login">Login</span>
+          </div>
+          <div class="d-hero">
+            <h1>Build a career with<span>CONNECTeam</span></h1>
+            <p>A youth-led agency network built on Prudential Indonesia. This site is under construction — check back soon.</p>
+            <div class="d-hero-ctas">
+              <span class="d-btn-primary">Learn more</span>
+              <span class="d-btn-secondary">Member login</span>
+            </div>
+          </div>
+          <div class="d-footer">
+            <span>© 2026 CONNECTeam. All rights reserved.</span>
+            <span class="social">Instagram · TikTok · WhatsApp</span>
+          </div>
+        </div>
+        </div>
+        <p class="mock-caption" style="max-width:none; margin-top:10px;">Marketing home (<code style="font-family:var(--mono);">/</code>) — the whole page, by design: hero only, same simple layout at every width. Scroll the frame sideways if your window is narrower than desktop width.</p>
+      </div>
+
+      <div>
+        <div class="desktop-scroll">
+        <div class="browser-frame">
+          <div class="browser-chrome">
+            <span class="browser-dot" style="background:#f04975"></span>
+            <span class="browser-dot" style="background:#f5ba01"></span>
+            <span class="browser-dot" style="background:#22c55e"></span>
+            <span class="browser-url">connecteam.id/member</span>
+          </div>
+          <div class="d-body-row">
+            <aside class="d-sidebar">
+              <div class="d-logo-wrap"><span class="d-logo" style="font-size:1.0625rem;">CONNECTeam</span></div>
+              <nav>
+                <a href="#" class="active">Dashboard</a>
+                <a href="#">Get Started</a>
+                <a href="#">Grow</a>
+                <a href="#">Sell</a>
+                <a href="#">Reference Data</a>
+                <a href="#">Official Systems</a>
+                <a href="#">Contests &amp; Campaigns</a>
+                <a href="#">Events</a>
+                <a href="#">Directory</a>
+              </nav>
+            </aside>
+            <div class="d-member-main">
+              <div class="d-member-header"><span class="d-account-btn"><span style="width:22px;height:22px;border-radius:999px;background:#fde9ee;color:#ad3554;display:inline-flex;align-items:center;justify-content:center;font-size:0.6875rem;font-weight:700;">?</span>Account</span></div>
+              <div class="d-dash-body">
+                <div class="d-welcome-card">
+                  <div><div class="k">Welcome back</div><div class="t">3 of 6 onboarding steps done</div></div>
+                  <span class="go">Continue →</span>
+                </div>
+                <div class="d-card-grid">
+                  <div class="d-quick-card"><span class="t">Grow</span><span class="d">Recruiting kits</span></div>
+                  <div class="d-quick-card"><span class="t">Sell</span><span class="d">Product catalog</span></div>
+                  <div class="d-quick-card"><span class="t">Events</span><span class="d">This month</span></div>
+                  <div class="d-quick-card"><span class="t">Directory</span><span class="d">Find a leader</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <p class="mock-caption" style="max-width:none; margin-top:10px;">Member shell (<code style="font-family:var(--mono);">/member</code>) — sidebar and header are shipped; the dashboard content (welcome card, quick-link cards) is illustrative, no <code style="font-family:var(--mono);">/member</code> page exists yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
       <h2>Mobile mockups — primary proposal</h2>
       <p>
         Tap ☰ on either screen. Both drawers below are a proposal for the
@@ -375,8 +555,8 @@
                 <h1>Build a career with<span>CONNECTeam</span></h1>
                 <p>A youth-led agency network built on Prudential Indonesia.</p>
                 <div class="hero-ctas">
-                  <div class="btn-primary">Join Us</div>
-                  <div class="btn-secondary">Member Login</div>
+                  <div class="btn-primary">Learn more</div>
+                  <div class="btn-secondary">Member login</div>
                 </div>
               </div>
               <div class="mock-footer"><span>© 2026 CONNECTeam</span><span>IG · TikTok · WA</span></div>

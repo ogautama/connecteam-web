@@ -20,13 +20,13 @@ export default function Home() {
             href="/join"
             className="rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800"
           >
-            Join Us
+            Learn more
           </Link>
           <Link
             href="/login"
             className="rounded-full border border-ink-100 px-6 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
           >
-            Member Login
+            Member login
           </Link>
         </div>
       </section>
