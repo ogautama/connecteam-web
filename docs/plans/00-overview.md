@@ -40,12 +40,15 @@ member login replaces the old `secure.connecteam.id` link on the homepage.
 - **Framework**: Next.js 16 (App Router) + TypeScript + Tailwind CSS 4.
   (Scaffold already generated locally, uncommitted — see PR-01.)
 - **Auth**: Auth.js (NextAuth v5), Credentials provider (email + password),
-  JWT session carrying a `role` claim (`agent` | `leader`). Route protection
-  via Next.js middleware on `/member/**`.
-- **Database**: Postgres via Neon, accessed through Prisma ORM. Two models
-  to start: `User` (email, passwordHash, name, role) and `Lead` (source,
-  name, contact, inputs, result, createdAt) — captured from the calculator
-  and DISC tools.
+  **database session** (not JWT — see PR-15: recruitment-tree access
+  revocation needs to take effect immediately, which a stateless JWT can't
+  do) carrying a `role` claim (`agent` | `leader`). Route protection via
+  Next.js middleware on `/member/**`.
+- **Database**: Postgres via Neon, accessed through Prisma ORM. Models to
+  start: `User` (email, passwordHash, name, role, plus `position`/`status`/
+  `recruiterId` tree fields from PR-15), `Lead` (source, name, contact,
+  inputs, result, createdAt — calculator/DISC captures), and `Applicant`
+  (PR-15 — recruitment form submissions).
 - **Content**: product catalog, reference tables, and static page copy as
   structured TypeScript/JSON data modules in-repo (no CMS for v1). Source
   PDFs/images re-hosted under `public/` or linked from Drive, organized by
@@ -72,6 +75,7 @@ member login replaces the old `secure.connecteam.id` link on the homepage.
 | 12 | Member: Contests & Campaigns (`/member/contests`) | 06 | [12-member-contests.md](12-member-contests.md) |
 | 13 | Member: Events (`/member/events`) | 06 | [13-member-events.md](13-member-events.md) |
 | 14 | Member: Directory (`/member/directory`) | 06 | [14-member-directory.md](14-member-directory.md) |
+| 15 | Recruitment tree & applications (schema + access control) | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) |
 
 \* PR-03/04/05 depend on PR-02's *interfaces* (e.g. an `auth()` helper, a
 `createLead()` function) but each PR stubs/mocks those where PR-02 hasn't
