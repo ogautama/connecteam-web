@@ -1,4 +1,4 @@
-# PR-09 — Member: Sell (sales kit + product catalog)
+# Plan 09 — Member: Sell (sales kit + product catalog)
 
 ## Goal
 
@@ -8,7 +8,7 @@ product catalog instead of one giant scroll page.
 
 ## Depends on
 
-PR-06 (member shell/nav). Independent of PRs 07–08, 10–14.
+Plan 06 (member shell/nav). Independent of Plans 07–08, 10–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
@@ -21,7 +21,7 @@ period), Tabel Proporsi Klaim (claim proportion), List 60+1 Kondisi Kritis
 (PCB88), List 61 Kondisi Kritis (PCA), Commission table.
 
 **Script Selling Online** (`/sales-kit/script-selling-online`): not yet
-captured in detail — **this PR's implementer should re-visit this page
+captured in detail — **this plan's implementer should re-visit this page
 first** to pull its content before building.
 
 **Product Training** (`/product-training`): a long page (~19K chars of
@@ -34,7 +34,7 @@ so far: PRU Well (Kesehatan), PRU Sehat (Kesehatan), PRU Critical Amanah
 page continues beyond what was captured; re-visit
 `sites.google.com/view/connecteam/product-training` while logged in and
 scroll/read the full page before building the content module**, since this
-PR needs the complete product list, not just the four above.
+plan needs the complete product list, not just the four above.
 
 ## Scope
 

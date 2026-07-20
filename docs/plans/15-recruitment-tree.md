@@ -1,11 +1,11 @@
-# PR-15 — Recruitment tree & applications
+# Plan 15 — Recruitment tree & applications
 
 ## Status
 
-**Done** — implemented together with the [PR-02 plan](02-data-auth.md) in
+**Done** — implemented together with [Plan 02](02-data-auth.md) in
 [PR #5](https://github.com/ogautama/connecteam-web/pull/5), per the
 "Independence notes" below. Its fields aren't wired into any UI yet (per
-"Out of scope"); the follow-on PRs listed below are still not started.
+"Out of scope"); the follow-on plans listed below are still not started.
 
 ## Goal
 
@@ -14,15 +14,15 @@ Give every `User` a position in a recruiter tree, add a pre-enrollment
 card photo), and a data-access helper that answers "can viewer X see this
 person's data?" based on tree position. This is the data/authorization layer
 only — the public application form and a member-facing "my team" view are
-separate follow-on PRs that consume it (see "Follow-on PRs" below).
+separate follow-on plans that consume it (see "Follow-on plans" below).
 
 ## Depends on
 
-PR-02 (Prisma schema, Auth.js, `User` model). PR-02 hasn't shipped code yet,
-so this PR's schema additions and one session-strategy change (below) should
-land as part of/immediately after PR-02 rather than as a later migration.
+Plan 02 (Prisma schema, Auth.js, `User` model). Plan 02 hasn't shipped code yet,
+so this plan's schema additions and one session-strategy change (below) should
+land as part of/immediately after Plan 02 rather than as a later migration.
 
-## Background / decisions this PR encodes
+## Background / decisions this plan encodes
 
 - **Tree**: self-referential `recruiterId` on `User`. Exactly one root user
   (the single top leader, `recruiterId = null`) — everyone else has one.
@@ -47,7 +47,7 @@ land as part of/immediately after PR-02 rather than as a later migration.
   Declared in that order so Postgres's native enum ordering
   (`Agent < AAB < AB`) is usable directly in comparisons later. No
   achievement-calculation engine yet — just an admin-editable column.
-- **`role` (`agent`/`leader`) stays as-is**, per PR-02, unrelated to the
+- **`role` (`agent`/`leader`) stays as-is**, per Plan 02, unrelated to the
   above three.
 
 ## Scope
@@ -110,7 +110,7 @@ bypass the whole tree permission model.
   `User` row with `recruiterId` copied from the applicant's `recruiterId`,
   sets `Applicant.enrolledUserId`, applicant's own history is left in place.
 
-### Auth changes (amends PR-02)
+### Auth changes (amends Plan 02)
 
 - **Revised during implementation:** Auth.js v5 throws at runtime
   (`UnsupportedStrategy`, see `@auth/core`'s `assertConfig`) if the
@@ -134,34 +134,34 @@ bypass the whole tree permission model.
 
 ### Seed data
 
-Extend PR-02's seed script with a small fixture tree (root leader → 2 mid
+Extend Plan 02's seed script with a small fixture tree (root leader → 2 mid
 users → 1 leaf) so descendant/visibility queries have something real to
 test against.
 
 ## Out of scope
 
 - The public recruitment form UI (`/join` currently just embeds a Google
-  Form per PR-03 — replacing it with the real form is a follow-on PR).
+  Form per Plan 03 — replacing it with the real form is a follow-on plan).
 - Any member-facing "my team"/downline view.
 - Admin UI for setting `position` or approving/rejecting applicants (raw
   DB/Prisma Studio access is fine for now, per "set manually").
 - Automatic position/achievement calculation.
 
-## Follow-on PRs (not this one)
+## Follow-on plans (not this one)
 
-- **Recruitment application form** (`/join`) — replaces PR-03's Google Form
+- **Recruitment application form** (`/join`) — replaces Plan 03's Google Form
   embed; captures `Applicant` data, resolves `recruiterId` via
-  `resolveRecruiter(inviteCode)`. Depends on this PR.
+  `resolveRecruiter(inviteCode)`. Depends on this plan.
 - **Member: My Team** — a new `/member/team` section (same pattern as
-  PR-07–14) showing a user's own subtree, using `getDescendantUserIds` /
+  Plans 07–14) showing a user's own subtree, using `getDescendantUserIds` /
   `canAccess`, plus applicant accept/reject and reassignment actions.
-  Depends on this PR and PR-06.
+  Depends on this plan and Plan 06.
 
 ## Independence notes
 
-Can be built against PR-02's schema draft directly (both are uncommitted
+Can be built against Plan 02's schema draft directly (both are uncommitted
 still) — treat this as additive fields on the same migration rather than a
-separate one, since PR-02 hasn't shipped yet. If PR-02 merges first, this
+separate one, since Plan 02 hasn't shipped yet. If Plan 02 merges first, this
 becomes a normal follow-up migration.
 
 ## Unit tests

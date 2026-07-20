@@ -1,4 +1,4 @@
-# PR-10 — Member: Reference Data
+# Plan 10 — Member: Reference Data
 
 ## Goal
 
@@ -9,7 +9,7 @@ just organizes and re-hosts what exists today.
 
 ## Depends on
 
-PR-06 (member shell/nav). Independent of PRs 07–09, 11–14.
+Plan 06 (member shell/nav). Independent of Plans 07–09, 11–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
@@ -20,7 +20,7 @@ captured during exploration). Each row is a PDF, e.g. "PWM K/S Tanpa
 OR.pdf".
 
 **Tabel Medical** (`/tabel-medical`): not captured during exploration —
-**this PR's implementer must visit this page while logged in** to build
+**this plan's implementer must visit this page while logged in** to build
 the content inventory before implementing.
 
 **Prestige** (`/prestige`): description of Prudential's High-Net-Worth

@@ -37,31 +37,32 @@ member login replaces the old `secure.connecteam.id` link on the homepage.
 
 ## Tech decisions (apply across all sub-plans)
 
-- **Framework**: Next.js 16 (App Router) + TypeScript + Tailwind CSS 4.
-  (Scaffold already generated locally, uncommitted — see PR-01.)
+- **Framework**: Next.js 16 (App Router) + TypeScript + Tailwind CSS 4 — see
+  Plan 01.
 - **Auth**: Auth.js (NextAuth v5), Credentials provider (email + password),
-  **database session** (not JWT — see PR-15: recruitment-tree access
-  revocation needs to take effect immediately, which a stateless JWT can't
-  do) carrying a `role` claim (`agent` | `leader`). Route protection via
-  Next.js middleware on `/member/**`.
+  **JWT session** carrying a `role` claim (`agent` | `leader`) — see Plan
+  15's "Auth changes" section for why JWT rather than database sessions
+  (the original decision here), and how immediate revocation on
+  deactivation still works under JWT. Route protection via Next.js proxy
+  (`proxy.ts` — Next 16 renamed `middleware.ts`) on `/member/**`.
 - **Database**: Postgres via Neon, accessed through Prisma ORM. Models to
   start: `User` (email, passwordHash, name, role, plus `position`/`status`/
-  `recruiterId` tree fields from PR-15), `Lead` (source, name, contact,
+  `recruiterId` tree fields from Plan 15), `Lead` (source, name, contact,
   inputs, result, createdAt — calculator/DISC captures), and `Applicant`
-  (PR-15 — recruitment form submissions).
+  (Plan 15 — recruitment form submissions).
 - **Content**: product catalog, reference tables, and static page copy as
   structured TypeScript/JSON data modules in-repo (no CMS for v1). Source
   PDFs/images re-hosted under `public/` or linked from Drive, organized by
   section instead of one flat sidebar.
 - **Testing**: Vitest for unit tests (pure logic: scoring engines, role
-  gating, content schema validation). Introduced in PR-01 so every later PR
-  can add tests against a working setup.
+  gating, content schema validation). Introduced in Plan 01 so every later
+  plan can add tests against a working setup.
 
-## Sub-plan / PR sequence
+## Plan sequence
 
 | # | Sub-plan | Depends on | Doc | Status |
 |---|---|---|---|---|
-| 01 | Project foundations (layouts, design tokens, test runner) | — | [01-foundations.md](01-foundations.md) | |
+| 01 | Project foundations (layouts, design tokens, test runner) | — | [01-foundations.md](01-foundations.md) | ✅ Done — [PR #1](https://github.com/ogautama/connecteam-web/pull/1) |
 | 02 | Data & auth layer (Prisma, Neon, Auth.js, role middleware) | 01 | [02-data-auth.md](02-data-auth.md) | ✅ Done — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 | 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02\* | [03-public-site.md](03-public-site.md) | |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02\* | [04-disc-tool.md](04-disc-tool.md) | |
@@ -77,24 +78,25 @@ member login replaces the old `secure.connecteam.id` link on the homepage.
 | 14 | Member: Directory (`/member/directory`) | 06 | [14-member-directory.md](14-member-directory.md) | |
 | 15 | Recruitment tree & applications (schema + access control) | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) | ✅ Done — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 
-\* PR-03/04/05 depend on PR-02's *interfaces* (e.g. an `auth()` helper, a
-`createLead()` function) but each PR stubs/mocks those where PR-02 hasn't
-merged yet, so they don't block on merge order in practice — see each doc's
-"Independence notes."
+\* Plans 03/04/05 depend on Plan 02's *interfaces* (e.g. an `auth()` helper, a
+`createLead()` function) but each plan's implementation stubs/mocks those
+where Plan 02 hasn't merged yet, so they don't block on merge order in
+practice — see each doc's "Independence notes."
 
-PRs 07–14 (the eight member-space sections) are fully independent of each
-other — they only share PR-06's shell/layout/nav and can be built and
+Plans 07–14 (the eight member-space sections) are fully independent of each
+other — they only share Plan 06's shell/layout/nav and can be built and
 reviewed in any order or in parallel.
 
-## Already in the working tree (uncommitted, not yet a PR)
+## Working tree state when this overview was written (historical)
 
-From earlier exploration before this planning pass:
+From earlier exploration before this planning pass — since superseded by
+Plan 01 and Plans 02/15 actually merging:
 
 - Next.js 16 + TypeScript + Tailwind 4 scaffold (`create-next-app`), belongs
-  to PR-01.
+  to Plan 01.
 - `prisma/schema.prisma` drafted with the `User`/`Lead` models above, plus
   `prisma`, `@prisma/client`, `next-auth@beta`, `@auth/prisma-adapter`,
-  `bcryptjs` installed — belongs to PR-02.
+  `bcryptjs` installed — belongs to Plan 02.
 
 No branches, commits, or PRs have been created yet. Implementation is
 paused pending your go-ahead on this plan.

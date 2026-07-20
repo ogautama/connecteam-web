@@ -1,4 +1,4 @@
-# PR-03 — Public site pages
+# Plan 03 — Public site pages
 
 ## Goal
 
@@ -7,7 +7,7 @@ Google Sites scroll: `/`, `/join`, `/login`.
 
 ## Depends on
 
-PR-01 (layout). Soft-depends on PR-02 for real login (see Independence
+Plan 01 (layout). Soft-depends on Plan 02 for real login (see Independence
 notes).
 
 ## Scope
@@ -19,24 +19,24 @@ notes).
   challenge/CTA section, footer with Instagram/TikTok links.
 - `/join` — application landing page wrapping the existing Google Form
   embed (`https://docs.google.com/forms/d/e/1FAIpQLSdogN_R3VKMZgt4ifQMOH3oNu2nYMiwrGWPuYZH5yTKqzUJkA/viewform`).
-  Rebuilding the form itself is out of scope for this PR.
+  Rebuilding the form itself is out of scope for this plan.
 - `/login` — email/password form calling Auth.js `signIn("credentials", ...)`,
   redirects to `/member` on success. Replaces the old `secure.connecteam.id`
   link site-wide.
-- Update header/footer nav in `MarketingLayout` (from PR-01) to link these
+- Update header/footer nav in `MarketingLayout` (from Plan 01) to link these
   routes.
 
 ## Out of scope
 
-`/tools/disc`, `/tools/calculator` (their own PRs, though the home page
+`/tools/disc`, `/tools/calculator` (their own plans, though the home page
 links to them), member space content.
 
 ## Independence notes
 
-If PR-02 hasn't merged yet, `/login`'s submit handler is written against the
+If Plan 02 hasn't merged yet, `/login`'s submit handler is written against the
 `auth.ts` `signIn` call directly (Auth.js's own API, not a custom wrapper),
-so this PR doesn't need a bespoke mock — it just won't successfully log in
-until PR-02's Credentials provider exists server-side. The page and its
+so this plan doesn't need a bespoke mock — it just won't successfully log in
+until Plan 02's Credentials provider exists server-side. The page and its
 tests (form validation, error state rendering) don't require a live
 provider.
 
