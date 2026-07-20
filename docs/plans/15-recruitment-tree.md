@@ -1,5 +1,12 @@
 # PR-15 — Recruitment tree & applications
 
+## Status
+
+**Done** — implemented together with the [PR-02 plan](02-data-auth.md) in
+[PR #5](https://github.com/ogautama/connecteam-web/pull/5), per the
+"Independence notes" below. Its fields aren't wired into any UI yet (per
+"Out of scope"); the follow-on PRs listed below are still not started.
+
 ## Goal
 
 Give every `User` a position in a recruiter tree, add a pre-enrollment

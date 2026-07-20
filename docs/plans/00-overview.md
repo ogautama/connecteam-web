@@ -59,23 +59,23 @@ member login replaces the old `secure.connecteam.id` link on the homepage.
 
 ## Sub-plan / PR sequence
 
-| # | Sub-plan | Depends on | Doc |
-|---|---|---|---|
-| 01 | Project foundations (layouts, design tokens, test runner) | — | [01-foundations.md](01-foundations.md) |
-| 02 | Data & auth layer (Prisma, Neon, Auth.js, role middleware) | 01 | [02-data-auth.md](02-data-auth.md) |
-| 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02\* | [03-public-site.md](03-public-site.md) |
-| 04 | DISC test tool (`/tools/disc`) | 01, 02\* | [04-disc-tool.md](04-disc-tool.md) |
-| 05 | Calculator tool (`/tools/calculator`) | 01, 02\* | [05-calculator-tool.md](05-calculator-tool.md) |
-| 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02 | [06-member-shell.md](06-member-shell.md) |
-| 07 | Member: Get Started (`/member/onboarding`) | 06 | [07-member-onboarding.md](07-member-onboarding.md) |
-| 08 | Member: Grow (`/member/grow`) | 06 | [08-member-grow.md](08-member-grow.md) |
-| 09 | Member: Sell (`/member/sell`) | 06 | [09-member-sell.md](09-member-sell.md) |
-| 10 | Member: Reference Data (`/member/reference`) | 06 | [10-member-reference.md](10-member-reference.md) |
-| 11 | Member: Official Systems (`/member/systems`) | 06 | [11-member-systems.md](11-member-systems.md) |
-| 12 | Member: Contests & Campaigns (`/member/contests`) | 06 | [12-member-contests.md](12-member-contests.md) |
-| 13 | Member: Events (`/member/events`) | 06 | [13-member-events.md](13-member-events.md) |
-| 14 | Member: Directory (`/member/directory`) | 06 | [14-member-directory.md](14-member-directory.md) |
-| 15 | Recruitment tree & applications (schema + access control) | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) |
+| # | Sub-plan | Depends on | Doc | Status |
+|---|---|---|---|---|
+| 01 | Project foundations (layouts, design tokens, test runner) | — | [01-foundations.md](01-foundations.md) | |
+| 02 | Data & auth layer (Prisma, Neon, Auth.js, role middleware) | 01 | [02-data-auth.md](02-data-auth.md) | ✅ Done — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
+| 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02\* | [03-public-site.md](03-public-site.md) | |
+| 04 | DISC test tool (`/tools/disc`) | 01, 02\* | [04-disc-tool.md](04-disc-tool.md) | |
+| 05 | Calculator tool (`/tools/calculator`) | 01, 02\* | [05-calculator-tool.md](05-calculator-tool.md) | |
+| 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02 | [06-member-shell.md](06-member-shell.md) | |
+| 07 | Member: Get Started (`/member/onboarding`) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | |
+| 08 | Member: Grow (`/member/grow`) | 06 | [08-member-grow.md](08-member-grow.md) | |
+| 09 | Member: Sell (`/member/sell`) | 06 | [09-member-sell.md](09-member-sell.md) | |
+| 10 | Member: Reference Data (`/member/reference`) | 06 | [10-member-reference.md](10-member-reference.md) | |
+| 11 | Member: Official Systems (`/member/systems`) | 06 | [11-member-systems.md](11-member-systems.md) | |
+| 12 | Member: Contests & Campaigns (`/member/contests`) | 06 | [12-member-contests.md](12-member-contests.md) | |
+| 13 | Member: Events (`/member/events`) | 06 | [13-member-events.md](13-member-events.md) | |
+| 14 | Member: Directory (`/member/directory`) | 06 | [14-member-directory.md](14-member-directory.md) | |
+| 15 | Recruitment tree & applications (schema + access control) | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) | ✅ Done — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 
 \* PR-03/04/05 depend on PR-02's *interfaces* (e.g. an `auth()` helper, a
 `createLead()` function) but each PR stubs/mocks those where PR-02 hasn't

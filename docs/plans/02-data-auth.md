@@ -1,5 +1,14 @@
 # PR-02 — Data & auth layer
 
+## Status
+
+**Done** — implemented together with the [PR-15 plan](15-recruitment-tree.md)
+in [PR #5](https://github.com/ogautama/connecteam-web/pull/5), per the
+coordination note below. Session strategy ended up JWT rather than
+database (see PR-15 plan's "Auth changes" section for why); Prisma also
+needed `@prisma/adapter-pg` since Prisma 7 dropped the built-in query
+engine — neither is a scope change, both are noted where relevant below.
+
 ## Goal
 
 Give the app real accounts, roles, and lead storage: Prisma schema against
