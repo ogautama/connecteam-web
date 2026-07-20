@@ -8,8 +8,11 @@ leader-only contact lines gated by role (same pattern as Plan 13).
 
 ## Depends on
 
-Plan 06 (member shell/nav) — and Plan 02's `requireRole()` helper for
-leader-only entries. Independent of Plans 07–13.
+Plan 06 (member shell/nav) — and
+[Plan 02b](02b-supabase-auth-google-oauth.md)'s `requireRole()` helper for
+leader-only entries (`requireRole` itself is unaffected by the Supabase/auth
+rework, only the doc pointer moved from Plan 02, superseded). Independent of
+Plans 07–13.
 
 ## Source content (from sites.google.com/view/connecteam/yellow-pages)
 

@@ -2,12 +2,22 @@
 
 ## Status
 
-**Done** — implemented together with [Plan 15](15-recruitment-tree.md) in
+**Done, but superseded (2026-07-21)** — implemented together with
+[Plan 15](15-recruitment-tree.md) in
 [PR #5](https://github.com/ogautama/connecteam-web/pull/5), per the
 coordination note below. Session strategy ended up JWT rather than
 database (see Plan 15's "Auth changes" section for why); Prisma also
 needed `@prisma/adapter-pg` since Prisma 7 dropped the built-in query
 engine — neither is a scope change, both are noted where relevant below.
+
+**Kept as a historical record of what actually shipped.** The team decided
+to consolidate off Neon + Auth.js/Credentials onto **Supabase + Vercel with
+Google OAuth only** (fewer platform accounts to manage, no password
+storage). The database-hosting and auth-mechanism scope below is replaced
+by [Plan 02b](02b-supabase-auth-google-oauth.md); the leader-driven "who's
+allowed to sign in" UI is [Plan 02c](02c-leader-add-member.md). The `Lead`
+model and `createLead()` (unrelated to auth) are unaffected and stay as
+described here.
 
 ## Goal
 

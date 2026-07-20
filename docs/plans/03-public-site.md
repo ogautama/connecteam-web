@@ -7,8 +7,12 @@ Google Sites scroll: `/`, `/join`, `/login`.
 
 ## Depends on
 
-Plan 01 (layout). Soft-depends on Plan 02 for real login (see Independence
-notes).
+Plan 01 (layout). Soft-depends on [Plan 02b](02b-supabase-auth-google-oauth.md)
+for real login (see Independence notes).
+
+*Updated 2026-07-21: `/login` below was originally an email/password form —
+now a "Sign in with Google" button, per the Supabase Auth + Google OAuth
+switch (see [00-overview.md](00-overview.md#why-supabase--vercel-instead-of-neon--authjs)).*
 
 ## Scope
 
@@ -20,9 +24,12 @@ notes).
 - `/join` — application landing page wrapping the existing Google Form
   embed (`https://docs.google.com/forms/d/e/1FAIpQLSdogN_R3VKMZgt4ifQMOH3oNu2nYMiwrGWPuYZH5yTKqzUJkA/viewform`).
   Rebuilding the form itself is out of scope for this plan.
-- `/login` — email/password form calling Auth.js `signIn("credentials", ...)`,
-  redirects to `/member` on success. Replaces the old `secure.connecteam.id`
-  link site-wide.
+- `/login` — a single "Sign in with Google" button calling
+  `signInWithGoogle()` (Plan 02b), redirects to `/member` on success. If the
+  signed-in Google account has no matching profile (no leader ever invited
+  that email — see Plan 02b/02c), shows a clear "you haven't been added yet,
+  ask your leader" state instead of a generic error. Replaces the old
+  `secure.connecteam.id` link site-wide.
 - Update header/footer nav in `MarketingLayout` (from Plan 01) to link these
   routes.
 
@@ -33,19 +40,19 @@ links to them), member space content.
 
 ## Independence notes
 
-If Plan 02 hasn't merged yet, `/login`'s submit handler is written against the
-`auth.ts` `signIn` call directly (Auth.js's own API, not a custom wrapper),
-so this plan doesn't need a bespoke mock — it just won't successfully log in
-until Plan 02's Credentials provider exists server-side. The page and its
-tests (form validation, error state rendering) don't require a live
-provider.
+If Plan 02b hasn't merged yet, `/login`'s button is written against
+`signInWithGoogle()` directly (Plan 02b's own exported function, not a
+custom wrapper), so this plan doesn't need a bespoke mock — it just won't
+successfully log in until Plan 02b's Supabase project/Google provider exist
+server-side. The page and its tests (button renders, no-profile state
+renders) don't require a live provider.
 
 ## Unit tests
 
 - Home page renders all major sections (smoke test).
-- `/login` form: shows validation error on empty submit; calls `signIn`
-  with entered credentials; shows an error message when `signIn` resolves
-  with an error.
+- `/login`: renders the "Sign in with Google" button; clicking calls
+  `signInWithGoogle()`; renders the "not yet added" state when redirected
+  back with a no-profile result.
 - `/join` renders the embedded form iframe/link.
 
 ## Verification
