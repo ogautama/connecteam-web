@@ -27,11 +27,12 @@ PR-01 (project scaffold).
 - `prisma migrate dev` to create the initial migration, committed to
   `prisma/migrations/`.
 - `src/lib/auth.ts` — Auth.js v5 config: Credentials provider verifying
-  email + password (bcrypt compare) against `User`, **database session**
-  (via `@auth/prisma-adapter`, not JWT) adding `role` to the session. Session
-  strategy is database-backed rather than JWT specifically so PR-15 can
-  revoke a departed user's access immediately by deleting their session row
-  — a stateless JWT can't be invalidated before it expires.
+  email + password (bcrypt compare) against `User`, adding `role` to the
+  session. **JWT session strategy** — Auth.js requires this for a
+  Credentials-only setup (database sessions throw at runtime; see PR-15's
+  doc for why). Immediate revocation of a deactivated user is instead
+  handled in the `jwt()` callback, which re-checks `status` on every request
+  and clears the cookie if inactive — see PR-15's "Auth changes" section.
 - `src/lib/password.ts` — `hashPassword`/`verifyPassword` wrapping bcryptjs.
 - `src/lib/leads.ts` — `createLead(input)` — thin wrapper around
   `prisma.lead.create`, typed by source.

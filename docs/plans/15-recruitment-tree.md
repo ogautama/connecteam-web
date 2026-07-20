@@ -105,14 +105,25 @@ bypass the whole tree permission model.
 
 ### Auth changes (amends PR-02)
 
-- Switch Auth.js session strategy from JWT to **database sessions**
-  (`@auth/prisma-adapter` is already a planned dependency). A stateless JWT
-  can't be revoked before it expires; deactivating a departed user needs to
-  take effect immediately given the PII involved, so revocation has to be a
-  DB check, not a token check.
-- `authorize()` and the session callback reject/clear sessions where
+- **Revised during implementation:** Auth.js v5 throws at runtime
+  (`UnsupportedStrategy`, see `@auth/core`'s `assertConfig`) if the
+  Credentials provider is combined with database sessions and no other
+  provider type is configured — Credentials-authenticated users aren't
+  persisted through the adapter, so there's no adapter session row to
+  attach to. Database sessions as originally planned here aren't actually
+  usable with our Credentials-only setup.
+- Instead: **JWT sessions**, with the `jwt()` callback re-checking `status`
+  in Postgres on *every* request (not just at sign-in) and returning `null`
+  when a user is inactive. Auth.js clears the session cookie immediately
+  when `jwt()` returns null (see `@auth/core/lib/actions/session.js`), which
+  gets the same "revocation takes effect on the very next request"
+  guarantee the original database-session plan was after, at the same
+  per-request DB cost. `@auth/prisma-adapter` is still wired up (harmless
+  with JWT sessions) for future OAuth providers.
+- `authorize()` and the `jwt()` callback reject/clear sessions where
   `status !== active`.
-- Deactivating a user (`status = inactive`) also deletes their session rows.
+- Deactivating a user (`status = inactive`) relies on that same `jwt()`
+  check — no session rows to delete under JWT sessions.
 
 ### Seed data
 
