@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONNECTeam — Design Spec</title>
+<style>
+  :root {
+    --page-bg: #f9fafb;
+    --page-surface: #ffffff;
+    --page-border: #edeff2;
+    --page-text: #1b212d;
+    --page-text-muted: #6c7689;
+    --page-text-faint: #aeb5c2;
+    --accent: #183f87;
+    --accent-soft: #f3f5f9;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #1b212d;
+    --page-surface: #232a38;
+    --page-border: #3c4453;
+    --page-text: #f5f6f8;
+    --page-text-muted: #b7bdc9;
+    --page-text-faint: #6c7689;
+    --accent: #7088b5;
+    --accent-soft: #232c42;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #1b212d;
+      --page-surface: #232a38;
+      --page-border: #3c4453;
+      --page-text: #f5f6f8;
+      --page-text-muted: #b7bdc9;
+      --page-text-faint: #6c7689;
+      --accent: #7088b5;
+      --accent-soft: #232c42;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page-bg);
+    color: var(--page-text);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--page-border);
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .masthead h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .masthead p {
+    margin: 0;
+    max-width: 62ch;
+    color: var(--page-text-muted);
+    font-size: 1rem;
+  }
+
+  .masthead .see-also {
+    font-size: 0.875rem;
+  }
+  .masthead .see-also a { color: var(--accent); }
+
+  section { display: flex; flex-direction: column; gap: 20px; }
+
+  .section-head { display: flex; flex-direction: column; gap: 4px; }
+  .section-head h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .section-head p { margin: 0; color: var(--page-text-muted); font-size: 0.9375rem; max-width: 62ch; }
+  .section-head code { font-family: var(--mono); font-size: 0.875em; }
+
+  /* ---------- Palette ---------- */
+
+  .scale { display: flex; flex-direction: column; gap: 10px; }
+  .scale-name { font-size: 0.8125rem; font-weight: 600; color: var(--page-text-muted); }
+  .swatch-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .swatch { width: 84px; display: flex; flex-direction: column; gap: 6px; }
+  .swatch-color { height: 56px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08); }
+  .swatch-meta { display: flex; flex-direction: column; line-height: 1.3; }
+  .swatch-token { font-size: 0.6875rem; font-weight: 600; color: var(--page-text); }
+  .swatch-hex { font-family: var(--mono); font-size: 0.6875rem; color: var(--page-text-faint); }
+
+  .semantic-row { display: flex; gap: 24px; flex-wrap: wrap; }
+  .semantic-item { display: flex; align-items: center; gap: 8px; }
+  .semantic-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .semantic-item .swatch-token { font-size: 0.8125rem; }
+  .semantic-item .swatch-hex { font-size: 0.75rem; }
+
+  /* ---------- Type scale ---------- */
+
+  .type-scale {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--page-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--page-surface);
+  }
+  .type-row {
+    display: grid; grid-template-columns: 140px 1fr; gap: 16px; align-items: baseline;
+    padding: 14px 18px; border-bottom: 1px solid var(--page-border);
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-label { display: flex; flex-direction: column; gap: 2px; }
+  .type-token { font-family: var(--mono); font-size: 0.75rem; font-weight: 600; color: var(--accent); }
+  .type-value { font-family: var(--mono); font-size: 0.6875rem; color: var(--page-text-faint); }
+  .type-sample { font-weight: 700; letter-spacing: -0.01em; color: var(--page-text); overflow-wrap: anywhere; }
+
+  /* ---------- Spacing tokens ---------- */
+
+  .spacing-table {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--page-border); border-radius: var(--radius);
+    overflow: hidden; background: var(--page-surface);
+  }
+  .spacing-row {
+    display: grid; grid-template-columns: 1fr 100px 1fr; gap: 12px; align-items: center;
+    padding: 12px 18px; border-bottom: 1px solid var(--page-border); font-size: 0.875rem;
+  }
+  .spacing-row:last-child { border-bottom: none; }
+  .spacing-row .tok { font-family: var(--mono); font-size: 0.8125rem; color: var(--accent); font-weight: 600; }
+  .spacing-row .val { font-family: var(--mono); color: var(--page-text-muted); text-align: right; }
+  .spacing-row .use { color: var(--page-text-muted); }
+
+  /* ---------- Mobile mockups ---------- */
+
+  .mock-grid { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+  .mock-col { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 300px; }
+  .mock-caption { font-size: 0.8125rem; color: var(--page-text-muted); text-align: center; max-width: 260px; }
+  .mock-caption .tag {
+    display: inline-block; margin-left: 4px; padding: 1px 7px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); font-size: 0.6875rem; font-weight: 600;
+  }
+
+  .phone {
+    width: 288px; padding: 12px; border-radius: 42px;
+    background: linear-gradient(160deg, #2a2a32, #131316);
+    box-shadow: 0 20px 40px -16px rgba(27, 33, 45, 0.45);
+  }
+  .phone-screen {
+    position: relative; width: 100%; height: 560px; background: #ffffff;
+    border-radius: 30px; overflow: hidden; display: flex; flex-direction: column;
+    font-family: var(--sans);
+  }
+  .notch {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 84px; height: 20px; background: #131316; border-radius: 999px; z-index: 30;
+  }
+
+  .app-header {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px; padding: 0 16px 0 18px; border-bottom: 1px solid #edeff2;
+    flex-shrink: 0; margin-top: 26px;
+  }
+  .app-logo {
+    font-size: 0.9375rem; font-weight: 700;
+    background: linear-gradient(to right, #183f87, #f04975, #f5ba01);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hamburger {
+    width: 34px; height: 34px; border-radius: 8px; border: 1px solid #edeff2;
+    background: #fff; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; padding: 0;
+  }
+  .hamburger svg { width: 16px; height: 16px; color: #3c4453; }
+
+  .app-main { flex: 1; overflow: hidden; position: relative; }
+
+  .hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 40px 20px 0; }
+  .hero h1 { margin: 0; font-size: 1.875rem; line-height: 1.1; font-weight: 700; color: #1b212d; letter-spacing: -0.01em; }
+  .hero h1 span {
+    display: block;
+    background: linear-gradient(to right, #183f87, #f04975, #f5ba01);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { margin: 0; font-size: 0.875rem; color: #6c7689; max-width: 240px; }
+  .hero-ctas { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 220px; margin-top: 4px; }
+  .btn-primary, .btn-secondary { border-radius: 999px; padding: 11px 20px; font-size: 0.8125rem; font-weight: 600; text-align: center; }
+  .btn-primary { background: #183f87; color: #fff; }
+  .btn-secondary { background: #fff; color: #3c4453; border: 1px solid #edeff2; }
+
+  .mock-footer {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px;
+    background: #f9fafb; border-top: 1px solid #edeff2; font-size: 0.6875rem; color: #aeb5c2;
+    display: flex; justify-content: space-between;
+  }
+
+  .nav-overlay {
+    position: absolute; inset: 0; background: rgba(27, 33, 45, 0.35);
+    opacity: 0; pointer-events: none; transition: opacity 0.18s ease; z-index: 15;
+  }
+  .nav-sheet {
+    position: absolute; top: 0; left: 0; right: 0; background: #fff;
+    transform: translateY(-100%); transition: transform 0.22s ease;
+    border-bottom: 1px solid #edeff2; padding: 68px 20px 18px;
+    display: flex; flex-direction: column; gap: 2px; z-index: 20;
+  }
+  .phone-screen.nav-open .nav-overlay { opacity: 1; pointer-events: auto; }
+  .phone-screen.nav-open .nav-sheet { transform: translateY(0); }
+  .nav-sheet a { padding: 12px 6px; font-size: 0.875rem; font-weight: 600; color: #3c4453; border-radius: 8px; text-decoration: none; }
+  .nav-sheet a.login { color: #183f87; }
+  .nav-sheet hr { border: none; border-top: 1px solid #edeff2; margin: 6px 0; }
+
+  .member-header {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px; padding: 0 16px 0 18px; border-bottom: 1px solid #edeff2;
+    flex-shrink: 0; margin-top: 26px; position: relative; z-index: 25; background: #fff;
+  }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 999px; background: #fde9ee; color: #ad3554;
+    display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 700;
+  }
+  .dash-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #f9fafb; height: 100%; }
+  .welcome-card { background: linear-gradient(135deg, #183f87, #f04975); border-radius: 12px; padding: 16px; color: #fff; }
+  .welcome-card .k { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.85; }
+  .welcome-card .t { font-size: 1rem; font-weight: 700; margin-top: 4px; }
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quick-card { background: #fff; border: 1px solid #edeff2; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .quick-card .t { font-size: 0.8125rem; font-weight: 600; color: #1b212d; }
+  .quick-card .d { font-size: 0.6875rem; color: #aeb5c2; }
+
+  .drawer-scrim {
+    position: absolute; inset: 0; background: rgba(27, 33, 45, 0.4);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 18;
+  }
+  .drawer {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 78%; background: #fff;
+    transform: translateX(-100%); transition: transform 0.22s ease; z-index: 20;
+    padding: 20px 14px; display: flex; flex-direction: column; gap: 2px;
+    box-shadow: 8px 0 24px rgba(27, 33, 45, 0.12);
+  }
+  .phone-screen.drawer-open .drawer-scrim { opacity: 1; pointer-events: auto; }
+  .phone-screen.drawer-open .drawer { transform: translateX(0); }
+  .drawer .brand {
+    font-size: 0.875rem; font-weight: 700; margin: 4px 6px 12px;
+    background: linear-gradient(to right, #183f87, #f04975, #f5ba01);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .drawer a { padding: 10px 8px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600; color: #3c4453; text-decoration: none; }
+  .drawer a.active { background: #f3f5f9; color: #183f87; }
+  .drawer-close {
+    position: absolute; top: 16px; right: 12px; width: 26px; height: 26px; border-radius: 999px;
+    border: none; background: #f3f5f9; color: #183f87; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-sheet, .nav-overlay, .drawer, .drawer-scrim { transition: none; }
+  }
+
+  @media (max-width: 640px) {
+    .mock-grid { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <span class="eyebrow">Design reference</span>
+    <h1>CONNECTeam design tokens &amp; mobile mockups</h1>
+    <p>
+      The palette, type scale, and layout tokens shipped in
+      <code style="font-family: var(--mono); font-size: 0.875em;">src/app/globals.css</code>,
+      plus a mobile-first look at how the shipped layouts read on a phone —
+      including a proposed nav pattern for the gap the current build has on
+      small screens (the header nav and member sidebar both disappear below
+      the <code style="font-family: var(--mono); font-size: 0.875em;">md</code>
+      breakpoint with no mobile replacement yet).
+    </p>
+    <p class="see-also">See also: <a href="spec-alt-member-nav.html">alternative — bottom tab bar for the member area</a></p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>Color</h2>
+      <p>Navy anchors the credible-insurance side of the brand; red is the interactive accent; yellow is a sparing highlight. Each scale is generated from one exact brand hex.</p>
+    </div>
+
+    <div class="scale"><span class="scale-name">brand-navy <span style="font-weight:400;">(base: 700 = #183F87)</span></span><div class="swatch-row" id="scale-navy"></div></div>
+    <div class="scale"><span class="scale-name">brand-red <span style="font-weight:400;">(base: 500 = #F04975)</span></span><div class="swatch-row" id="scale-red"></div></div>
+    <div class="scale"><span class="scale-name">brand-yellow <span style="font-weight:400;">(base: 400 = #F5BA01)</span></span><div class="swatch-row" id="scale-yellow"></div></div>
+    <div class="scale"><span class="scale-name">ink</span><div class="swatch-row" id="scale-ink"></div></div>
+    <div class="scale"><span class="scale-name">semantic</span><div class="semantic-row" id="scale-semantic"></div></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Type scale</h2>
+      <p>Default Tailwind sizes for body copy, extended with two display sizes for hero headlines.</p>
+    </div>
+    <div class="type-scale">
+      <div class="type-row"><div class="type-label"><span class="type-token">text-sm</span><span class="type-value">0.875rem</span></div><div class="type-sample" style="font-size:0.875rem;">Get started with your onboarding checklist</div></div>
+      <div class="type-row"><div class="type-label"><span class="type-token">text-lg</span><span class="type-value">1.125rem</span></div><div class="type-sample" style="font-size:1.125rem;">Grow your agency with CONNECTeam</div></div>
+      <div class="type-row"><div class="type-label"><span class="type-token">text-2xl</span><span class="type-value">1.5rem</span></div><div class="type-sample" style="font-size:1.5rem;">Member dashboard</div></div>
+      <div class="type-row"><div class="type-label"><span class="type-token">text-3xl</span><span class="type-value">1.875rem</span></div><div class="type-sample" style="font-size:1.875rem;">Build a career</div></div>
+      <div class="type-row"><div class="type-label"><span class="type-token">text-display-sm</span><span class="type-value">2.75rem · custom</span></div><div class="type-sample" style="font-size:2.75rem; line-height:1.1;">Build a career with CONNECTeam</div></div>
+      <div class="type-row"><div class="type-label"><span class="type-token">text-display-lg</span><span class="type-value">3.75rem · custom</span></div><div class="type-sample" style="font-size:3.75rem; line-height:1.05;">CONNECTeam</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Layout spacing</h2>
+      <p>Named tokens for the chrome shared across layouts, on top of Tailwind's default numeric scale.</p>
+    </div>
+    <div class="spacing-table">
+      <div class="spacing-row"><span class="tok">--spacing-header</span><span class="val">4.5rem</span><span class="use">Header height, both layouts</span></div>
+      <div class="spacing-row"><span class="tok">--spacing-sidebar</span><span class="val">16rem</span><span class="use">Member sidebar width (desktop only — see below)</span></div>
+      <div class="spacing-row"><span class="tok">--container-content</span><span class="val">80rem</span><span class="use">Max width for header/footer/hero content</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Mobile mockups — primary proposal</h2>
+      <p>
+        Tap ☰ on either screen. Both drawers below are a proposal for the
+        mobile-nav gap, not shipped code.
+      </p>
+    </div>
+
+    <div class="mock-grid">
+      <div class="mock-col">
+        <div class="phone">
+          <div class="phone-screen" id="marketing-screen">
+            <div class="notch"></div>
+            <div class="app-header">
+              <span class="app-logo">CONNECTeam</span>
+              <button class="hamburger" aria-label="Open menu" data-toggle="marketing-screen" data-mode="nav-open">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+              </button>
+            </div>
+            <div class="app-main">
+              <div class="hero">
+                <h1>Build a career with<span>CONNECTeam</span></h1>
+                <p>A youth-led agency network built on Prudential Indonesia.</p>
+                <div class="hero-ctas">
+                  <div class="btn-primary">Join Us</div>
+                  <div class="btn-secondary">Member Login</div>
+                </div>
+              </div>
+              <div class="mock-footer"><span>© 2026 CONNECTeam</span><span>IG · TikTok · WA</span></div>
+              <div class="nav-overlay" data-scrim-for="marketing-screen"></div>
+              <div class="nav-sheet">
+                <a href="#">Home</a>
+                <a href="#">Join Us</a>
+                <a href="#">DISC Test</a>
+                <a href="#">Income Calculator</a>
+                <hr>
+                <a href="#" class="login">Login</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="mock-caption">Marketing home<span class="tag">proposed nav</span></p>
+      </div>
+
+      <div class="mock-col">
+        <div class="phone">
+          <div class="phone-screen" id="member-screen">
+            <div class="notch"></div>
+            <div class="member-header">
+              <button class="hamburger" aria-label="Open member navigation" data-toggle="member-screen" data-mode="drawer-open">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+              </button>
+              <div class="avatar">?</div>
+            </div>
+            <div class="app-main">
+              <div class="dash-body">
+                <div class="welcome-card"><div class="k">Welcome back</div><div class="t">3 of 6 onboarding steps done</div></div>
+                <div class="card-grid">
+                  <div class="quick-card"><span class="t">Grow</span><span class="d">Recruiting kits</span></div>
+                  <div class="quick-card"><span class="t">Sell</span><span class="d">Product catalog</span></div>
+                  <div class="quick-card"><span class="t">Events</span><span class="d">This month</span></div>
+                  <div class="quick-card"><span class="t">Directory</span><span class="d">Find a leader</span></div>
+                </div>
+              </div>
+              <div class="drawer-scrim" data-scrim-for="member-screen"></div>
+              <div class="drawer">
+                <button class="drawer-close" data-toggle="member-screen" data-mode="drawer-open" aria-label="Close menu">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+                </button>
+                <span class="brand">CONNECTeam</span>
+                <a href="#" class="active">Dashboard</a>
+                <a href="#">Get Started</a>
+                <a href="#">Grow</a>
+                <a href="#">Sell</a>
+                <a href="#">Reference Data</a>
+                <a href="#">Official Systems</a>
+                <a href="#">Contests &amp; Campaigns</a>
+                <a href="#">Events</a>
+                <a href="#">Directory</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="mock-caption">Member dashboard<span class="tag">proposed drawer</span></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  function renderScale(id, entries) {
+    var row = document.getElementById(id);
+    entries.forEach(function (e) {
+      var swatch = document.createElement('div');
+      swatch.className = 'swatch';
+      swatch.innerHTML =
+        '<div class="swatch-color" style="background:' + e[1] + '"></div>' +
+        '<div class="swatch-meta"><span class="swatch-token">' + e[0] + '</span><span class="swatch-hex">' + e[1] + '</span></div>';
+      row.appendChild(swatch);
+    });
+  }
+
+  renderScale('scale-navy', [
+    ['50', '#f3f5f9'], ['100', '#e3e8f1'], ['200', '#c3cde0'], ['300', '#9eaecd'], ['400', '#7088b5'],
+    ['500', '#46659f'], ['600', '#2b4e91'], ['700', '#183f87'], ['800', '#14346f'], ['900', '#102958']
+  ]);
+  renderScale('scale-red', [
+    ['50', '#fef6f8'], ['100', '#fde9ee'], ['200', '#fbd0db'], ['300', '#f8afc2'],
+    ['400', '#f5809e'], ['500', '#f04975'], ['600', '#d34067'], ['700', '#ad3554']
+  ]);
+  renderScale('scale-yellow', [
+    ['50', '#fffcf2'], ['100', '#fef7e1'], ['200', '#fceab3'], ['300', '#f9d667'],
+    ['400', '#f5ba01'], ['500', '#dda701'], ['600', '#b88c01'], ['700', '#8e6c01']
+  ]);
+  renderScale('scale-ink', [
+    ['50', '#f9fafb'], ['100', '#edeff2'], ['300', '#aeb5c2'], ['500', '#6c7689'], ['700', '#3c4453'], ['900', '#1b212d']
+  ]);
+
+  (function () {
+    var row = document.getElementById('scale-semantic');
+    [['success-500', '#22c55e'], ['warning-500', '#f59e0b'], ['danger-500', '#ef4444']].forEach(function (e) {
+      var item = document.createElement('div');
+      item.className = 'semantic-item';
+      item.innerHTML =
+        '<span class="semantic-dot" style="background:' + e[1] + '"></span>' +
+        '<span class="swatch-token">' + e[0] + '</span>' +
+        '<span class="swatch-hex">' + e[1] + '</span>';
+      row.appendChild(item);
+    });
+  })();
+
+  document.querySelectorAll('[data-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var screen = document.getElementById(btn.getAttribute('data-toggle'));
+      screen.classList.toggle(btn.getAttribute('data-mode'));
+    });
+  });
+
+  document.querySelectorAll('[data-scrim-for]').forEach(function (scrim) {
+    scrim.addEventListener('click', function () {
+      var screen = document.getElementById(scrim.getAttribute('data-scrim-for'));
+      screen.classList.remove('nav-open');
+      screen.classList.remove('drawer-open');
+    });
+  });
+</script>
+</body>
+</html>
