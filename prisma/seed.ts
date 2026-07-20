@@ -1,67 +1,49 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { hashPassword } from "../src/lib/password";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// Known test credentials for manual verification and PR-06's gating tests.
-const TEST_PASSWORD = "Password123!";
+// Google OAuth-only login means fixture users can't be created with a
+// password anymore — instead this seeds PendingInvite rows keyed to real
+// Google account emails you control, supplied via env vars (see
+// .env.example). Each account completes its own public.User row via the
+// on_auth_user_created trigger on first Google sign-in.
+const LEADER_EMAIL = process.env.SEED_LEADER_EMAIL ?? "leader@example.com";
+const AGENT1_EMAIL = process.env.SEED_AGENT1_EMAIL ?? "agent1@example.com";
+const AGENT2_EMAIL = process.env.SEED_AGENT2_EMAIL ?? "agent2@example.com";
 
 async function main() {
-  const passwordHash = await hashPassword(TEST_PASSWORD);
-
-  // Fixture recruitment tree: root leader -> 2 mid agents -> 1 leaf agent.
-  const root = await prisma.user.upsert({
-    where: { email: "leader@connecteam.test" },
+  // recruiterId/invitedBy reference a User.id, but none of these three
+  // people has signed in yet — there's no real User row (and therefore no
+  // id) to point at. All three seed as recruiterId/invitedBy = null (see
+  // the nullability note on PendingInvite in schema.prisma); they land as
+  // three independent root-level accounts, not a leader-with-two-agents
+  // tree. Building that tree for real is Plan 02c's leader "Add Member"
+  // flow, exercised once the leader fixture has signed in for real.
+  await prisma.pendingInvite.upsert({
+    where: { email: LEADER_EMAIL },
     update: {},
-    create: {
-      email: "leader@connecteam.test",
-      name: "Root Leader",
-      passwordHash,
-      role: "leader",
-      recruiterId: null,
-    },
+    create: { email: LEADER_EMAIL, role: "leader" },
   });
 
-  const mid1 = await prisma.user.upsert({
-    where: { email: "agent1@connecteam.test" },
+  await prisma.pendingInvite.upsert({
+    where: { email: AGENT1_EMAIL },
     update: {},
-    create: {
-      email: "agent1@connecteam.test",
-      name: "Mid Agent One",
-      passwordHash,
-      role: "agent",
-      recruiterId: root.id,
-    },
+    create: { email: AGENT1_EMAIL, role: "agent" },
   });
 
-  await prisma.user.upsert({
-    where: { email: "agent2@connecteam.test" },
+  await prisma.pendingInvite.upsert({
+    where: { email: AGENT2_EMAIL },
     update: {},
-    create: {
-      email: "agent2@connecteam.test",
-      name: "Mid Agent Two",
-      passwordHash,
-      role: "agent",
-      recruiterId: root.id,
-    },
-  });
-
-  await prisma.user.upsert({
-    where: { email: "agent3@connecteam.test" },
-    update: {},
-    create: {
-      email: "agent3@connecteam.test",
-      name: "Leaf Agent",
-      passwordHash,
-      role: "agent",
-      recruiterId: mid1.id,
-    },
+    create: { email: AGENT2_EMAIL, role: "agent" },
   });
 
   console.log(
-    `Seeded fixture tree (leader@connecteam.test, agent1-3@connecteam.test). Password: ${TEST_PASSWORD}`
+    `Seeded PendingInvite fixtures for ${LEADER_EMAIL} (leader), ${AGENT1_EMAIL}, ${AGENT2_EMAIL} (agents).\n` +
+      "Sign in with Google using one of these addresses (each must also be on the " +
+      "Google OAuth consent screen's test-user allowlist while it's in Testing mode) " +
+      "to complete that account's profile via the on_auth_user_created trigger."
   );
 }
 

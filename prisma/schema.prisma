@@ -25,10 +25,11 @@ enum UserStatus {
   inactive
 }
 
+// id is Supabase's auth.users.id (a UUID) — set by the on_auth_user_created
+// trigger, not originated by Prisma. No @default here.
 model User {
-  id           String     @id @default(cuid())
+  id           String     @id
   email        String     @unique
-  passwordHash String
   name         String
   role         Role       @default(agent)
   createdAt    DateTime   @default(now())
@@ -41,9 +42,23 @@ model User {
   recruiter    User?      @relation("Recruiter", fields: [recruiterId], references: [id])
   recruits     User[]     @relation("Recruiter")
   applicants   Applicant[]
+}
 
-  accounts     Account[]
-  sessions     Session[]
+// Created by a leader (Plan 02c) before the invited person ever signs in.
+// Consumed (row deleted) by the on_auth_user_created trigger once that
+// email completes Google sign-in and a matching User row is created.
+// recruiterId/invitedBy are nullable only to bootstrap the very first
+// (root) leader, who has no recruiter and wasn't invited by anyone — that
+// row is inserted directly (seed script / Prisma Studio), same as root
+// User.recruiterId always having been nullable. Every invite created
+// through Plan 02c's UI sets both.
+model PendingInvite {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  recruiterId String?
+  role        Role     @default(agent)
+  invitedBy   String?
+  createdAt   DateTime @default(now())
 }
 
 enum LeadSource {
@@ -67,6 +82,10 @@ enum ApplicantStatus {
   rejected
 }
 
+// enrolledUserId dropped (Plan 15b): account creation now happens
+// exclusively through the leader-driven pending-invite flow, not by
+// promoting an Applicant into a User — accepted stays a record of the
+// leader's decision with no side effect on User.
 model Applicant {
   id             String          @id @default(cuid())
   name           String
@@ -77,46 +96,6 @@ model Applicant {
   recruiterId    String
   recruiter      User            @relation(fields: [recruiterId], references: [id])
   status         ApplicantStatus @default(submitted)
-  enrolledUserId String?         @unique
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-}
-
-// Auth.js (@auth/prisma-adapter) models. Not used by today's Credentials +
-// JWT-session setup (see src/lib/auth.ts for why JWT, not database,
-// sessions) — kept for when an OAuth provider is added, since the adapter's
-// type surface expects them to exist regardless.
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
 }

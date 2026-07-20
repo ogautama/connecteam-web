@@ -1,143 +1,94 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-const { findUnique, update } = vi.hoisted(() => ({
+const { findUnique, getUser } = vi.hoisted(() => ({
   findUnique: vi.fn(),
-  update: vi.fn(),
+  getUser: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    user: { findUnique, update },
+    user: { findUnique },
   },
 }));
 
-vi.mock("@/lib/password", () => ({
-  verifyPassword: vi.fn(async (password: string, hash: string) =>
-    password === "correct-password" && hash === "hashed"
-  ),
+vi.mock("@/lib/supabase", () => ({
+  createSupabaseServerClient: vi.fn(async () => ({
+    auth: { getUser },
+  })),
 }));
 
-import {
-  authorizeCredentials,
-  deactivateUser,
-  refreshOrRevokeToken,
-  roleRedirectTarget,
-} from "@/lib/auth";
+import { getCurrentUser, getSession, requireRoleTarget } from "@/lib/auth";
 
-const baseUser = {
+const supabaseUser = {
   id: "user_1",
   email: "agent@example.com",
-  name: "Agent",
-  passwordHash: "hashed",
-  role: "agent" as const,
-  createdAt: new Date(),
-  position: "Agent" as const,
-  status: "active" as const,
-  inviteCode: "invite_1",
-  recruiterId: null,
-};
+} as unknown as SupabaseUser;
+const profile = { id: "user_1", role: "agent" as const };
 
-describe("authorizeCredentials", () => {
-  it("returns the user (without passwordHash) for valid credentials", async () => {
-    findUnique.mockResolvedValueOnce(baseUser);
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
-    const result = await authorizeCredentials({
-      email: "agent@example.com",
-      password: "correct-password",
-    });
-
-    expect(result).not.toBeNull();
-    expect(result).not.toHaveProperty("passwordHash");
-    expect(result?.id).toBe("user_1");
+describe("getSession", () => {
+  it("returns the Supabase user when a session exists", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: supabaseUser } });
+    await expect(getSession()).resolves.toEqual(supabaseUser);
   });
 
-  it("returns null for an unknown email", async () => {
+  it("returns null when there is no session", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: null } });
+    await expect(getSession()).resolves.toBeNull();
+  });
+});
+
+describe("getCurrentUser", () => {
+  it("returns {id, role} for a session with a matching public.User row", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: supabaseUser } });
+    findUnique.mockResolvedValueOnce(profile);
+
+    await expect(getCurrentUser()).resolves.toEqual(profile);
+    expect(findUnique).toHaveBeenCalledWith({
+      where: { id: "user_1" },
+      select: { id: true, role: true },
+    });
+  });
+
+  it("returns null for a session with no matching row (never invited)", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: supabaseUser } });
     findUnique.mockResolvedValueOnce(null);
 
-    const result = await authorizeCredentials({
-      email: "nobody@example.com",
-      password: "whatever",
-    });
-
-    expect(result).toBeNull();
+    await expect(getCurrentUser()).resolves.toBeNull();
   });
 
-  it("returns null for the wrong password", async () => {
-    findUnique.mockResolvedValueOnce(baseUser);
+  it("returns null when there is no session", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: null } });
 
-    const result = await authorizeCredentials({
-      email: "agent@example.com",
-      password: "wrong-password",
-    });
-
-    expect(result).toBeNull();
-  });
-
-  it("returns null for an inactive user even with correct credentials", async () => {
-    findUnique.mockResolvedValueOnce({ ...baseUser, status: "inactive" });
-
-    const result = await authorizeCredentials({
-      email: "agent@example.com",
-      password: "correct-password",
-    });
-
-    expect(result).toBeNull();
+    await expect(getCurrentUser()).resolves.toBeNull();
+    expect(findUnique).not.toHaveBeenCalled();
   });
 });
 
-describe("refreshOrRevokeToken", () => {
-  it("stamps sub/role onto the token at sign-in", async () => {
-    const token = {};
-    const result = await refreshOrRevokeToken(token, {
-      id: "user_1",
-      role: "agent",
-    });
-    expect(result).toEqual({ sub: "user_1", role: "agent" });
-  });
-
-  it("keeps a valid token for an active user on later requests", async () => {
-    findUnique.mockResolvedValueOnce({ ...baseUser, status: "active" });
-    const token = { sub: "user_1" };
-    const result = await refreshOrRevokeToken(token, undefined);
-    expect(result).toEqual({ sub: "user_1", role: "agent" });
-  });
-
-  it("clears the token (revokes the session) once the user is deactivated", async () => {
-    findUnique.mockResolvedValueOnce({ ...baseUser, status: "inactive" });
-    const token = { sub: "user_1" };
-    await expect(refreshOrRevokeToken(token, undefined)).resolves.toBeNull();
-  });
-});
-
-describe("deactivateUser", () => {
-  it("sets status to inactive", async () => {
-    update.mockResolvedValueOnce({});
-    await deactivateUser("user_1");
-    expect(update).toHaveBeenCalledWith({
-      where: { id: "user_1" },
-      data: { status: "inactive" },
-    });
-  });
-});
-
-describe("roleRedirectTarget", () => {
+describe("requireRoleTarget", () => {
   it("sends unauthenticated requests to /login", () => {
-    expect(roleRedirectTarget(null, "leader")).toBe("/login");
+    expect(requireRoleTarget(null, null, "leader")).toBe("/login");
   });
 
-  it("rejects an authenticated agent from a leader-only route", () => {
-    const session = {
-      user: { id: "u1", role: "agent" as const },
-      expires: "2099-01-01",
-    };
-    expect(roleRedirectTarget(session, "leader")).toBe("/member");
+  it("sends an authenticated session with no profile to /not-invited", () => {
+    expect(requireRoleTarget(supabaseUser, null, "leader")).toBe(
+      "/not-invited"
+    );
   });
 
-  it("passes an authenticated leader through to a leader-only route", () => {
-    const session = {
-      user: { id: "u1", role: "leader" as const },
-      expires: "2099-01-01",
-    };
-    expect(roleRedirectTarget(session, "leader")).toBeNull();
+  it("rejects the wrong role to /member", () => {
+    expect(requireRoleTarget(supabaseUser, profile, "leader")).toBe(
+      "/member"
+    );
+  });
+
+  it("passes a matching role through", () => {
+    expect(
+      requireRoleTarget(supabaseUser, { id: "user_1", role: "leader" }, "leader")
+    ).toBeNull();
   });
 });

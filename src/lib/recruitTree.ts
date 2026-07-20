@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client";
-import type { User } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -91,29 +90,3 @@ export async function reassignRecruiter(
   );
 }
 
-export async function promoteApplicant(
-  applicantId: string,
-  newUserFields: { email: string; name: string; passwordHash: string }
-): Promise<User> {
-  const applicant = await prisma.applicant.findUniqueOrThrow({
-    where: { id: applicantId },
-  });
-
-  return prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        email: newUserFields.email,
-        name: newUserFields.name,
-        passwordHash: newUserFields.passwordHash,
-        recruiterId: applicant.recruiterId,
-      },
-    });
-
-    await tx.applicant.update({
-      where: { id: applicantId },
-      data: { enrolledUserId: user.id },
-    });
-
-    return user;
-  });
-}
