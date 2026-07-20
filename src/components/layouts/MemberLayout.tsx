@@ -23,7 +23,7 @@ export default function MemberLayout({
         <div className="flex h-header items-center px-6">
           <Link
             href="/"
-            className="bg-linear-to-r from-brand-purple-600 via-brand-pink-500 to-brand-blue-600 bg-clip-text text-lg font-bold text-transparent"
+            className="bg-linear-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400 bg-clip-text text-lg font-bold text-transparent"
           >
             CONNECTeam
           </Link>
@@ -35,7 +35,7 @@ export default function MemberLayout({
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="block rounded-lg px-3 py-2 hover:bg-brand-purple-50 hover:text-brand-purple-700"
+                  className="block rounded-lg px-3 py-2 hover:bg-brand-navy-50 hover:text-brand-navy-700"
                 >
                   {link.label}
                 </Link>
@@ -51,7 +51,7 @@ export default function MemberLayout({
             type="button"
             className="flex items-center gap-2 rounded-full border border-ink-100 py-1 pl-1 pr-3 text-sm font-medium text-ink-700 hover:bg-ink-50"
           >
-            <span className="flex size-7 items-center justify-center rounded-full bg-brand-purple-100 text-xs font-semibold text-brand-purple-700">
+            <span className="flex size-7 items-center justify-center rounded-full bg-brand-red-100 text-xs font-semibold text-brand-red-700">
               ?
             </span>
             Account

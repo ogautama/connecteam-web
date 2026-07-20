@@ -6,45 +6,46 @@
 }
 
 @theme {
-  /* Brand palette — purple/pink/blue youth energy, kept clean enough to
-     read as a licensed insurance brand rather than a consumer app. */
-  --color-brand-purple-50: #f5f3ff;
-  --color-brand-purple-100: #ede9fe;
-  --color-brand-purple-200: #ddd6fe;
-  --color-brand-purple-300: #c4b5fd;
-  --color-brand-purple-400: #a78bfa;
-  --color-brand-purple-500: #8b5cf6;
-  --color-brand-purple-600: #7c3aed;
-  --color-brand-purple-700: #6d28d9;
-  --color-brand-purple-800: #5b21b6;
-  --color-brand-purple-900: #4c1d95;
+  /* Brand palette — navy anchors the "credible insurance" side, red/yellow
+     carry the youth energy as accents. Each scale is generated from one
+     brand hex (navy-700, red-500, yellow-400 are the exact brand values). */
+  --color-brand-navy-50: #f3f5f9;
+  --color-brand-navy-100: #e3e8f1;
+  --color-brand-navy-200: #c3cde0;
+  --color-brand-navy-300: #9eaecd;
+  --color-brand-navy-400: #7088b5;
+  --color-brand-navy-500: #46659f;
+  --color-brand-navy-600: #2b4e91;
+  --color-brand-navy-700: #183f87;
+  --color-brand-navy-800: #14346f;
+  --color-brand-navy-900: #102958;
 
-  --color-brand-pink-50: #fdf2f8;
-  --color-brand-pink-100: #fce7f3;
-  --color-brand-pink-200: #fbcfe8;
-  --color-brand-pink-300: #f9a8d4;
-  --color-brand-pink-400: #f472b6;
-  --color-brand-pink-500: #ec4899;
-  --color-brand-pink-600: #db2777;
-  --color-brand-pink-700: #be185d;
+  --color-brand-red-50: #fef6f8;
+  --color-brand-red-100: #fde9ee;
+  --color-brand-red-200: #fbd0db;
+  --color-brand-red-300: #f8afc2;
+  --color-brand-red-400: #f5809e;
+  --color-brand-red-500: #f04975;
+  --color-brand-red-600: #d34067;
+  --color-brand-red-700: #ad3554;
 
-  --color-brand-blue-50: #eff6ff;
-  --color-brand-blue-100: #dbeafe;
-  --color-brand-blue-200: #bfdbfe;
-  --color-brand-blue-300: #93c5fd;
-  --color-brand-blue-400: #60a5fa;
-  --color-brand-blue-500: #3b82f6;
-  --color-brand-blue-600: #2563eb;
-  --color-brand-blue-700: #1d4ed8;
+  --color-brand-yellow-50: #fffcf2;
+  --color-brand-yellow-100: #fef7e1;
+  --color-brand-yellow-200: #fceab3;
+  --color-brand-yellow-300: #f9d667;
+  --color-brand-yellow-400: #f5ba01;
+  --color-brand-yellow-500: #dda701;
+  --color-brand-yellow-600: #b88c01;
+  --color-brand-yellow-700: #8e6c01;
 
-  /* Neutrals with a faint purple cast, used for body text/surfaces instead
-     of flat gray so the "credible" side of the brand still feels warm. */
-  --color-ink-50: #faf9fc;
-  --color-ink-100: #e7e4f0;
-  --color-ink-300: #a9a3bf;
-  --color-ink-500: #6b6483;
-  --color-ink-700: #3f3859;
-  --color-ink-900: #17122b;
+  /* Neutrals carry a faint navy cast (same hue as brand-navy, desaturated)
+     so text/surfaces read as part of the same system instead of flat gray. */
+  --color-ink-50: #f9fafb;
+  --color-ink-100: #edeff2;
+  --color-ink-300: #aeb5c2;
+  --color-ink-500: #6c7689;
+  --color-ink-700: #3c4453;
+  --color-ink-900: #1b212d;
 
   --color-success-500: #22c55e;
   --color-warning-500: #f59e0b;

@@ -24,7 +24,7 @@ export default function MarketingLayout({
         <div className="mx-auto flex h-header max-w-content items-center justify-between px-6">
           <Link
             href="/"
-            className="bg-linear-to-r from-brand-purple-600 via-brand-pink-500 to-brand-blue-600 bg-clip-text text-xl font-bold text-transparent"
+            className="bg-linear-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400 bg-clip-text text-xl font-bold text-transparent"
           >
             CONNECTeam
           </Link>
@@ -33,7 +33,7 @@ export default function MarketingLayout({
             <ul className="flex items-center gap-6 text-sm font-medium text-ink-700">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="hover:text-brand-purple-600">
+                  <Link href={link.href} className="hover:text-brand-red-600">
                     {link.label}
                   </Link>
                 </li>
@@ -43,7 +43,7 @@ export default function MarketingLayout({
 
           <Link
             href="/login"
-            className="rounded-full bg-brand-purple-600 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-purple-700"
+            className="rounded-full bg-brand-navy-700 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-navy-800"
           >
             Login
           </Link>
@@ -63,7 +63,7 @@ export default function MarketingLayout({
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-brand-purple-600"
+                  className="hover:text-brand-red-600"
                 >
                   {link.label}
                 </a>
