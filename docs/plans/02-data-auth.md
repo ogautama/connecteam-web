@@ -16,15 +16,22 @@ PR-01 (project scaffold).
 - `prisma/schema.prisma`: `User` (id, email, passwordHash, name, role
   `agent`|`leader`, createdAt) and `Lead` (id, source `calculator`|`disc`,
   name, contact, inputs `Json`, result `Json`, createdAt). Already drafted
-  in the working tree.
+  in the working tree. **Coordinate with PR-15** before running the first
+  `prisma migrate dev`: PR-15 adds `position`/`status`/`recruiterId`/
+  `inviteCode` to `User` plus a new `Applicant` model, and wants those in
+  the same initial migration rather than a follow-up one — check whether
+  PR-15 has merged/landed first so this isn't migrated twice.
 - Neon Postgres project + `DATABASE_URL` in `.env.local` — **manual step for
   you**: create the project at neon.tech, I need the connection string
   before migrations can run. `.env.example` documents the shape.
 - `prisma migrate dev` to create the initial migration, committed to
   `prisma/migrations/`.
 - `src/lib/auth.ts` — Auth.js v5 config: Credentials provider verifying
-  email + password (bcrypt compare) against `User`, JWT session callback
-  adding `role` to the token/session.
+  email + password (bcrypt compare) against `User`, **database session**
+  (via `@auth/prisma-adapter`, not JWT) adding `role` to the session. Session
+  strategy is database-backed rather than JWT specifically so PR-15 can
+  revoke a departed user's access immediately by deleting their session row
+  — a stateless JWT can't be invalidated before it expires.
 - `src/lib/password.ts` — `hashPassword`/`verifyPassword` wrapping bcryptjs.
 - `src/lib/leads.ts` — `createLead(input)` — thin wrapper around
   `prisma.lead.create`, typed by source.
@@ -67,7 +74,10 @@ export function createLead(input: {
 - `password.ts`: hash then verify round-trips correctly; wrong password
   fails.
 - `auth.ts` Credentials `authorize()`: valid creds return a user with role;
-  invalid email/password return null (Prisma mocked).
+  invalid email/password return null (Prisma mocked). (PR-15 adds a further
+  case: `status: inactive` users fail `authorize()` even with correct
+  credentials — not required for this PR's own tests, noted here so it
+  isn't missed.)
 - `middleware.ts`: unauthenticated request to `/member/x` redirects to
   `/login`; authenticated `agent` request to a route wrapped in
   `requireRole("leader")` is rejected; `leader` request passes.
