@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: var(--color-ink-900);
+}
+
+@theme {
+  /* Brand palette — navy anchors the "credible insurance" side, red/yellow
+     carry the youth energy as accents. Each scale is generated from one
+     brand hex (navy-700, red-500, yellow-400 are the exact brand values). */
+  --color-brand-navy-50: #f3f5f9;
+  --color-brand-navy-100: #e3e8f1;
+  --color-brand-navy-200: #c3cde0;
+  --color-brand-navy-300: #9eaecd;
+  --color-brand-navy-400: #7088b5;
+  --color-brand-navy-500: #46659f;
+  --color-brand-navy-600: #2b4e91;
+  --color-brand-navy-700: #183f87;
+  --color-brand-navy-800: #14346f;
+  --color-brand-navy-900: #102958;
+
+  --color-brand-red-50: #fef6f8;
+  --color-brand-red-100: #fde9ee;
+  --color-brand-red-200: #fbd0db;
+  --color-brand-red-300: #f8afc2;
+  --color-brand-red-400: #f5809e;
+  --color-brand-red-500: #f04975;
+  --color-brand-red-600: #d34067;
+  --color-brand-red-700: #ad3554;
+
+  --color-brand-yellow-50: #fffcf2;
+  --color-brand-yellow-100: #fef7e1;
+  --color-brand-yellow-200: #fceab3;
+  --color-brand-yellow-300: #f9d667;
+  --color-brand-yellow-400: #f5ba01;
+  --color-brand-yellow-500: #dda701;
+  --color-brand-yellow-600: #b88c01;
+  --color-brand-yellow-700: #8e6c01;
+
+  /* Neutrals carry a faint navy cast (same hue as brand-navy, desaturated)
+     so text/surfaces read as part of the same system instead of flat gray. */
+  --color-ink-50: #f9fafb;
+  --color-ink-100: #edeff2;
+  --color-ink-300: #aeb5c2;
+  --color-ink-500: #6c7689;
+  --color-ink-700: #3c4453;
+  --color-ink-900: #1b212d;
+
+  --color-success-500: #22c55e;
+  --color-warning-500: #f59e0b;
+  --color-danger-500: #ef4444;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Type scale — default sizes cover body copy; these two extend it for
+     marketing hero headlines. */
+  --text-display-sm: 2.75rem;
+  --text-display-sm--line-height: 1.1;
+  --text-display-lg: 3.75rem;
+  --text-display-lg--line-height: 1.05;
+
+  /* Spacing tokens for shared layout chrome (header/sidebar), on top of
+     Tailwind's default numeric spacing scale. */
+  --spacing-header: 4.5rem;
+  --spacing-sidebar: 16rem;
+  --container-content: 80rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
