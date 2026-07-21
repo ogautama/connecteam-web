@@ -4,7 +4,7 @@ import MarketingLayout from "@/components/layouts/MarketingLayout";
 import { CALCULATOR_LIVE, DISC_LIVE } from "@/lib/features";
 
 export const metadata: Metadata = {
-  title: "CONNECTeam — Kerja Ngak Harus Ribet",
+  title: "CONNECTeam — Kerja Gak Harus Ribet",
   description:
     "Bangun karier bareng CONNECTeam: mentor beneran, jenjang cepat, skill digital, dan lingkungan yang positif. Agency muda di bawah Prudential Indonesia.",
 };
@@ -61,7 +61,7 @@ export default function Home() {
           Youth agency &times; Prudential Indonesia
         </span>
         <h1 className="max-w-3xl text-display-sm font-bold tracking-tight text-ink-900 sm:text-display-lg">
-          Kerja Ngak Harus{" "}
+          Kerja Gak Harus{" "}
           <span className="bg-linear-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400 bg-clip-text text-transparent">
             Ribet
           </span>

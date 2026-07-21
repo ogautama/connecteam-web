@@ -28,8 +28,8 @@ the home-page CTA/teaser for that tool are hidden (`MarketingLayout`,
 `src/app/page.tsx`), so the site never links to a 404. Flip a flag to `true`
 when its plan ships:
 
-- `DISC_LIVE` → **Plan 04** (`/tools/disc`)
-- `CALCULATOR_LIVE` → **Plan 05** (`/tools/calculator`)
+- `DISC_LIVE` → **Plan 04** (`/tools/disc`) — ✅ flipped on, Plan 04 shipped
+- `CALCULATOR_LIVE` → **Plan 05** (`/tools/calculator`) — still `false`
 
 Flipping a flag also means updating the home-page test that asserts the gated
 links are absent (`src/app/__tests__/page.test.tsx`).
@@ -60,8 +60,10 @@ links are absent (`src/app/__tests__/page.test.tsx`).
 - **Now (03 + 03b):** the public funnel — `/`, `/join`, and the login
   round-trip (invited account → `/member`, which 404s until Plan 06;
   no-profile account → `/not-invited`).
-- **After Plans 04 & 05:** flip the flags — DISC test and calculator live, the
-  public site is complete with no hidden links.
+- **Now also (04):** the DISC test at `/tools/disc`, end to end including the
+  optional lead capture.
+- **After Plan 05:** flip `CALCULATOR_LIVE` — the public site is then complete
+  with no hidden links.
 - **After Plan 06 (+ 02c):** the gated member area behind login; with 02c a
   leader can invite reviewers themselves instead of DB inserts.
 
