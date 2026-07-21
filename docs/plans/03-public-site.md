@@ -1,5 +1,14 @@
 # Plan 03 — Public site pages
 
+## Status
+
+**Done** — implemented in [PR #8](https://github.com/ogautama/connecteam-web/pull/8).
+Splitting Plan 02b's browser auth out of `@/lib/auth` (into `auth-browser.ts`
+/ `supabase-server.ts`) so `/login`'s Client Component can call
+`signInWithGoogle()` was done here, since Plan 03 is the first client-side
+consumer. This also unblocks the "real Google sign-in landing in `/member`"
+step that Plan 02b left open on `/login`.
+
 ## Goal
 
 Rebuild connecteam.id as a proper recruiting funnel instead of one long
