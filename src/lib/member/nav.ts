@@ -10,9 +10,10 @@ export type MemberNavItem = {
    */
   description?: string;
   /**
-   * Whole section is leader-only — hidden outright from agents. Nothing is
-   * marked this way today; gating currently happens at the item level
-   * *inside* a section (Plans 13/14), which is what `leaderExtras` covers.
+   * Whole section is leader-only — hidden outright from agents. Add Member
+   * (Plan 02c) is the only one today; gating otherwise happens at the item
+   * level *inside* a section (Plans 13/14), which is what `leaderExtras`
+   * covers.
    */
   leaderOnly?: boolean;
   /**
@@ -67,6 +68,14 @@ export const MEMBER_NAV: MemberNavItem[] = [
     label: "Directory",
     description: "Kontak siapa buat urusan apa",
     leaderExtras: true,
+  },
+  // Not one of the eight IA sections — a leader-only tool, kept last so it
+  // sits apart from them in both the nav and the dashboard cards.
+  {
+    href: "/member/admin/add-member",
+    label: "Add Member",
+    description: "Undang email anggota baru sebelum dia sign in",
+    leaderOnly: true,
   },
 ];
 

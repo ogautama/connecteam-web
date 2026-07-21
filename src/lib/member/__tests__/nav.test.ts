@@ -25,15 +25,18 @@ describe("visibleNavItems", () => {
     ]);
   });
 
-  it("shows a leader the same nav — no section is leader-only today", () => {
-    expect(MEMBER_NAV.some((item) => item.leaderOnly)).toBe(false);
+  it("adds Add Member for a leader, and only for a leader", () => {
     expect(visibleNavItems("leader")).toHaveLength(MEMBER_NAV.length);
+    expect(visibleNavItems("leader").map((item) => item.label)).toContain(
+      "Add Member",
+    );
+    expect(visibleNavItems("agent").map((item) => item.label)).not.toContain(
+      "Add Member",
+    );
   });
 });
 
 describe("filterForRole", () => {
-  // Nothing in MEMBER_NAV is leaderOnly today (gating is item-level inside
-  // Plans 13/14), so the filter itself is exercised on a synthetic item.
   const items = [
     { href: "/member/open", label: "Open" },
     { href: "/member/secret", label: "Secret", leaderOnly: true },
@@ -72,6 +75,10 @@ describe("memberSections", () => {
     expect(sections).toHaveLength(8);
     expect(sections.map((item) => item.href)).not.toContain("/member");
     expect(sections.every((item) => item.description)).toBe(true);
+  });
+
+  it("gives a leader an Add Member card too", () => {
+    expect(memberSections("leader")).toHaveLength(9);
   });
 });
 

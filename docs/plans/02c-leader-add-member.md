@@ -2,7 +2,33 @@
 
 ## Status
 
-Not started.
+**Done** — implemented as described below. Notes on what the implementation
+settled that the plan left open:
+
+- **Lives at `/member/admin/add-member`** inside Plan 06's member shell (that
+  plan landed first, so the standalone-layout fallback wasn't needed) and is
+  the first `leaderOnly: true` entry in `MEMBER_NAV` — the mechanism Plan 06
+  built and predicted nothing would use yet. It's kept last in the nav so it
+  reads as a leader tool rather than a ninth IA section; agents see neither
+  the nav link nor the dashboard card.
+- **Invite logic sits in `src/lib/invites.ts`**, away from the server action,
+  so the duplicate rules and the recruiter fallback are unit-testable without
+  a session. `createPendingInvite` returns a
+  `{ ok: false, reason: "existing-user" | "existing-invite" }` result rather
+  than throwing — the caller renders it inline. A raced `P2002` on the email
+  unique index maps to the same duplicate result, since the index is the real
+  guard and a 500 would be the wrong answer either way.
+- **`requireRole("leader")` runs in the action as well as the page.** Server
+  Actions are reachable by direct POST, so the page's guard can't be the only
+  one.
+- **Recruiter defaults to the acting leader**, with the invite-code text
+  field as the documented fallback for someone not in the dropdown — an
+  unknown or blank code rides `resolveRecruiter`'s existing fallback to root
+  instead of failing the submit.
+- **Success replaces the form** with a confirmation naming the invited email
+  plus a reminder that nothing notifies them; "Tambah member lagi" remounts
+  the form to reset it (`useActionState` state only changes on the next
+  submit, so a fresh key is the cheapest reset).
 
 ## Goal
 
