@@ -2,7 +2,7 @@
 
 ## Status
 
-**Done** — see the PR linked from [00-overview.md](00-overview.md). Shipped as
+**Done** in [PR #10](https://github.com/ogautama/connecteam-web/pull/10). Shipped as
 described below, with one deviation: Plan 02b merged in the meantime, so the
 lead-capture step calls the real `createLead()` from `src/lib/leads.ts`
 directly and the `createLead` stub described under "Independence notes" was
