@@ -137,6 +137,13 @@ reviewed in any order or in parallel.
   since it's shared chrome, not that plan's scope. Wants a responsive
   treatment (hamburger/collapse). Decide the design when we're actually
   filling out the public pages (Plans 04/05) rather than pre-emptively.
+- **`/join` embedded Google Form not verified for public access** (Plan 03).
+  The iframe wiring works, but in a browser not signed into Google the embed
+  showed Google's own sign-in prompt — unconfirmed whether that's just the
+  test browser or the form's sharing settings requiring sign-in. Open the
+  form's settings and confirm a logged-out visitor can view and submit it
+  (this is a Google Form config check, not a code change). Moot once the form
+  itself is rebuilt in-app, if that's ever scoped.
 
 ## Working tree state when this overview was written (historical)
 
