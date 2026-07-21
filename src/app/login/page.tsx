@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
 import LoginForm from "./LoginForm";
@@ -19,12 +18,7 @@ export default function LoginPage() {
           Gunakan akun Google yang sudah didaftarkan leader kamu.
         </p>
 
-        {/* useSearchParams (in LoginForm) needs a Suspense boundary so the
-            rest of the page can still be prerendered — see
-            node_modules/next/dist/docs/.../use-search-params.md */}
-        <Suspense fallback={null}>
-          <LoginForm />
-        </Suspense>
+        <LoginForm />
       </section>
     </MarketingLayout>
   );

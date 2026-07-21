@@ -1,43 +1,20 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { signInWithGoogle } from "@/lib/auth-browser";
 
-// Rendered inline (not a redirect to /not-invited) when the sign-in flow
-// sends the user back to /login?reason=not-invited — a valid Google session
-// whose email no leader ever invited (see Plan 02b's pending-invite gate).
-function NotInvitedNotice() {
-  return (
-    <div className="w-full max-w-md rounded-2xl border border-brand-yellow-300 bg-brand-yellow-50 p-6 text-center">
-      <h2 className="text-lg font-semibold text-ink-900">
-        Kamu belum ditambahkan
-      </h2>
-      <p className="mt-2 text-sm text-ink-500">
-        Akun Google kamu berhasil masuk, tapi belum ada leader yang menambahkan
-        email kamu ke CONNECTeam. Minta leader kamu buat nambahin, lalu masuk
-        lagi.
-      </p>
-    </div>
-  );
-}
-
+// A no-profile sign-in (valid Google session, no leader invite) is handled by
+// redirecting to the standalone /not-invited page (proxy.ts / requireRole), so
+// this form is just the sign-in button — no inline "not invited" state.
 export default function LoginForm() {
-  const searchParams = useSearchParams();
-  const notInvited = searchParams.get("reason") === "not-invited";
-
   return (
-    <div className="flex w-full flex-col items-center gap-6">
-      {notInvited && <NotInvitedNotice />}
-
-      <button
-        type="button"
-        onClick={() => signInWithGoogle()}
-        className="flex items-center gap-3 rounded-full border border-ink-100 bg-white px-6 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
-      >
-        <GoogleIcon />
-        Sign in with Google
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={() => signInWithGoogle()}
+      className="flex items-center gap-3 rounded-full border border-ink-100 bg-white px-6 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
+    >
+      <GoogleIcon />
+      Sign in with Google
+    </button>
   );
 }
 
