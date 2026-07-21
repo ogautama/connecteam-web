@@ -2,7 +2,7 @@
 
 ## Status
 
-Code side **done** in [PR #NN](https://github.com/ogautama/connecteam-web/pull/NN)
+Code side **done** in [PR #9](https://github.com/ogautama/connecteam-web/pull/9)
 — the unbuilt tool links are gated off so a deployed public site has no dead
 links. The actual Vercel/Supabase staging setup is a manual checklist (below)
 for you to run; nothing else in the app blocks it.
