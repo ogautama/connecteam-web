@@ -1,3 +1,4 @@
+import Link from "next/link";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
 
 // Landed on by a successful Google sign-in whose email has no matching
@@ -16,6 +17,12 @@ export default function NotInvitedPage() {
           added your email to CONNECTeam yet. Ask your leader to add you,
           then sign in again.
         </p>
+        <Link
+          href="/"
+          className="mt-2 rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800"
+        >
+          Home
+        </Link>
       </section>
     </MarketingLayout>
   );

@@ -2,10 +2,11 @@ import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
-import {
-  createSupabaseBrowserClient,
-  createSupabaseServerClient,
-} from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
+
+// Browser auth actions live in a client-safe module (no Prisma/next/headers);
+// re-exported here so `@/lib/auth` stays the single Plan 02b auth entry point.
+export { signInWithGoogle, signOut } from "@/lib/auth-browser";
 
 export type CurrentUser = { id: string; role: Role };
 
@@ -34,19 +35,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const session = await getSession();
   if (!session) return null;
   return getProfile(session.id);
-}
-
-export async function signInWithGoogle(): Promise<void> {
-  const supabase = createSupabaseBrowserClient();
-  await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: `${window.location.origin}/auth/callback` },
-  });
-}
-
-export async function signOut(): Promise<void> {
-  const supabase = createSupabaseBrowserClient();
-  await supabase.auth.signOut();
 }
 
 /**

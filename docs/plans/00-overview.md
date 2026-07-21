@@ -97,7 +97,7 @@ are captured inline in those docs so each can be picked up independently.
 | 02 | ~~Data & auth layer (Prisma, Neon, Auth.js, role middleware)~~ | 01 | [02-data-auth.md](02-data-auth.md) | ✅ Done, superseded† — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 | 02b | Supabase infra + Google OAuth (Postgres, Auth, pending-invite gate) | 01 | [02b-supabase-auth-google-oauth.md](02b-supabase-auth-google-oauth.md) | ✅ Done — [PR #7](https://github.com/ogautama/connecteam-web/pull/7) |
 | 02c | Leader: Add Member (pending-invite creation UI) | 02b | [02c-leader-add-member.md](02c-leader-add-member.md) | Not started |
-| 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02b\* | [03-public-site.md](03-public-site.md) | |
+| 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02b\* | [03-public-site.md](03-public-site.md) | ✅ Done — [PR #8](https://github.com/ogautama/connecteam-web/pull/8) |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | |
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | |
 | 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | |
@@ -128,6 +128,22 @@ practice — see each doc's "Independence notes."
 Plans 07–14 (the eight member-space sections) are fully independent of each
 other — they only share Plan 06's shell/layout/nav and can be built and
 reviewed in any order or in parallel.
+
+## Known deferred issues
+
+- **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
+  The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
+  crowd the logo below ~400px wide — surfaced building Plan 03, left as-is
+  since it's shared chrome, not that plan's scope. Wants a responsive
+  treatment (hamburger/collapse). Decide the design when we're actually
+  filling out the public pages (Plans 04/05) rather than pre-emptively.
+- **`/join` embedded Google Form not verified for public access** (Plan 03).
+  The iframe wiring works, but in a browser not signed into Google the embed
+  showed Google's own sign-in prompt — unconfirmed whether that's just the
+  test browser or the form's sharing settings requiring sign-in. Open the
+  form's settings and confirm a logged-out visitor can view and submit it
+  (this is a Google Form config check, not a code change). Moot once the form
+  itself is rebuilt in-app, if that's ever scoped.
 
 ## Working tree state when this overview was written (historical)
 

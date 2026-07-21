@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeaderLoginButton from "@/components/layouts/HeaderLoginButton";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -41,12 +42,7 @@ export default function MarketingLayout({
             </ul>
           </nav>
 
-          <Link
-            href="/login"
-            className="rounded-full bg-brand-navy-700 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-navy-800"
-          >
-            Login
-          </Link>
+          <HeaderLoginButton />
         </div>
       </header>
 

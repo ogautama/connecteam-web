@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 
 // Supabase redirects here with a PKCE `code` after Google sign-in
 // completes; exchanging it for a session sets the auth cookies proxy.ts
