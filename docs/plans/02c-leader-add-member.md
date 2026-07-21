@@ -2,8 +2,9 @@
 
 ## Status
 
-**Done** — implemented as described below. Notes on what the implementation
-settled that the plan left open:
+**Done** in [PR #15](https://github.com/ogautama/connecteam-web/pull/15).
+Shipped as described below. Notes on what the implementation settled that the
+plan left open:
 
 - **Lives at `/member/admin/add-member`** inside Plan 06's member shell (that
   plan landed first, so the standalone-layout fallback wasn't needed) and is
