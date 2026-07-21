@@ -2,8 +2,9 @@
 
 ## Status
 
-**Done** in PR (pending). Shipped as described below. Notes on what the
-implementation settled that the plan left open:
+**Done** in [PR #12](https://github.com/ogautama/connecteam-web/pull/12).
+Shipped as described below. Notes on what the implementation settled that the
+plan left open:
 
 - **Role-aware nav** lives in `src/lib/member/nav.ts` as pure functions
   (`visibleNavItems`, `showsLeaderBadge`) so it's unit-testable away from the
