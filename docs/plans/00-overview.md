@@ -101,7 +101,7 @@ are captured inline in those docs so each can be picked up independently.
 | 03b | Staging deployment (public site) | 03 | [03b-staging-deploy.md](03b-staging-deploy.md) | Code gating done (PR #9); deploy = manual checklist |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | ✅ Done — [PR #10](https://github.com/ogautama/connecteam-web/pull/10) |
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
-| 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | |
+| 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12) |
 | 07 | Member: Get Started (`/member/onboarding`) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | |
 | 08 | Member: Grow (`/member/grow`) | 06 | [08-member-grow.md](08-member-grow.md) | |
 | 09 | Member: Sell (`/member/sell`) | 06 | [09-member-sell.md](09-member-sell.md) | |
@@ -149,6 +149,15 @@ reviewed in any order or in parallel.
   are live so far (the calculator stays gated until Plan 05), which keeps it
   tolerable. Worth doing as its own small plan when `CALCULATOR_LIVE` flips
   and the fourth link comes back.
+- **Member sidebar is desktop-only** (`MemberLayout`, Plan 01, still true
+  after Plan 06). It's `hidden md:block`, so on a phone there's no way to
+  reach any section except through the dashboard's section cards — and no way
+  back to the dashboard from a section page except the in-page link. The
+  design spec already sketches both candidate fixes (a drawer in
+  [spec.html](../design/spec.html), a bottom tab bar in
+  [spec-alt-member-nav.html](../design/spec-alt-member-nav.html)); pick one as
+  its own small plan. Worth pairing with the marketing-header item above,
+  since both are the same "no mobile nav" gap.
 - **`/join` embedded Google Form not verified for public access** (Plan 03).
   The iframe wiring works, but in a browser not signed into Google the embed
   showed Google's own sign-in prompt — unconfirmed whether that's just the

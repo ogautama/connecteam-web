@@ -1,5 +1,40 @@
 # Plan 06 — Member space shell
 
+## Status
+
+**Done** in [PR #12](https://github.com/ogautama/connecteam-web/pull/12).
+Shipped as described below. Notes on what the implementation settled that the
+plan left open:
+
+- **Role-aware nav** lives in `src/lib/member/nav.ts` as pure functions
+  (`visibleNavItems`, `showsLeaderBadge`) so it's unit-testable away from the
+  React tree. No section is `leaderOnly` today, as predicted; Events and
+  Directory carry `leaderExtras` (they hold leader-only *items*, Plans 13/14)
+  and the "Leaders" badge renders **for leaders only** — showing it to an
+  agent would advertise content they can't open, which is worse than staying
+  quiet about it.
+- **`CurrentUser` gained `name`** (populated from Google's `full_name` by the
+  `on_auth_user_created` trigger) — the dashboard greeting and account menu
+  need it. Added `requireMember()` / `requireMemberTarget()` alongside the
+  existing `requireRole` pair: same redirect logic minus the role check, for
+  pages that just need *a* signed-in member.
+- **The guard runs twice on purpose** — `proxy.ts` at the edge of the
+  request, `src/app/member/layout.tsx` in the page. The layout is where the
+  session's user comes from anyway, and a gate that lives only in the proxy
+  is one `matcher` edit away from silently not running.
+- **Copy is Bahasa, section names are English.** Same split the design spec
+  and Plans 07–14 already assume: the eight section names are the IA and stay
+  English (nav labels, page `<h1>`s, `<title>`s), everything descriptive —
+  greeting, banner, card blurbs, placeholders — is Bahasa in the same casual
+  register as the public site. The account menu keeps English: role labels
+  (Agent/Leader) and "Log out", both by request — that's the vocabulary the
+  network already uses.
+- **Mobile nav is still the deferred gap** — the sidebar is `hidden md:block`
+  (Plan 01), so on a phone the member nav is unreachable and only the
+  dashboard's section cards get you around. Tracked in
+  [00-overview.md](00-overview.md#known-deferred-issues); the design spec's
+  drawer/tab-bar alternatives are the intended fix.
+
 ## Goal
 
 Stand up the authenticated `/member` area: dashboard, sidebar nav grouped
@@ -57,6 +92,11 @@ the gating works.
 - Logout clears the session and redirects to `/`.
 
 ## Verification
+
+*(Done: the unauthenticated half was verified live against `npm run dev` —
+all nine `/member/**` routes answer `307 → /login`, and they compile, so no
+link 404s or 500s. The signed-in half below still needs a manual run with the
+real Google test accounts.)*
 
 - `npm run dev`, sign in with the test Google accounts seeded with
   `agent`/`leader` `PendingInvite`s (Plan 02b's seed script) in the browser
