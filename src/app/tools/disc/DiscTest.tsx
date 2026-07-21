@@ -273,8 +273,7 @@ function LeadCapture({ answers }: { answers: DiscTrait[] }) {
           hasil saya" reads like saving something for yourself, so what the
           number is actually for has to be visible at the point of decision. */}
       <p className="mt-4 text-xs text-ink-500">
-        Nama dan nomor kamu kami simpan, dan cuma dipakai buat mentor kami
-        hubungi kamu lewat WhatsApp.
+        Data kamu cuma dipakai buat hubungi kamu lewat WhatsApp.
       </p>
 
       {error && (

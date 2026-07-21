@@ -87,7 +87,7 @@ describe("DiscTest", () => {
     // The disclosure has to be on the form itself — a visitor deciding whether
     // to hand over a phone number can't be told after the fact.
     expect(
-      screen.getByText(/cuma dipakai buat mentor kami hubungi kamu/i),
+      screen.getByText(/cuma dipakai buat hubungi kamu lewat WhatsApp/i),
     ).toBeInTheDocument();
   });
 

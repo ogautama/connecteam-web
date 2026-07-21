@@ -9,6 +9,9 @@ directly and the `createLead` stub described under "Independence notes" was
 never needed. `DISC_LIVE` (Plan 03b's gate) is flipped on, so the nav link and
 the home-page teaser are live.
 
+Leads land in the `Lead` table but nothing in the app reads them back —
+[Plan 16](16-disc-lead-visibility.md) covers the hierarchy-scoped view.
+
 Two decisions the plan left open, resolved during implementation:
 
 - **24 questions**, forced-choice, pick-one-of-four ("most like me"), so

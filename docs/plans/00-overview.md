@@ -112,6 +112,7 @@ are captured inline in those docs so each can be picked up independently.
 | 14 | Member: Directory (`/member/directory`) | 06 | [14-member-directory.md](14-member-directory.md) | |
 | 15 | ~~Recruitment tree & applications (schema + access control)~~ | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) | ✅ Done, partially superseded† — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 | 15b | Recruitment tree rework (drop applicant→user promotion) | 02b | [15b-recruitment-tree-rework.md](15b-recruitment-tree-rework.md) | Not started |
+| 16 | DISC lead visibility (hierarchy-scoped `/member/leads`) | 04, 06, 15 | [16-disc-lead-visibility.md](16-disc-lead-visibility.md) | Not started |
 
 † **2026-07-21**: switched from Neon + Auth.js/Credentials to Supabase +
 Vercel + Google OAuth (see "Why Supabase + Vercel" above). Plan 02's
