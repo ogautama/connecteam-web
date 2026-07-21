@@ -26,11 +26,25 @@ describe("DISC question bank", () => {
     expect(new Set(statements).size).toBe(statements.length);
   });
 
-  test("statements are not all listed in the same trait order", () => {
-    // A fixed D-I-S-C order in every question would bias whoever always picks
-    // the first option, so the bank shuffles it.
-    const firstTraits = new Set(DISC_QUESTIONS.map((q) => q.statements[0].trait));
-    expect(firstTraits.size).toBeGreaterThan(1);
+  test("each trait appears equally often in every option position", () => {
+    // Someone who skims and always picks near the top must not be nudged
+    // toward one trait. The bank uses each of the 24 orderings of D/I/S/C
+    // exactly once, so every trait lands in every position 6 times.
+    const perPosition = DISC_QUESTIONS.length / DISC_TRAITS.length;
+
+    for (let position = 0; position < DISC_TRAITS.length; position++) {
+      const counts = DISC_QUESTIONS.reduce<Record<string, number>>((acc, q) => {
+        const trait = q.statements[position].trait;
+        acc[trait] = (acc[trait] ?? 0) + 1;
+        return acc;
+      }, {});
+
+      for (const trait of DISC_TRAITS) {
+        expect(counts[trait], `${trait} at position ${position}`).toBe(
+          perPosition,
+        );
+      }
+    }
   });
 });
 
