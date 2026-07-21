@@ -25,13 +25,14 @@ describe("Home page", () => {
     ).toBeGreaterThan(0);
   });
 
-  // Tool links are gated off until Plans 04/05 ship (src/lib/features.ts) so a
-  // staging build has no dead links. Update these when the flags flip.
-  test("does not link to the unbuilt tool pages while gated", () => {
+  // DISC shipped in Plan 04, so its teaser is live now. The calculator stays
+  // gated off (src/lib/features.ts) until Plan 05 — update this when that flag
+  // flips, so a staging build never has dead links.
+  test("links to the DISC test and not the unbuilt calculator", () => {
     render(<Home />);
     expect(
-      screen.queryByRole("link", { name: /Mulai Tes DISC/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("link", { name: /Mulai Tes DISC/i }),
+    ).toHaveAttribute("href", "/tools/disc");
     expect(
       screen.queryByRole("link", { name: /Hitung Potensi Income/i }),
     ).not.toBeInTheDocument();

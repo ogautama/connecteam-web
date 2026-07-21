@@ -99,7 +99,7 @@ are captured inline in those docs so each can be picked up independently.
 | 02c | Leader: Add Member (pending-invite creation UI) | 02b | [02c-leader-add-member.md](02c-leader-add-member.md) | Not started |
 | 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02b\* | [03-public-site.md](03-public-site.md) | ✅ Done — [PR #8](https://github.com/ogautama/connecteam-web/pull/8) |
 | 03b | Staging deployment (public site) | 03 | [03b-staging-deploy.md](03b-staging-deploy.md) | Code gating done (PR #9); deploy = manual checklist |
-| 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | |
+| 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | ✅ Done — PR pending |
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | |
 | 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | |
 | 07 | Member: Get Started (`/member/onboarding`) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | |
@@ -136,8 +136,10 @@ reviewed in any order or in parallel.
   The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
   crowd the logo below ~400px wide — surfaced building Plan 03, left as-is
   since it's shared chrome, not that plan's scope. Wants a responsive
-  treatment (hamburger/collapse). Decide the design when we're actually
-  filling out the public pages (Plans 04/05) rather than pre-emptively.
+  treatment (hamburger/collapse). Still open after Plan 04: only three links
+  are live so far (the calculator stays gated until Plan 05), which keeps it
+  tolerable. Worth doing as its own small plan when `CALCULATOR_LIVE` flips
+  and the fourth link comes back.
 - **`/join` embedded Google Form not verified for public access** (Plan 03).
   The iframe wiring works, but in a browser not signed into Google the embed
   showed Google's own sign-in prompt — unconfirmed whether that's just the

@@ -1,5 +1,24 @@
 # Plan 04 — DISC test tool
 
+## Status
+
+**Done** — see the PR linked from [00-overview.md](00-overview.md). Shipped as
+described below, with one deviation: Plan 02b merged in the meantime, so the
+lead-capture step calls the real `createLead()` from `src/lib/leads.ts`
+directly and the `createLead` stub described under "Independence notes" was
+never needed. `DISC_LIVE` (Plan 03b's gate) is flipped on, so the nav link and
+the home-page teaser are live.
+
+Two decisions the plan left open, resolved during implementation:
+
+- **24 questions**, forced-choice, pick-one-of-four ("most like me"), so
+  scoring is a straight tally. Statement order is shuffled per question — a
+  fixed D-I-S-C order would bias anyone who always taps the first option.
+- **"Dominant 1-2 traits"** means the top trait plus the runner-up when it's
+  within **one answer** of the top (`BLEND_MARGIN` in `score.ts`); a wider gap
+  gives a single-trait profile. That yields ten profile keys — four singles
+  plus six blends — all of which have written copy, asserted by a test.
+
 ## Goal
 
 Replace the external link to a 3rd-party DISC test
