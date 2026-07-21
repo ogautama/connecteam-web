@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { requireRole } from "@/lib/auth";
-import { listRecruiterOptions } from "@/lib/invites";
+import { listPendingInvitesFor, listRecruiterOptions } from "@/lib/invites";
 import AddMemberForm from "./AddMemberForm";
+import PendingInvites from "./PendingInvites";
 
 export const metadata: Metadata = {
   title: "Add Member — CONNECTeam",
@@ -15,7 +16,10 @@ export const metadata: Metadata = {
  */
 export default async function AddMemberPage() {
   const leader = await requireRole("leader");
-  const recruiters = await listRecruiterOptions();
+  const [recruiters, pendingInvites] = await Promise.all([
+    listRecruiterOptions(),
+    listPendingInvitesFor(leader.id),
+  ]);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
@@ -30,6 +34,8 @@ export default async function AddMemberPage() {
       </div>
 
       <AddMemberForm recruiters={recruiters} defaultRecruiterId={leader.id} />
+
+      <PendingInvites invites={pendingInvites} />
     </div>
   );
 }

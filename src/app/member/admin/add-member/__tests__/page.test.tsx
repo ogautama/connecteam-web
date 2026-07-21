@@ -1,13 +1,22 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-const { requireRole, listRecruiterOptions } = vi.hoisted(() => ({
-  requireRole: vi.fn(),
-  listRecruiterOptions: vi.fn(),
-}));
+const { requireRole, listRecruiterOptions, listPendingInvitesFor } = vi.hoisted(
+  () => ({
+    requireRole: vi.fn(),
+    listRecruiterOptions: vi.fn(),
+    listPendingInvitesFor: vi.fn(),
+  }),
+);
 
 vi.mock("@/lib/auth", () => ({ requireRole }));
-vi.mock("@/lib/invites", () => ({ listRecruiterOptions }));
+vi.mock("@/lib/invites", async () => {
+  // daysWaiting is pure and PendingInvites renders through it.
+  const actual = await vi.importActual<typeof import("@/lib/invites")>(
+    "@/lib/invites",
+  );
+  return { ...actual, listRecruiterOptions, listPendingInvitesFor };
+});
 vi.mock("../actions", () => ({ addMember: vi.fn() }));
 
 import AddMemberPage from "../page";
@@ -17,6 +26,7 @@ beforeEach(() => {
   listRecruiterOptions.mockResolvedValue([
     { id: "user_1", name: "Budi Santoso", email: "budi@example.com" },
   ]);
+  listPendingInvitesFor.mockResolvedValue([]);
 });
 
 describe("/member/admin/add-member", () => {
@@ -36,6 +46,33 @@ describe("/member/admin/add-member", () => {
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
   });
 
+  test("shows the leader their branch's outstanding invites", async () => {
+    requireRole.mockResolvedValue({
+      id: "user_1",
+      name: "Budi Santoso",
+      role: "leader",
+    });
+    listPendingInvitesFor.mockResolvedValue([
+      {
+        id: "invite_1",
+        email: "baru@example.com",
+        role: "agent",
+        createdAt: new Date(),
+        recruiterName: "Rani Putri",
+        invitedByName: "Budi Santoso",
+        invitedByYou: true,
+      },
+    ]);
+
+    render(await AddMemberPage());
+
+    expect(listPendingInvitesFor).toHaveBeenCalledWith("user_1");
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Belum Login" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("baru@example.com")).toBeInTheDocument();
+  });
+
   test("never renders for a non-leader — the guard redirects first", async () => {
     // requireRole calls next/navigation's redirect(), which throws; an agent
     // must be gone before the form (or the recruiter list) is ever built.
@@ -43,5 +80,6 @@ describe("/member/admin/add-member", () => {
 
     await expect(AddMemberPage()).rejects.toThrow("NEXT_REDIRECT");
     expect(listRecruiterOptions).not.toHaveBeenCalled();
+    expect(listPendingInvitesFor).not.toHaveBeenCalled();
   });
 });

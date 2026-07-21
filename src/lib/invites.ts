@@ -1,6 +1,6 @@
 import { Prisma, type PendingInvite, type Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { resolveRecruiter } from "@/lib/recruitTree";
+import { getDescendantUserIds, resolveRecruiter } from "@/lib/recruitTree";
 
 export type RecruiterOption = { id: string; name: string; email: string };
 
@@ -95,4 +95,78 @@ export async function createPendingInvite(input: {
     }
     throw error;
   }
+}
+
+export type PendingInviteSummary = {
+  id: string;
+  email: string;
+  role: Role;
+  createdAt: Date;
+  /** Null when the recruiter's User row has since been deleted. */
+  recruiterName: string | null;
+  invitedByName: string | null;
+  invitedByYou: boolean;
+};
+
+/** Whole days since the invite was created — the "still waiting" counter. */
+export function daysWaiting(createdAt: Date, now: Date = new Date()): number {
+  const elapsed = now.getTime() - createdAt.getTime();
+  return Math.max(0, Math.floor(elapsed / 86_400_000));
+}
+
+/**
+ * Every invite still waiting on a first sign-in, anywhere in this leader's
+ * branch. There's no status column to read: on_auth_user_created *deletes*
+ * the row as it creates the User (Plan 02b), so a row that still exists is
+ * exactly "invited, hasn't logged in yet".
+ *
+ * Scoped by recruiter, since that's who the invitee lands under — and
+ * getDescendantUserIds is self-inclusive, so a leader always sees their own.
+ * Invites they created themselves are unioned in as well, so putting someone
+ * under a recruiter outside the branch doesn't make the invite vanish from
+ * the inviter's view.
+ */
+export async function listPendingInvitesFor(
+  leaderId: string
+): Promise<PendingInviteSummary[]> {
+  const branchIds = await getDescendantUserIds(leaderId);
+
+  const invites = await prisma.pendingInvite.findMany({
+    where: {
+      OR: [{ recruiterId: { in: branchIds } }, { invitedBy: leaderId }],
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // PendingInvite's recruiterId/invitedBy are plain columns, not relations
+  // (they're nullable for the root bootstrap), so the names come from a
+  // second lookup rather than an include.
+  const referencedIds = [
+    ...new Set(
+      invites
+        .flatMap((invite) => [invite.recruiterId, invite.invitedBy])
+        .filter((id): id is string => Boolean(id))
+    ),
+  ];
+  const users = referencedIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: referencedIds } },
+        select: { id: true, name: true },
+      })
+    : [];
+  const nameById = new Map(users.map((user) => [user.id, user.name]));
+
+  return invites.map((invite) => ({
+    id: invite.id,
+    email: invite.email,
+    role: invite.role,
+    createdAt: invite.createdAt,
+    recruiterName: invite.recruiterId
+      ? nameById.get(invite.recruiterId) ?? null
+      : null,
+    invitedByName: invite.invitedBy
+      ? nameById.get(invite.invitedBy) ?? null
+      : null,
+    invitedByYou: invite.invitedBy === leaderId,
+  }));
 }

@@ -31,6 +31,30 @@ plan left open:
   the form to reset it (`useActionState` state only changes on the next
   submit, so a fresh key is the cheapest reset).
 
+### Added beyond the original plan: "Belum Login"
+
+Below the form, the page lists every invite in the leader's branch that
+hasn't been used yet — asked for after the plan was written, on the grounds
+that a leader who invites people has no other way to tell who's actually
+shown up.
+
+- **There's no status column, and none was added.** `on_auth_user_created`
+  *deletes* the invite as it creates the User (Plan 02b), so a surviving
+  `PendingInvite` row already means exactly "invited, hasn't signed in".
+  Rows leave the list on their own the moment the person logs in.
+- **Scoped by recruiter through `getDescendantUserIds`**, which is
+  self-inclusive — a leader sees their own invites and everything in the
+  branches below them, and root sees all of them. Invites the leader created
+  personally are unioned in too, so choosing a recruiter outside the branch
+  doesn't make an invite disappear from the inviter's view.
+- **Names come from a second query, not an `include`.** `PendingInvite`'s
+  `recruiterId`/`invitedBy` are plain nullable columns rather than relations
+  (the root bootstrap needs them null), and adding relations would mean a
+  migration for two labels. Both columns resolve in one deduplicated lookup.
+- **`revalidatePath` after a successful submit** so a new invite lands in the
+  list immediately — the page is server-rendered, so otherwise it would only
+  appear after a manual reload.
+
 ## Goal
 
 Give leaders a page to pre-authorize a new member's email before that person
@@ -66,7 +90,8 @@ does.
 
 ## Out of scope
 
-- Editing or revoking a pending invite.
+- Editing or revoking a pending invite. (The "Belum Login" list added during
+  implementation is read-only — still no way to cancel an invite from the UI.)
 - Bulk import.
 - The future admin dashboard for promoting an existing agent to leader —
   still deferred, per Plan 15's original "Out of scope" (raw DB/Prisma

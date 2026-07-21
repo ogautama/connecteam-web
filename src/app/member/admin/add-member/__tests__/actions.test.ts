@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { requireRole, createPendingInvite, resolveInviteRecruiter } = vi.hoisted(
-  () => ({
+const { requireRole, createPendingInvite, resolveInviteRecruiter, revalidatePath } =
+  vi.hoisted(() => ({
     requireRole: vi.fn(),
     createPendingInvite: vi.fn(),
     resolveInviteRecruiter: vi.fn(),
-  }),
-);
+    revalidatePath: vi.fn(),
+  }));
 
+vi.mock("next/cache", () => ({ revalidatePath }));
 vi.mock("@/lib/auth", () => ({ requireRole }));
 vi.mock("@/lib/invites", async () => {
   // isValidEmail/normalizeEmail are pure — exercise the real ones.
@@ -74,6 +75,16 @@ describe("addMember", () => {
       invitedBy: "user_1",
     });
     expect(state).toEqual({ status: "success", email: "rani@gmail.com" });
+    // So the new row shows up in "Belum Login" without a manual reload.
+    expect(revalidatePath).toHaveBeenCalledWith("/member/admin/add-member");
+  });
+
+  it("does not revalidate when the invite was rejected", async () => {
+    createPendingInvite.mockResolvedValue({ ok: false, reason: "existing-user" });
+
+    await addMember(idle, form({ email: "rani@gmail.com" }));
+
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("defaults an unrecognized role to agent", async () => {

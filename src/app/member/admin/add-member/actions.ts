@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import type { Role } from "@prisma/client";
 import { requireRole } from "@/lib/auth";
 import {
@@ -63,6 +64,11 @@ export async function addMember(
           : "Email ini udah diundang dan tinggal nunggu dia sign in.",
     };
   }
+
+  // Puts the new invite in the "Belum Login" list right away — the page is
+  // rendered on the server, so without this the leader would only see it
+  // after a manual reload.
+  revalidatePath("/member/admin/add-member");
 
   return { status: "success", email: normalizeEmail(email) };
 }
