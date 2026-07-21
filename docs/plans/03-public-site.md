@@ -9,6 +9,23 @@ Splitting Plan 02b's browser auth out of `@/lib/auth` (into `auth-browser.ts`
 consumer. This also unblocks the "real Google sign-in landing in `/member`"
 step that Plan 02b left open on `/login`.
 
+Verified live end-to-end against the Supabase project (2026-07-21): an
+invited leader signs in and reaches `/member`, a no-profile account lands
+on `/not-invited`. That pass also surfaced and fixed a Plan 02b trigger bug
+(`User.inviteCode` not populated — bundled in this PR at the reviewer's
+request) and is documented in Plan 02b's "Local OAuth setup & live
+verification" section.
+
+Small refinements made during review, beyond the original scope:
+- The header **Login** button signs in with Google directly instead of
+  routing to `/login` first (one less click). `/login` remains as a
+  standalone page.
+- Settled the no-profile UX on the **standalone `/not-invited` page** as the
+  single destination (`proxy.ts` / `requireRole` redirect there); dropped the
+  originally-planned inline `/login?reason=not-invited` state as redundant.
+  Added a **Home** button on `/not-invited` so a rejected visitor has a clear
+  next step.
+
 ## Goal
 
 Rebuild connecteam.id as a proper recruiting funnel instead of one long
