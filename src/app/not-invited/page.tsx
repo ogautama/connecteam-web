@@ -21,7 +21,7 @@ export default function NotInvitedPage() {
           href="/"
           className="mt-2 rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800"
         >
-          Back to home
+          Home
         </Link>
       </section>
     </MarketingLayout>
