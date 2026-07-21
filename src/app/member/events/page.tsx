@@ -9,7 +9,7 @@ export default function EventsPage() {
   return (
     <SectionPlaceholder
       title="Events"
-      summary="Sessions to join, and the ones you invite prospects to."
+      summary="Acara buat kamu ikutin, dan yang bisa kamu ajak prospek ke sana."
     />
   );
 }

@@ -44,7 +44,7 @@ describe("AccountMenu", () => {
     fireEvent.click(screen.getByRole("button", { name: /Rani Putri/ }));
     expect(screen.getByRole("menu")).toHaveTextContent("Leader");
 
-    fireEvent.click(screen.getByRole("menuitem", { name: "Log out" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Keluar" }));
 
     await waitFor(() => expect(signOut).toHaveBeenCalledOnce());
     expect(push).toHaveBeenCalledWith("/");

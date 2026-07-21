@@ -9,7 +9,7 @@ export default function SellPage() {
   return (
     <SectionPlaceholder
       title="Sell"
-      summary="The product catalog, sales kit, and training material you sell with."
+      summary="Katalog produk, sales kit, dan materi training yang kamu pakai buat jualan."
     />
   );
 }

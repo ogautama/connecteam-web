@@ -22,6 +22,12 @@ plan left open:
   request, `src/app/member/layout.tsx` in the page. The layout is where the
   session's user comes from anyway, and a gate that lives only in the proxy
   is one `matcher` edit away from silently not running.
+- **Copy is Bahasa, section names are English.** Same split the design spec
+  and Plans 07–14 already assume: the eight section names are the IA and stay
+  English (nav labels, page `<h1>`s, `<title>`s), everything descriptive —
+  greeting, banner, card blurbs, placeholders, "Keluar" — is Bahasa in the
+  same casual register as the public site. Role labels (Agent/Leader) stay
+  English too, since that's what the network calls them.
 - **Mobile nav is still the deferred gap** — the sidebar is `hidden md:block`
   (Plan 01), so on a phone the member nav is unreachable and only the
   dashboard's section cards get you around. Tracked in

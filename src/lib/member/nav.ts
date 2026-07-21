@@ -3,7 +3,11 @@ import type { Role } from "@prisma/client";
 export type MemberNavItem = {
   href: string;
   label: string;
-  /** One-liner for the dashboard quick-link cards; the nav shows labels only. */
+  /**
+   * One-liner for the dashboard quick-link cards; the nav shows labels only.
+   * Section `label`s stay English (they're the IA, and match the design spec
+   * + Plans 07–14); everything descriptive is Bahasa, like the public site.
+   */
   description?: string;
   /**
    * Whole section is leader-only — hidden outright from agents. Nothing is
@@ -25,43 +29,43 @@ export const MEMBER_NAV: MemberNavItem[] = [
   {
     href: "/member/onboarding",
     label: "Get Started",
-    description: "Your first steps as a new agent",
+    description: "Langkah pertama kamu sebagai agent baru",
   },
   {
     href: "/member/grow",
     label: "Grow",
-    description: "Recruiting kits and partner tools",
+    description: "Kit rekrutmen dan alat ngajak partner",
   },
   {
     href: "/member/sell",
     label: "Sell",
-    description: "Product catalog and sales material",
+    description: "Katalog produk dan materi jualan",
   },
   {
     href: "/member/reference",
     label: "Reference Data",
-    description: "Premium, medical, and prestige tables",
+    description: "Tabel premi, medical, dan prestige",
   },
   {
     href: "/member/systems",
     label: "Official Systems",
-    description: "PRUForce, licensing, claims, PayLink",
+    description: "PRUForce, lisensi, klaim, PayLink",
   },
   {
     href: "/member/contests",
     label: "Contests & Campaigns",
-    description: "What's running right now",
+    description: "Yang lagi jalan sekarang",
   },
   {
     href: "/member/events",
     label: "Events",
-    description: "Sessions to join and invite to",
+    description: "Acara buat diikutin dan ngajak prospek",
     leaderExtras: true,
   },
   {
     href: "/member/directory",
     label: "Directory",
-    description: "Who to contact for what",
+    description: "Kontak siapa buat urusan apa",
     leaderExtras: true,
   },
 ];

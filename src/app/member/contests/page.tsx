@@ -9,7 +9,7 @@ export default function ContestsPage() {
   return (
     <SectionPlaceholder
       title="Contests & Campaigns"
-      summary="What's running right now, and what's coming up."
+      summary="Yang lagi jalan sekarang, dan yang bakal datang."
     />
   );
 }

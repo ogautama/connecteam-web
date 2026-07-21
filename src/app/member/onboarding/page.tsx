@@ -9,7 +9,7 @@ export default function OnboardingPage() {
   return (
     <SectionPlaceholder
       title="Get Started"
-      summary="Your first steps as a new agent — know yourself, plan your goals, and learn the basics."
+      summary="Langkah pertama kamu sebagai agent baru — kenali diri sendiri, susun target, dan pelajari dasarnya."
     />
   );
 }

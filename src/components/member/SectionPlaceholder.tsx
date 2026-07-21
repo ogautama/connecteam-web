@@ -22,9 +22,8 @@ export default function SectionPlaceholder({
       </div>
 
       <p className="rounded-xl border border-dashed border-ink-100 bg-white p-6 text-ink-500">
-        This section is still being moved over from the old member site.
-        It&apos;ll show up here as soon as it&apos;s ready — in the meantime,
-        head back to the{" "}
+        Bagian ini masih dipindahin dari member space yang lama. Bakal muncul di
+        sini begitu siap — sementara itu, balik dulu ke{" "}
         <Link
           href="/member"
           className="font-medium text-brand-navy-700 hover:text-brand-red-600"

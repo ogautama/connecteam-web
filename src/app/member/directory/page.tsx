@@ -9,7 +9,7 @@ export default function DirectoryPage() {
   return (
     <SectionPlaceholder
       title="Directory"
-      summary="Who to contact for what, across CONNECTeam, MRT Group, and Prudential."
+      summary="Kontak siapa buat urusan apa — CONNECTeam, MRT Group, dan Prudential."
     />
   );
 }

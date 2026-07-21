@@ -9,7 +9,7 @@ export default function SystemsPage() {
   return (
     <SectionPlaceholder
       title="Official Systems"
-      summary="PRUForce, licensing, PRU PayLink, and the claim process."
+      summary="PRUForce, lisensi AAJI/AASI, PRU PayLink, dan proses klaim."
     />
   );
 }

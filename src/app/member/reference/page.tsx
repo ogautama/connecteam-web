@@ -9,7 +9,7 @@ export default function ReferencePage() {
   return (
     <SectionPlaceholder
       title="Reference Data"
-      summary="Premium, medical, and prestige tables, organized by category."
+      summary="Tabel premi, medical, dan prestige — dirapihin per kategori."
     />
   );
 }

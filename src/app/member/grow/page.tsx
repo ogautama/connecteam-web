@@ -9,7 +9,7 @@ export default function GrowPage() {
   return (
     <SectionPlaceholder
       title="Grow"
-      summary="Recruiting kits and tools for bringing new partners into the business."
+      summary="Kit rekrutmen dan alat buat ngajak partner baru gabung ke bisnis ini."
     />
   );
 }

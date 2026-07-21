@@ -14,17 +14,18 @@ export default function MemberDashboard({ user }: { user: CurrentUser }) {
       <section className="flex flex-col gap-4 rounded-2xl bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-ink-900">
-            Welcome back, {firstNameOf(user.name)}
+            Halo, {firstNameOf(user.name)}
           </h1>
           <p className="mt-1 text-ink-500">
-            Everything you need to start, sell, and build your team lives here.
+            Semua yang kamu butuhin buat mulai, jualan, dan bangun tim ada di
+            sini.
           </p>
         </div>
         <Link
           href="/member/onboarding"
           className="shrink-0 rounded-full bg-brand-navy-700 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-brand-navy-800"
         >
-          Start onboarding
+          Mulai Sekarang
         </Link>
       </section>
 
@@ -34,23 +35,23 @@ export default function MemberDashboard({ user }: { user: CurrentUser }) {
         className="rounded-2xl border border-brand-yellow-200 bg-brand-yellow-50 p-6"
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-brand-yellow-700">
-          Announcement
+          Pengumuman
         </p>
         <h2
           id="announcement-heading"
           className="mt-1 text-lg font-semibold text-ink-900"
         >
-          The new member space is live
+          Member space baru udah live
         </h2>
         <p className="mt-1 text-ink-500">
-          Sections are being moved over from the old site one at a time.
-          Contests and campaigns will show up here once they land.
+          Isi dari situs lama lagi dipindahin ke sini satu per satu. Info
+          Contests &amp; Campaigns bakal nongol di sini begitu siap.
         </p>
       </section>
 
       <section aria-labelledby="sections-heading" className="flex flex-col gap-3">
         <h2 id="sections-heading" className="text-lg font-semibold text-ink-900">
-          Sections
+          Menu
         </h2>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {memberSections(user.role).map((section) => (
@@ -74,18 +75,17 @@ export default function MemberDashboard({ user }: { user: CurrentUser }) {
       {/* Real event data lands in Plan 13 — empty state until then. */}
       <section aria-labelledby="events-heading" className="flex flex-col gap-3">
         <h2 id="events-heading" className="text-lg font-semibold text-ink-900">
-          Upcoming events
+          Acara Terdekat
         </h2>
         <p className="rounded-xl border border-dashed border-ink-100 bg-white p-6 text-ink-500">
-          No events scheduled yet. The events calendar is still being moved
-          over — check{" "}
+          Belum ada acara yang dijadwalin. Kalendernya masih dipindahin — cek{" "}
           <Link
             href="/member/events"
             className="font-medium text-brand-navy-700 hover:text-brand-red-600"
           >
             Events
           </Link>{" "}
-          for the latest.
+          buat info terbaru.
         </p>
       </section>
     </div>
