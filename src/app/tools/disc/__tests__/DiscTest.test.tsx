@@ -80,6 +80,17 @@ describe("DiscTest", () => {
     ).toBeInTheDocument();
   });
 
+  test("lead capture says what the number is for before it's submitted", () => {
+    render(<DiscTest />);
+    completeTest("D");
+
+    // The disclosure has to be on the form itself — a visitor deciding whether
+    // to hand over a phone number can't be told after the fact.
+    expect(
+      screen.getByText(/cuma dipakai buat mentor kami hubungi kamu/i),
+    ).toBeInTheDocument();
+  });
+
   test("lead capture requires a name and a contact before saving", () => {
     render(<DiscTest />);
     completeTest("D");

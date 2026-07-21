@@ -269,6 +269,14 @@ function LeadCapture({ answers }: { answers: DiscTrait[] }) {
         </label>
       </div>
 
+      {/* Stated before the button, not on the confirmation screen: "Simpan
+          hasil saya" reads like saving something for yourself, so what the
+          number is actually for has to be visible at the point of decision. */}
+      <p className="mt-4 text-xs text-ink-500">
+        Nama dan nomor kamu kami simpan, dan cuma dipakai buat mentor kami
+        hubungi kamu lewat WhatsApp.
+      </p>
+
       {error && (
         <p role="alert" className="mt-3 text-sm text-danger-500">
           {error}
