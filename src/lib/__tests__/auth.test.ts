@@ -1,9 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-const { findUnique, getUser } = vi.hoisted(() => ({
+const { findUnique, getUser, redirect } = vi.hoisted(() => ({
   findUnique: vi.fn(),
   getUser: vi.fn(),
+  // Stands in for Next's redirect(), which throws rather than returning —
+  // requireMember/requireRole rely on that to stop before returning a user.
+  redirect: vi.fn((target: string) => {
+    throw new Error(`NEXT_REDIRECT:${target}`);
+  }),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -18,13 +23,21 @@ vi.mock("@/lib/supabase-server", () => ({
   })),
 }));
 
-import { getCurrentUser, getSession, requireRoleTarget } from "@/lib/auth";
+vi.mock("next/navigation", () => ({ redirect }));
+
+import {
+  getCurrentUser,
+  getSession,
+  requireMember,
+  requireMemberTarget,
+  requireRoleTarget,
+} from "@/lib/auth";
 
 const supabaseUser = {
   id: "user_1",
   email: "agent@example.com",
 } as unknown as SupabaseUser;
-const profile = { id: "user_1", role: "agent" as const };
+const profile = { id: "user_1", name: "Rani Putri", role: "agent" as const };
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -50,7 +63,7 @@ describe("getCurrentUser", () => {
     await expect(getCurrentUser()).resolves.toEqual(profile);
     expect(findUnique).toHaveBeenCalledWith({
       where: { id: "user_1" },
-      select: { id: true, role: true },
+      select: { id: true, name: true, role: true },
     });
   });
 
@@ -66,6 +79,51 @@ describe("getCurrentUser", () => {
 
     await expect(getCurrentUser()).resolves.toBeNull();
     expect(findUnique).not.toHaveBeenCalled();
+  });
+});
+
+describe("requireMemberTarget", () => {
+  it("sends unauthenticated requests to /login", () => {
+    expect(requireMemberTarget(null, null)).toBe("/login");
+  });
+
+  it("sends an authenticated session with no profile to /not-invited", () => {
+    expect(requireMemberTarget(supabaseUser, null)).toBe("/not-invited");
+  });
+
+  it("passes either role through", () => {
+    expect(requireMemberTarget(supabaseUser, profile)).toBeNull();
+    expect(
+      requireMemberTarget(supabaseUser, { ...profile, role: "leader" })
+    ).toBeNull();
+  });
+});
+
+// The /member/** gate as the shell's layout actually calls it (Plan 06) —
+// proxy.ts makes the same decision one layer out, see proxy.test.ts.
+describe("requireMember", () => {
+  it("redirects an unauthenticated visit to /login", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: null } });
+
+    await expect(requireMember()).rejects.toThrow("NEXT_REDIRECT:/login");
+    expect(redirect).toHaveBeenCalledWith("/login");
+    expect(findUnique).not.toHaveBeenCalled();
+  });
+
+  it("redirects a signed-in Google account with no profile to /not-invited", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: supabaseUser } });
+    findUnique.mockResolvedValueOnce(null);
+
+    await expect(requireMember()).rejects.toThrow("NEXT_REDIRECT:/not-invited");
+    expect(redirect).toHaveBeenCalledWith("/not-invited");
+  });
+
+  it("returns the profile for an invited agent", async () => {
+    getUser.mockResolvedValueOnce({ data: { user: supabaseUser } });
+    findUnique.mockResolvedValueOnce(profile);
+
+    await expect(requireMember()).resolves.toEqual(profile);
+    expect(redirect).not.toHaveBeenCalled();
   });
 });
 
@@ -88,7 +146,7 @@ describe("requireRoleTarget", () => {
 
   it("passes a matching role through", () => {
     expect(
-      requireRoleTarget(supabaseUser, { id: "user_1", role: "leader" }, "leader")
+      requireRoleTarget(supabaseUser, { ...profile, role: "leader" }, "leader")
     ).toBeNull();
   });
 });
