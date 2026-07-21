@@ -8,7 +8,7 @@ describe("Home page", () => {
 
     // Hero
     expect(
-      screen.getByRole("heading", { level: 1, name: /Kerja Ngak Harus/i }),
+      screen.getByRole("heading", { level: 1, name: /Kerja Gak Harus/i }),
     ).toBeInTheDocument();
     // Value pillars
     expect(

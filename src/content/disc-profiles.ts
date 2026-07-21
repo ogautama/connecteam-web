@@ -33,14 +33,14 @@ export const DISC_PROFILES: Record<string, DiscProfile> = {
     title: "Sang Penggerak",
     blend: "Dominance",
     summary:
-      "Kamu tipe yang ngak betah kelamaan mikir. Ada masalah, ada target — kamu ambil keputusan dan jalan. Orang di sekitarmu sering ngerasa lebih yakin cuma karena kamu udah gerak duluan.",
+      "Kamu tipe yang gak betah kelamaan mikir. Ada masalah, ada target — kamu ambil keputusan dan jalan. Orang di sekitarmu sering ngerasa lebih yakin cuma karena kamu udah gerak duluan.",
     strengths: [
       "Berani ambil keputusan tanpa harus nunggu semuanya sempurna",
       "Tahan tekanan dan target tinggi",
       "Cepat balik lagi setelah ditolak",
     ],
     atWork:
-      "Di penjualan, kamu paling kuat di tahap closing — kamu berani nanya keputusannya dan ngak takut denger “tidak”. Di rekrutmen, orang tertarik sama kamu karena kamu keliatan tahu ke mana arahnya.",
+      "Di penjualan, kamu paling kuat di tahap closing — kamu berani nanya keputusannya dan gak takut denger “tidak”. Di rekrutmen, orang tertarik sama kamu karena kamu keliatan tahu ke mana arahnya.",
     watchOut:
       "Kecepatanmu bisa kerasa nyetir buat orang lain. Sisakan ruang buat tim ngomong sebelum kamu ambil kesimpulan.",
   },
@@ -57,20 +57,20 @@ export const DISC_PROFILES: Record<string, DiscProfile> = {
     atWork:
       "Di penjualan, prospek terbuka duluan sama kamu sebelum kamu jelasin produknya — itu modal yang mahal. Di rekrutmen, kamu paling kuat di tahap awal: bikin orang penasaran dan mau ngobrol.",
     watchOut:
-      "Gampang semangat di awal, gampang bosan di tengah. Bikin sistem follow-up supaya prospek yang udah hangat ngak nguap gitu aja.",
+      "Gampang semangat di awal, gampang bosan di tengah. Bikin sistem follow-up supaya prospek yang udah hangat gak nguap gitu aja.",
   },
   S: {
     title: "Sang Penjaga",
     blend: "Steadiness",
     summary:
-      "Kamu orang yang dicari kalau butuh yang bisa dipegang omongannya. Ngak berisik, tapi konsisten — dan justru itu yang bikin orang percaya sama kamu dalam jangka panjang.",
+      "Kamu orang yang dicari kalau butuh yang bisa dipegang omongannya. Gak berisik, tapi konsisten — dan justru itu yang bikin orang percaya sama kamu dalam jangka panjang.",
     strengths: [
-      "Konsisten, ngak gampang goyah pas lagi sepi",
+      "Konsisten, gak gampang goyah pas lagi sepi",
       "Pendengar yang beneran dengerin",
       "Bikin orang lain nyaman dan aman",
     ],
     atWork:
-      "Di penjualan, kekuatanmu ada di kepercayaan jangka panjang — klienmu bertahan dan ngerekomendasiin kamu. Di rekrutmen, kamu leader yang bikin anggota baru betah dan ngak kabur di bulan-bulan pertama.",
+      "Di penjualan, kekuatanmu ada di kepercayaan jangka panjang — klienmu bertahan dan ngerekomendasiin kamu. Di rekrutmen, kamu leader yang bikin anggota baru betah dan gak kabur di bulan-bulan pertama.",
     watchOut:
       "Kamu sering nunda nanya keputusan karena takut maksa. Padahal nanya dengan sopan itu bukan maksa.",
   },
@@ -78,7 +78,7 @@ export const DISC_PROFILES: Record<string, DiscProfile> = {
     title: "Sang Perancang",
     blend: "Conscientiousness",
     summary:
-      "Kamu ngak nyaman ngomong sesuatu yang belum kamu pastiin benar. Kamu suka hal yang tertata, punya standar sendiri, dan detail yang orang lain lewatin biasanya ketangkep sama kamu.",
+      "Kamu gak nyaman ngomong sesuatu yang belum kamu pastiin benar. Kamu suka hal yang tertata, punya standar sendiri, dan detail yang orang lain lewatin biasanya ketangkep sama kamu.",
     strengths: [
       "Menguasai materi sampai detail",
       "Kerja rapi dan bisa dipertanggungjawabkan",
@@ -97,7 +97,7 @@ export const DISC_PROFILES: Record<string, DiscProfile> = {
     strengths: [
       "Berani mulai duluan dan berani ngajak",
       "Meyakinkan waktu ngomong di depan orang banyak",
-      "Ngak mudah patah semangat",
+      "Gak mudah patah semangat",
     ],
     atWork:
       "Kombinasi paling subur buat bangun tim: kamu bisa merekrut dan sekaligus nutup penjualan sendiri. Kamu cocok jadi leader yang mimpin dari depan.",
@@ -108,22 +108,22 @@ export const DISC_PROFILES: Record<string, DiscProfile> = {
     title: "Sang Penuntas",
     blend: "Dominance + Steadiness",
     summary:
-      "Perpaduan yang jarang: kamu tegas soal target tapi tetap sabar sama orang. Kamu ngak banyak drama — apa yang kamu bilang bakal kamu kerjain, kamu kerjain sampai selesai.",
+      "Perpaduan yang jarang: kamu tegas soal target tapi tetap sabar sama orang. Kamu gak banyak drama — apa yang kamu bilang bakal kamu kerjain, kamu kerjain sampai selesai.",
     strengths: [
-      "Tegas tapi ngak bikin orang tersinggung",
+      "Tegas tapi gak bikin orang tersinggung",
       "Tahan banting buat kerjaan jangka panjang",
       "Bisa dipercaya megang tanggung jawab besar",
     ],
     atWork:
       "Di penjualan, kamu berani nanya keputusan tanpa bikin klien merasa dikejar. Di rekrutmen, kamu leader yang tegas soal standar tapi tetap nemenin anggotanya.",
     watchOut:
-      "Kamu bisa nahan sendiri terlalu banyak beban. Delegasi bukan tanda kamu ngak sanggup.",
+      "Kamu bisa nahan sendiri terlalu banyak beban. Delegasi bukan tanda kamu gak sanggup.",
   },
   DC: {
     title: "Sang Ahli Strategi",
     blend: "Dominance + Conscientiousness",
     summary:
-      "Kamu ngejar hasil, tapi ngak asal gas. Sebelum jalan kamu udah ngitung, dan begitu yakin, kamu jalan tanpa ragu.",
+      "Kamu ngejar hasil, tapi gak asal gas. Sebelum jalan kamu udah ngitung, dan begitu yakin, kamu jalan tanpa ragu.",
     strengths: [
       "Ambil keputusan cepat tapi berdasar",
       "Ngeliat celah dan risiko sekaligus",
@@ -138,7 +138,7 @@ export const DISC_PROFILES: Record<string, DiscProfile> = {
     title: "Sang Perangkul",
     blend: "Influence + Steadiness",
     summary:
-      "Orang gampang cerita ke kamu. Kamu hangat, sabar, dan bikin orang ngerasa diterima — kualitas yang ngak bisa dilatih dalam semalam.",
+      "Orang gampang cerita ke kamu. Kamu hangat, sabar, dan bikin orang ngerasa diterima — kualitas yang gak bisa dilatih dalam semalam.",
     strengths: [
       "Bangun hubungan yang awet, bukan cuma ramai di awal",
       "Pendengar yang bikin orang merasa dihargai",
@@ -153,7 +153,7 @@ export const DISC_PROFILES: Record<string, DiscProfile> = {
     title: "Sang Penyaji",
     blend: "Influence + Conscientiousness",
     summary:
-      "Kamu bisa ngejelasin hal rumit dengan cara yang enak didengerin. Materinya kamu kuasai, penyampaiannya ngak bikin ngantuk.",
+      "Kamu bisa ngejelasin hal rumit dengan cara yang enak didengerin. Materinya kamu kuasai, penyampaiannya gak bikin ngantuk.",
     strengths: [
       "Menjelaskan hal teknis dengan bahasa manusia",
       "Persiapan matang sebelum ngomong di depan orang",
@@ -175,7 +175,7 @@ export const DISC_PROFILES: Record<string, DiscProfile> = {
       "Dipercaya megang data dan dokumen penting",
     ],
     atWork:
-      "Di penjualan, klien percaya karena kamu ngak pernah asal ngomong dan berkasnya selalu beres. Di rekrutmen, kamu yang bikin proses onboarding tim jadi rapi dan ngak ada yang kelewat.",
+      "Di penjualan, klien percaya karena kamu gak pernah asal ngomong dan berkasnya selalu beres. Di rekrutmen, kamu yang bikin proses onboarding tim jadi rapi dan gak ada yang kelewat.",
     watchOut:
       "Kamu jarang nyeritain hasil kerjamu sendiri. Belajar ngomong duluan — peluang sering datang ke orang yang keliatan.",
   },

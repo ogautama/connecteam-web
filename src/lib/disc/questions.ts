@@ -67,7 +67,7 @@ export const DISC_QUESTIONS: DiscQuestion[] = [
     statements: [
       { trait: "C", text: "Teliti dan mikirnya panjang." },
       { trait: "I", text: "Rame dan gampang akrab." },
-      { trait: "D", text: "Tegas dan ngak bertele-tele." },
+      { trait: "D", text: "Tegas dan gak bertele-tele." },
       { trait: "S", text: "Sabar dan bisa diandalkan." },
     ],
   },
@@ -77,7 +77,7 @@ export const DISC_QUESTIONS: DiscQuestion[] = [
     statements: [
       { trait: "D", text: "Hadapi langsung biar cepat kelar." },
       { trait: "S", text: "Jadi penengah biar semua orang tenang." },
-      { trait: "I", text: "Cairin suasananya dulu biar ngak tegang." },
+      { trait: "I", text: "Cairin suasananya dulu biar gak tegang." },
       { trait: "C", text: "Balik ke fakta dan kesepakatan yang ada." },
     ],
   },
@@ -103,12 +103,12 @@ export const DISC_QUESTIONS: DiscQuestion[] = [
   },
   {
     id: "q08",
-    prompt: "Yang paling bikin aku ngak nyaman itu…",
+    prompt: "Yang paling bikin aku gak nyaman itu…",
     statements: [
       { trait: "C", text: "Kerja asal-asalan tanpa standar." },
       { trait: "S", text: "Perubahan mendadak tanpa aba-aba." },
       { trait: "D", text: "Kehilangan kendali atas hasil kerjaku." },
-      { trait: "I", text: "Dicuekin atau ngak dianggap." },
+      { trait: "I", text: "Dicuekin atau gak dianggap." },
     ],
   },
   {
@@ -153,7 +153,7 @@ export const DISC_QUESTIONS: DiscQuestion[] = [
   },
   {
     id: "q13",
-    prompt: "Kalau aku ngak setuju sama keputusan atasan, aku…",
+    prompt: "Kalau aku gak setuju sama keputusan atasan, aku…",
     statements: [
       { trait: "C", text: "Siapin argumen dan datanya dulu." },
       { trait: "D", text: "Bilang langsung saat itu juga." },
@@ -178,7 +178,7 @@ export const DISC_QUESTIONS: DiscQuestion[] = [
       { trait: "C", text: "Tetap ikuti — aturan pasti ada alasannya." },
       { trait: "S", text: "Ikuti sambil nanya ke yang berwenang." },
       { trait: "I", text: "Cari celah biar tetap enak dijalanin." },
-      { trait: "D", text: "Terobos kalau memang ngak masuk akal." },
+      { trait: "D", text: "Terobos kalau memang gak masuk akal." },
     ],
   },
   {
@@ -216,7 +216,7 @@ export const DISC_QUESTIONS: DiscQuestion[] = [
     prompt: "Waktu dipercaya mimpin kelompok, aku…",
     statements: [
       { trait: "D", text: "Ambil alih arah dan bagi-bagi tugas." },
-      { trait: "S", text: "Pastiin ngak ada yang keteteran." },
+      { trait: "S", text: "Pastiin gak ada yang keteteran." },
       { trait: "C", text: "Susun rencana dan jadwalnya rapi." },
       { trait: "I", text: "Bakar semangat anggotanya." },
     ],
@@ -247,7 +247,7 @@ export const DISC_QUESTIONS: DiscQuestion[] = [
     statements: [
       { trait: "C", text: "Aku jarang bikin kesalahan." },
       { trait: "D", text: "Aku berani ambil risiko." },
-      { trait: "S", text: "Aku konsisten, ngak gampang nyerah." },
+      { trait: "S", text: "Aku konsisten, gak gampang nyerah." },
       { trait: "I", text: "Aku bisa bikin orang lain semangat." },
     ],
   },

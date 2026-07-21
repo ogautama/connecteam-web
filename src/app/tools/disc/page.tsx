@@ -20,7 +20,7 @@ export default function DiscPage() {
           Kenalan sama dirimu dulu
         </h1>
         <p className="max-w-xl text-lg text-ink-500">
-          Ngak ada jawaban benar atau salah. Pilih yang paling mirip sama kamu
+          Gak ada jawaban benar atau salah. Pilih yang paling mirip sama kamu
           sehari-hari, dan kamu bakal lihat gaya kerjamu — plus gimana itu
           kepake buat jualan dan bangun tim.
         </p>

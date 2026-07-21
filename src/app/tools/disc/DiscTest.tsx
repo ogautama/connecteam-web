@@ -242,7 +242,7 @@ function LeadCapture({ answers }: { answers: DiscTrait[] }) {
       </h3>
       <p className="mt-2 text-sm text-ink-500">
         Tinggalin kontakmu kalau mau dibahas lebih jauh sama mentor kami. Gratis,
-        ngak ada kewajiban apa-apa.
+        gak ada kewajiban apa-apa.
       </p>
 
       <div className="mt-4 flex flex-col gap-4">
