@@ -100,7 +100,7 @@ are captured inline in those docs so each can be picked up independently.
 | 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02b\* | [03-public-site.md](03-public-site.md) | ✅ Done — [PR #8](https://github.com/ogautama/connecteam-web/pull/8) |
 | 03b | Staging deployment (public site) | 03 | [03b-staging-deploy.md](03b-staging-deploy.md) | Code gating done (PR #9); deploy = manual checklist |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | ✅ Done — [PR #10](https://github.com/ogautama/connecteam-web/pull/10) |
-| 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | |
+| 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
 | 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | |
 | 07 | Member: Get Started (`/member/onboarding`) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | |
 | 08 | Member: Grow (`/member/grow`) | 06 | [08-member-grow.md](08-member-grow.md) | |
@@ -121,6 +121,14 @@ is untouched and stays as originally built, only its `promoteApplicant`/auth
 sections are replaced, by Plan 15b. Both original docs are kept as a record
 of what actually shipped in PR #5 — see each doc's superseded notice for
 exactly what carries over vs. what's replaced.
+
+‡ **2026-07-21**: Plan 05 is deferred by choice, not blocked — no other plan
+depends on it, and `CALCULATOR_LIVE` (`src/lib/features.ts`) already hides
+the nav link and home-page teaser, so the site stays coherent without it.
+Two things stay open while it's parked: Plan 03b's "public site complete"
+milestone (flipping `CALCULATOR_LIVE`) and the mobile-nav issue below, which
+only bites once the fourth nav link returns. Plan 16 notes calculator leads
+as future scope but works on DISC leads alone.
 
 \* Plans 03/04/05 depend on Plan 02b's *interfaces* (e.g. `getCurrentUser()`,
 a `createLead()` function) but each plan's implementation stubs/mocks those

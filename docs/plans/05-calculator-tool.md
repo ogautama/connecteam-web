@@ -1,5 +1,11 @@
 # Plan 05 — Calculator tool
 
+## Status
+
+Deferred (2026-07-21). Nothing depends on this plan and `CALCULATOR_LIVE`
+keeps `/tools/calculator` unlinked, so it can be picked up whenever. See the
+overview's ‡ note for what stays open while it's parked.
+
 ## Goal
 
 Build the income/earning-potential calculator at `/tools/calculator` — the
