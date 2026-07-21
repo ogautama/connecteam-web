@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import NotInvitedPage from "../page";
 
 describe("Not-invited page", () => {
@@ -16,8 +16,12 @@ describe("Not-invited page", () => {
   test("offers a way back to the home page", () => {
     render(<NotInvitedPage />);
 
-    expect(
-      screen.getByRole("link", { name: /Kembali ke Beranda/i }),
-    ).toHaveAttribute("href", "/");
+    // "Home" in English, matching the marketing nav's label for the same
+    // destination — nav labels stay English across the app. Scoped to <main>
+    // so it's the page's own CTA, not the header nav link of the same name.
+    const cta = within(screen.getByRole("main")).getByRole("link", {
+      name: "Home",
+    });
+    expect(cta).toHaveAttribute("href", "/");
   });
 });

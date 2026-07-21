@@ -5,7 +5,7 @@ import MarketingLayout from "@/components/layouts/MarketingLayout";
 export const metadata: Metadata = {
   title: "Belum Terdaftar — CONNECTeam",
   description:
-    "Akun Google kamu berhasil masuk, tapi emailmu belum didaftarkan leader di CONNECTeam.",
+    "Akun Google kamu berhasil masuk, tapi email kamu belum terdaftar di CONNECTeam.",
 };
 
 // Landed on by a successful Google sign-in whose email has no matching
@@ -20,15 +20,14 @@ export default function NotInvitedPage() {
           Kamu belum terdaftar
         </h1>
         <p className="max-w-md text-lg text-ink-500">
-          Akun Google kamu berhasil masuk, tapi emailmu belum didaftarkan
-          leader di CONNECTeam. Minta leader kamu buat nambahin dulu, terus
-          coba masuk lagi.
+          Akun Google kamu berhasil masuk, tapi email kamu belum terdaftar di
+          CONNECTeam. Minta leader kamu buat nambahin, lalu masuk lagi.
         </p>
         <Link
           href="/"
           className="mt-2 rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800"
         >
-          Kembali ke Beranda
+          Home
         </Link>
       </section>
     </MarketingLayout>
