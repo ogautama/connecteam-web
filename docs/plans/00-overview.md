@@ -95,7 +95,7 @@ are captured inline in those docs so each can be picked up independently.
 |---|---|---|---|---|
 | 01 | Project foundations (layouts, design tokens, test runner) | — | [01-foundations.md](01-foundations.md) | ✅ Done — [PR #1](https://github.com/ogautama/connecteam-web/pull/1) |
 | 02 | ~~Data & auth layer (Prisma, Neon, Auth.js, role middleware)~~ | 01 | [02-data-auth.md](02-data-auth.md) | ✅ Done, superseded† — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
-| 02b | Supabase infra + Google OAuth (Postgres, Auth, pending-invite gate) | 01 | [02b-supabase-auth-google-oauth.md](02b-supabase-auth-google-oauth.md) | Not started |
+| 02b | Supabase infra + Google OAuth (Postgres, Auth, pending-invite gate) | 01 | [02b-supabase-auth-google-oauth.md](02b-supabase-auth-google-oauth.md) | ✅ Done — [PR #7](https://github.com/ogautama/connecteam-web/pull/7) |
 | 02c | Leader: Add Member (pending-invite creation UI) | 02b | [02c-leader-add-member.md](02c-leader-add-member.md) | Not started |
 | 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02b\* | [03-public-site.md](03-public-site.md) | |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | |

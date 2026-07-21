@@ -2,10 +2,15 @@
 
 ## Status
 
-Not started. Supersedes the database-hosting and auth-mechanism scope of
+**Done** — implemented in [PR #7](https://github.com/ogautama/connecteam-web/pull/7).
+Supersedes the database-hosting and auth-mechanism scope of
 [Plan 02](02-data-auth.md) (see that doc's superseded notice). Written
 2026-07-21 after deciding to consolidate off Neon + Auth.js onto Supabase +
 Vercel, and off password login onto Google OAuth only — see "Why" below.
+
+The real Google sign-in landing in `/member` step under "Verification"
+below is still open — it's blocked on Plan 03's `/login` page, which
+doesn't exist yet, not on anything in this plan.
 
 ## Why this replaces Plan 02's auth scope
 
