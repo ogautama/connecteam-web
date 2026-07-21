@@ -129,6 +129,15 @@ Plans 07–14 (the eight member-space sections) are fully independent of each
 other — they only share Plan 06's shell/layout/nav and can be built and
 reviewed in any order or in parallel.
 
+## Known deferred issues
+
+- **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
+  The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
+  crowd the logo below ~400px wide — surfaced building Plan 03, left as-is
+  since it's shared chrome, not that plan's scope. Wants a responsive
+  treatment (hamburger/collapse). Decide the design when we're actually
+  filling out the public pages (Plans 04/05) rather than pre-emptively.
+
 ## Working tree state when this overview was written (historical)
 
 From earlier exploration before this planning pass — since superseded by
