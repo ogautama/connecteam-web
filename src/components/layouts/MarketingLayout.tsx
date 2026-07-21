@@ -1,12 +1,15 @@
 import Link from "next/link";
 import HeaderLoginButton from "@/components/layouts/HeaderLoginButton";
+import { CALCULATOR_LIVE, DISC_LIVE } from "@/lib/features";
 
+// Tool links are hidden until their pages exist (Plans 04/05) — see
+// src/lib/features.ts. `live: false` entries are filtered out.
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/join", label: "Join Us" },
-  { href: "/tools/disc", label: "DISC Test" },
-  { href: "/tools/calculator", label: "Income Calculator" },
-];
+  { href: "/tools/disc", label: "DISC Test", live: DISC_LIVE },
+  { href: "/tools/calculator", label: "Income Calculator", live: CALCULATOR_LIVE },
+].filter((link) => link.live !== false);
 
 const SOCIAL_LINKS = [
   { href: "https://instagram.com", label: "Instagram" },

@@ -16,10 +16,6 @@ describe("Home page", () => {
     ).toBeInTheDocument();
     // Vision
     expect(screen.getByRole("heading", { name: /Visi Kami/i })).toBeInTheDocument();
-    // DISC teaser links to the tool
-    expect(
-      screen.getByRole("link", { name: /Mulai Tes DISC/i }),
-    ).toHaveAttribute("href", "/tools/disc");
     // Challenge / CTA + join links
     expect(
       screen.getByRole("heading", { name: /Siap ambil langkah pertama/i }),
@@ -27,5 +23,17 @@ describe("Home page", () => {
     expect(
       screen.getAllByRole("link", { name: /Gabung Sekarang/i }).length,
     ).toBeGreaterThan(0);
+  });
+
+  // Tool links are gated off until Plans 04/05 ship (src/lib/features.ts) so a
+  // staging build has no dead links. Update these when the flags flip.
+  test("does not link to the unbuilt tool pages while gated", () => {
+    render(<Home />);
+    expect(
+      screen.queryByRole("link", { name: /Mulai Tes DISC/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /Hitung Potensi Income/i }),
+    ).not.toBeInTheDocument();
   });
 });

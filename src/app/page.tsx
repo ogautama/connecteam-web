@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
+import { CALCULATOR_LIVE, DISC_LIVE } from "@/lib/features";
 
 export const metadata: Metadata = {
   title: "CONNECTeam — Kerja Ngak Harus Ribet",
@@ -76,12 +77,15 @@ export default function Home() {
           >
             Gabung Sekarang
           </Link>
-          <Link
-            href="/tools/calculator"
-            className="rounded-full border border-ink-100 px-6 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
-          >
-            Hitung Potensi Income
-          </Link>
+          {/* Hidden until the calculator exists (Plan 05) — see features.ts */}
+          {CALCULATOR_LIVE && (
+            <Link
+              href="/tools/calculator"
+              className="rounded-full border border-ink-100 px-6 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
+            >
+              Hitung Potensi Income
+            </Link>
+          )}
         </div>
       </section>
 
@@ -151,26 +155,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* DISC teaser */}
-      <section className="mx-auto w-full max-w-content px-6 py-20">
-        <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-ink-100 bg-brand-yellow-50 p-8 sm:flex-row sm:text-left">
-          <div className="text-center sm:text-left">
-            <h2 className="text-xl font-bold text-ink-900">
-              Kenalan sama dirimu dulu
-            </h2>
-            <p className="mt-2 max-w-md text-sm text-ink-500">
-              Ikuti tes DISC gratis 2 menit dan cari tahu tipe kepribadianmu —
-              plus gimana itu ngebentuk gaya kerjamu.
-            </p>
+      {/* DISC teaser — hidden until the DISC tool exists (Plan 04), see features.ts */}
+      {DISC_LIVE && (
+        <section className="mx-auto w-full max-w-content px-6 py-20">
+          <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-ink-100 bg-brand-yellow-50 p-8 sm:flex-row sm:text-left">
+            <div className="text-center sm:text-left">
+              <h2 className="text-xl font-bold text-ink-900">
+                Kenalan sama dirimu dulu
+              </h2>
+              <p className="mt-2 max-w-md text-sm text-ink-500">
+                Ikuti tes DISC gratis 2 menit dan cari tahu tipe kepribadianmu —
+                plus gimana itu ngebentuk gaya kerjamu.
+              </p>
+            </div>
+            <Link
+              href="/tools/disc"
+              className="shrink-0 rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800"
+            >
+              Mulai Tes DISC
+            </Link>
           </div>
-          <Link
-            href="/tools/disc"
-            className="shrink-0 rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800"
-          >
-            Mulai Tes DISC
-          </Link>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Challenge / CTA */}
       <section className="border-t border-ink-100 bg-ink-50">
