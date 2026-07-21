@@ -5,19 +5,15 @@ const {
   userFindFirst,
   userUpdate,
   applicantFindUnique,
-  applicantFindUniqueOrThrow,
   applicantUpdate,
   queryRaw,
-  transaction,
 } = vi.hoisted(() => ({
   userFindUnique: vi.fn(),
   userFindFirst: vi.fn(),
   userUpdate: vi.fn(),
   applicantFindUnique: vi.fn(),
-  applicantFindUniqueOrThrow: vi.fn(),
   applicantUpdate: vi.fn(),
   queryRaw: vi.fn(),
-  transaction: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -29,18 +25,15 @@ vi.mock("@/lib/prisma", () => ({
     },
     applicant: {
       findUnique: applicantFindUnique,
-      findUniqueOrThrow: applicantFindUniqueOrThrow,
       update: applicantUpdate,
     },
     $queryRaw: queryRaw,
-    $transaction: transaction,
   },
 }));
 
 import {
   canAccess,
   getDescendantUserIds,
-  promoteApplicant,
   reassignRecruiter,
   resolveRecruiter,
 } from "@/lib/recruitTree";
@@ -174,46 +167,6 @@ describe("reassignRecruiter", () => {
     expect(applicantUpdate).toHaveBeenCalledWith({
       where: { id: "app_1" },
       data: { recruiterId: "midB" },
-    });
-  });
-});
-
-describe("promoteApplicant", () => {
-  it("copies recruiterId onto the new User and sets Applicant.enrolledUserId", async () => {
-    applicantFindUniqueOrThrow.mockResolvedValueOnce({
-      id: "app_1",
-      recruiterId: "midA",
-    });
-
-    const txUserCreate = vi
-      .fn()
-      .mockResolvedValueOnce({ id: "new_user", recruiterId: "midA" });
-    const txApplicantUpdate = vi.fn().mockResolvedValueOnce({});
-    transaction.mockImplementationOnce(async (callback) =>
-      callback({
-        user: { create: txUserCreate },
-        applicant: { update: txApplicantUpdate },
-      })
-    );
-
-    const user = await promoteApplicant("app_1", {
-      email: "new@example.com",
-      name: "New User",
-      passwordHash: "hashed",
-    });
-
-    expect(user.recruiterId).toBe("midA");
-    expect(txUserCreate).toHaveBeenCalledWith({
-      data: {
-        email: "new@example.com",
-        name: "New User",
-        passwordHash: "hashed",
-        recruiterId: "midA",
-      },
-    });
-    expect(txApplicantUpdate).toHaveBeenCalledWith({
-      where: { id: "app_1" },
-      data: { enrolledUserId: "new_user" },
     });
   });
 });
