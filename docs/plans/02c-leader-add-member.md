@@ -22,10 +22,22 @@ plan left open:
 - **`requireRole("leader")` runs in the action as well as the page.** Server
   Actions are reachable by direct POST, so the page's guard can't be the only
   one.
-- **Recruiter defaults to the acting leader**, with the invite-code text
-  field as the documented fallback for someone not in the dropdown — an
-  unknown or blank code rides `resolveRecruiter`'s existing fallback to root
-  instead of failing the submit.
+- **Recruiter defaults to the acting leader**, and the dropdown is scoped to
+  the leader's own branch — themselves plus their downline, via
+  `getDescendantUserIds`. Nobody can file a recruit under their upline or a
+  sibling branch. The action re-derives that set rather than trusting the
+  posted `recruiterId`, for the same reason it re-checks the role.
+- **The fallback is now the acting leader, not root.** The plan asked for
+  `resolveRecruiter`'s fallback-to-root so a bad invite code wouldn't hard-
+  fail; under branch scoping that fallback would do exactly what the scoping
+  exists to prevent. Falling back to the leader themselves keeps the
+  don't-hard-fail behavior and stays in-branch.
+- **The invite-code field is `User.inviteCode`** — an existing member's
+  permanent referral code (Plan 16's `?ref=` links), *not* a per-invitee
+  token and not tied to any email. It's kept as an escape hatch and validated
+  against the same branch, but it can only ever name someone the dropdown
+  already lists; the label says "Kode referral" rather than "Kode undangan"
+  because the latter read as though it belonged to the person being invited.
 - **Success replaces the form** with a confirmation naming the invited email
   plus a reminder that nothing notifies them; "Tambah member lagi" remounts
   the form to reset it (`useActionState` state only changes on the next
@@ -54,6 +66,16 @@ shown up.
 - **`revalidatePath` after a successful submit** so a new invite lands in the
   list immediately — the page is server-rendered, so otherwise it would only
   appear after a manual reload.
+- **Every row names its inviter**, from `PendingInvite.invitedBy` (stored on
+  every invite this page creates), reading "Diundang kamu" for the viewing
+  leader's own. That makes the list's two sources legible: invites in your
+  branch, and invites you filed yourself.
+
+One gap this surfaced, deferred to
+[00-overview.md](00-overview.md#known-deferred-issues): you can't put someone
+under an invitee who hasn't signed in yet, because that person has no `User`
+row (and so no id and no invite code) to point at. Workaround is to file them
+under yourself and `reassignRecruiter` once the upline invite is consumed.
 
 ## Goal
 

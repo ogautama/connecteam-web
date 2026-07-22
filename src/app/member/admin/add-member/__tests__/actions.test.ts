@@ -64,7 +64,9 @@ describe("addMember", () => {
       }),
     );
 
+    // leaderId is what confines the choice to the acting leader's branch.
     expect(resolveInviteRecruiter).toHaveBeenCalledWith({
+      leaderId: "user_1",
       recruiterId: "user_2",
       inviteCode: undefined,
     });

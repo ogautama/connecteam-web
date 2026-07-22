@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-const { requireRole, listRecruiterOptions, listPendingInvitesFor } = vi.hoisted(
+const { requireRole, listRecruiterOptionsFor, listPendingInvitesFor } = vi.hoisted(
   () => ({
     requireRole: vi.fn(),
-    listRecruiterOptions: vi.fn(),
+    listRecruiterOptionsFor: vi.fn(),
     listPendingInvitesFor: vi.fn(),
   }),
 );
@@ -15,7 +15,7 @@ vi.mock("@/lib/invites", async () => {
   const actual = await vi.importActual<typeof import("@/lib/invites")>(
     "@/lib/invites",
   );
-  return { ...actual, listRecruiterOptions, listPendingInvitesFor };
+  return { ...actual, listRecruiterOptionsFor, listPendingInvitesFor };
 });
 vi.mock("../actions", () => ({ addMember: vi.fn() }));
 
@@ -23,7 +23,7 @@ import AddMemberPage from "../page";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  listRecruiterOptions.mockResolvedValue([
+  listRecruiterOptionsFor.mockResolvedValue([
     { id: "user_1", name: "Budi Santoso", email: "budi@example.com" },
   ]);
   listPendingInvitesFor.mockResolvedValue([]);
@@ -79,7 +79,7 @@ describe("/member/admin/add-member", () => {
     requireRole.mockRejectedValue(new Error("NEXT_REDIRECT"));
 
     await expect(AddMemberPage()).rejects.toThrow("NEXT_REDIRECT");
-    expect(listRecruiterOptions).not.toHaveBeenCalled();
+    expect(listRecruiterOptionsFor).not.toHaveBeenCalled();
     expect(listPendingInvitesFor).not.toHaveBeenCalled();
   });
 });

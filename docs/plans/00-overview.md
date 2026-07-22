@@ -165,6 +165,16 @@ reviewed in any order or in parallel.
   form's settings and confirm a logged-out visitor can view and submit it
   (this is a Google Form config check, not a code change). Moot once the form
   itself is rebuilt in-app, if that's ever scoped.
+- **A pending invitee can't be anyone's recruiter yet** (Plan 02c). If A
+  invites B and then wants to add C *under B* before B has signed in, there's
+  no way to say so: B has no `User` row until first login, and
+  `PendingInvite.recruiterId` points at `User.id`. The invite code doesn't
+  help — that's `User.inviteCode`, which B also doesn't have yet. Today A
+  either waits for B to sign in, or files C under themselves and moves them
+  with `reassignRecruiter` afterwards. A real fix means letting an invite
+  name another *invite* as recruiter, and having `on_auth_user_created`
+  repoint those children when the parent invite is consumed — schema plus
+  trigger work, worth its own small plan.
 
 ## Working tree state when this overview was written (historical)
 

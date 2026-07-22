@@ -7,7 +7,6 @@ const {
   inviteFindUnique,
   inviteFindMany,
   inviteCreate,
-  resolveRecruiter,
   getDescendantUserIds,
 } = vi.hoisted(() => ({
   userFindUnique: vi.fn(),
@@ -15,7 +14,6 @@ const {
   inviteFindUnique: vi.fn(),
   inviteFindMany: vi.fn(),
   inviteCreate: vi.fn(),
-  resolveRecruiter: vi.fn(),
   getDescendantUserIds: vi.fn(),
 }));
 
@@ -30,13 +28,14 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-vi.mock("@/lib/recruitTree", () => ({ resolveRecruiter, getDescendantUserIds }));
+vi.mock("@/lib/recruitTree", () => ({ getDescendantUserIds }));
 
 import {
   createPendingInvite,
   daysWaiting,
   isValidEmail,
   listPendingInvitesFor,
+  listRecruiterOptionsFor,
   normalizeEmail,
   resolveInviteRecruiter,
 } from "@/lib/invites";
@@ -64,33 +63,70 @@ describe("normalizeEmail", () => {
   });
 });
 
+describe("listRecruiterOptionsFor", () => {
+  it("offers the leader their own branch and nobody else", async () => {
+    // A recruited B and S; B recruited C. B is the one adding a member.
+    getDescendantUserIds.mockResolvedValue(["B", "C"]);
+    userFindMany.mockResolvedValue([]);
+
+    await listRecruiterOptionsFor("B");
+
+    expect(getDescendantUserIds).toHaveBeenCalledWith("B");
+    expect(userFindMany).toHaveBeenCalledWith({
+      where: { id: { in: ["B", "C"] }, status: "active" },
+      select: { id: true, name: true, email: true },
+      orderBy: { name: "asc" },
+    });
+  });
+});
+
 describe("resolveInviteRecruiter", () => {
-  it("uses the picked recruiter when it exists", async () => {
-    userFindUnique.mockResolvedValue({ id: "user_2" });
-
-    expect(await resolveInviteRecruiter({ recruiterId: "user_2" })).toBe("user_2");
-    expect(resolveRecruiter).not.toHaveBeenCalled();
+  beforeEach(() => {
+    // B's branch: B (self-inclusive) and their recruit C.
+    getDescendantUserIds.mockResolvedValue(["B", "C"]);
   });
 
-  it("falls back to the invite code when nothing was picked", async () => {
-    resolveRecruiter.mockResolvedValue("user_9");
-
-    expect(await resolveInviteRecruiter({ inviteCode: " abc123 " })).toBe("user_9");
-    expect(resolveRecruiter).toHaveBeenCalledWith("abc123");
+  it("uses the picked recruiter when they're in the branch", async () => {
+    expect(await resolveInviteRecruiter({ leaderId: "B", recruiterId: "C" })).toBe(
+      "C",
+    );
+    expect(userFindUnique).not.toHaveBeenCalled();
   });
 
-  it("lets resolveRecruiter fall back to root on a blank code", async () => {
-    resolveRecruiter.mockResolvedValue("user_root");
-
-    expect(await resolveInviteRecruiter({})).toBe("user_root");
-    expect(resolveRecruiter).toHaveBeenCalledWith(undefined);
+  it("refuses a recruiter outside the branch, even by direct POST", async () => {
+    // "A" is B's upline — no User row lookup should rescue this.
+    expect(await resolveInviteRecruiter({ leaderId: "B", recruiterId: "A" })).toBe(
+      "B",
+    );
   });
 
-  it("falls back rather than trusting a recruiterId that no longer exists", async () => {
+  it("accepts an invite code belonging to someone in the branch", async () => {
+    userFindUnique.mockResolvedValue({ id: "C" });
+
+    expect(
+      await resolveInviteRecruiter({ leaderId: "B", inviteCode: " abc123 " }),
+    ).toBe("C");
+    expect(userFindUnique).toHaveBeenCalledWith({
+      where: { inviteCode: "abc123" },
+      select: { id: true },
+    });
+  });
+
+  it("refuses an invite code belonging to someone outside the branch", async () => {
+    userFindUnique.mockResolvedValue({ id: "S" });
+
+    expect(
+      await resolveInviteRecruiter({ leaderId: "B", inviteCode: "abc123" }),
+    ).toBe("B");
+  });
+
+  it("falls back to the acting leader on an unknown or blank code", async () => {
     userFindUnique.mockResolvedValue(null);
-    resolveRecruiter.mockResolvedValue("user_root");
 
-    expect(await resolveInviteRecruiter({ recruiterId: "gone" })).toBe("user_root");
+    expect(
+      await resolveInviteRecruiter({ leaderId: "B", inviteCode: "nope" }),
+    ).toBe("B");
+    expect(await resolveInviteRecruiter({ leaderId: "B" })).toBe("B");
   });
 });
 

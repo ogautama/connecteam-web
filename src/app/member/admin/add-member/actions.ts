@@ -44,6 +44,7 @@ export async function addMember(
   }
 
   const recruiterId = await resolveInviteRecruiter({
+    leaderId: leader.id,
     recruiterId: text(formData.get("recruiterId")) || undefined,
     inviteCode: text(formData.get("inviteCode")) || undefined,
   });

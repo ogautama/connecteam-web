@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 
 const { addMember } = vi.hoisted(() => ({ addMember: vi.fn() }));
 
@@ -42,8 +48,21 @@ describe("AddMemberForm", () => {
     renderForm();
 
     expect(screen.getByLabelText("Recruiter")).toHaveValue("user_1");
-    expect(screen.getByLabelText("Kode undangan recruiter")).toHaveValue("");
+    expect(screen.getByLabelText("Kode referral recruiter")).toHaveValue("");
     expect(screen.getByLabelText("Role")).toHaveValue("agent");
+  });
+
+  test("marks the acting leader in the recruiter list", () => {
+    renderForm();
+
+    const options = within(screen.getByLabelText("Recruiter")).getAllByRole(
+      "option",
+    );
+    expect(options.map((option) => option.textContent)).toEqual([
+      "Kamu — Budi Santoso — budi@example.com",
+      "Rani Putri — rani@example.com",
+      "Pakai kode referral di bawah",
+    ]);
   });
 
   test("submits what the leader filled in", async () => {

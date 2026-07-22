@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireRole } from "@/lib/auth";
-import { listPendingInvitesFor, listRecruiterOptions } from "@/lib/invites";
+import { listPendingInvitesFor, listRecruiterOptionsFor } from "@/lib/invites";
 import AddMemberForm from "./AddMemberForm";
 import PendingInvites from "./PendingInvites";
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default async function AddMemberPage() {
   const leader = await requireRole("leader");
   const [recruiters, pendingInvites] = await Promise.all([
-    listRecruiterOptions(),
+    listRecruiterOptionsFor(leader.id),
     listPendingInvitesFor(leader.id),
   ]);
 

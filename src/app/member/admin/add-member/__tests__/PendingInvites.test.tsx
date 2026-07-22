@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
-import PendingInvites, { waitingLabel } from "../PendingInvites";
+import PendingInvites, { inviterLabel, waitingLabel } from "../PendingInvites";
 
 const createdAt = new Date("2026-07-20T09:00:00Z");
 
@@ -32,6 +32,21 @@ describe("waitingLabel", () => {
   });
 });
 
+describe("inviterLabel", () => {
+  test("says 'kamu' rather than repeating the viewer's own name", () => {
+    expect(inviterLabel(invite)).toBe("Diundang kamu");
+  });
+
+  test("names anyone else, and copes with a deleted inviter", () => {
+    expect(inviterLabel({ ...invite, invitedByYou: false })).toBe(
+      "Diundang Budi Santoso",
+    );
+    expect(
+      inviterLabel({ ...invite, invitedByYou: false, invitedByName: null }),
+    ).toBe("Diundang —");
+  });
+});
+
 describe("PendingInvites", () => {
   test("says so plainly when nobody is waiting", () => {
     render(<PendingInvites invites={[]} />);
@@ -49,7 +64,7 @@ describe("PendingInvites", () => {
     expect(within(row).getByText("Nunggu 3 hari")).toBeInTheDocument();
   });
 
-  test("names the inviter only when it wasn't the viewing leader", () => {
+  test("names the inviter when it wasn't the viewing leader", () => {
     render(
       <PendingInvites
         invites={[
@@ -61,9 +76,11 @@ describe("PendingInvites", () => {
     expect(screen.getByText(/Diundang Sari Dewi/)).toBeInTheDocument();
   });
 
-  test("does not repeat the viewing leader's own name on every row", () => {
+  test("marks the rows the viewing leader invited themselves", () => {
     render(<PendingInvites invites={[invite]} />);
 
+    // invitedBy is stored on every invite, so "who added this" is always known.
+    expect(screen.getByText(/Diundang kamu/)).toBeInTheDocument();
     expect(screen.queryByText(/Diundang Budi Santoso/)).not.toBeInTheDocument();
   });
 

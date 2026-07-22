@@ -1,6 +1,6 @@
 import { Prisma, type PendingInvite, type Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getDescendantUserIds, resolveRecruiter } from "@/lib/recruitTree";
+import { getDescendantUserIds } from "@/lib/recruitTree";
 
 export type RecruiterOption = { id: string; name: string; email: string };
 
@@ -16,32 +16,54 @@ export function isValidEmail(email: string): boolean {
   return EMAIL_PATTERN.test(normalizeEmail(email));
 }
 
-/** Everyone a leader can name as the new member's recruiter. */
-export function listRecruiterOptions(): Promise<RecruiterOption[]> {
+/**
+ * Everyone a leader can name as the new member's recruiter: themselves plus
+ * their whole downline, and nobody else. A leader has no business placing a
+ * recruit under their upline or a sibling branch — if A recruited B and S,
+ * and B recruited C, then B may pick B or C, never A or S.
+ */
+export async function listRecruiterOptionsFor(
+  leaderId: string
+): Promise<RecruiterOption[]> {
+  const branchIds = await getDescendantUserIds(leaderId);
   return prisma.user.findMany({
-    where: { status: "active" },
+    where: { id: { in: branchIds }, status: "active" },
     select: { id: true, name: true, email: true },
     orderBy: { name: "asc" },
   });
 }
 
 /**
- * The dropdown pick wins; a manually typed invite code is the fallback. An
- * unknown or blank code lands on resolveRecruiter's fallback-to-root instead
- * of hard-failing — the invite still gets created, just under root.
+ * The dropdown pick wins, a typed invite code is the fallback, and either way
+ * the answer has to land inside the acting leader's branch — the form is only
+ * one route to the action, which is also reachable by direct POST.
+ *
+ * Anything unrecognized, blank, or out of branch falls back to the leader
+ * themselves. That keeps the plan's "don't hard-fail on a bad code" behavior
+ * while dropping its fallback-to-root, which would now do the one thing the
+ * branch rule exists to prevent.
  */
 export async function resolveInviteRecruiter(input: {
+  leaderId: string;
   recruiterId?: string;
   inviteCode?: string;
 }): Promise<string> {
-  if (input.recruiterId) {
-    const picked = await prisma.user.findUnique({
-      where: { id: input.recruiterId },
+  const branchIds = await getDescendantUserIds(input.leaderId);
+
+  if (input.recruiterId && branchIds.includes(input.recruiterId)) {
+    return input.recruiterId;
+  }
+
+  const inviteCode = input.inviteCode?.trim();
+  if (inviteCode) {
+    const coded = await prisma.user.findUnique({
+      where: { inviteCode },
       select: { id: true },
     });
-    if (picked) return picked.id;
+    if (coded && branchIds.includes(coded.id)) return coded.id;
   }
-  return resolveRecruiter(input.inviteCode?.trim() || undefined);
+
+  return input.leaderId;
 }
 
 export type CreateInviteResult =

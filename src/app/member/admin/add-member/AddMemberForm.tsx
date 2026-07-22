@@ -92,11 +92,16 @@ function AddMemberFields({
         >
           {recruiters.map((recruiter) => (
             <option key={recruiter.id} value={recruiter.id}>
+              {recruiter.id === defaultRecruiterId ? "Kamu — " : ""}
               {recruiter.name} — {recruiter.email}
             </option>
           ))}
-          <option value="">Pakai kode undangan di bawah</option>
+          <option value="">Pakai kode referral di bawah</option>
         </select>
+        <p className="text-sm text-ink-500">
+          Cuma kamu dan tim di bawah kamu. Orang yang belum pernah sign in
+          belum ada di sini — dia baru muncul setelah undangannya kepake.
+        </p>
       </div>
 
       <div className="flex flex-col gap-1">
@@ -104,7 +109,7 @@ function AddMemberFields({
           htmlFor="inviteCode"
           className="text-sm font-semibold text-ink-900"
         >
-          Kode undangan recruiter
+          Kode referral recruiter
         </label>
         <input
           id="inviteCode"
@@ -114,8 +119,9 @@ function AddMemberFields({
           className="rounded-lg border border-ink-100 px-3 py-2 text-ink-900"
         />
         <p className="text-sm text-ink-500">
-          Cuma kepake kalau recruiter-nya nggak ada di dropdown. Kalau kodenya
-          salah atau kosong, recruiter-nya jatuh ke root.
+          Kode referral punya member yang udah aktif — bukan kode buat orang
+          yang lagi diundang. Kalau salah, kosong, atau bukan orang di tim
+          kamu, recruiter-nya jadi kamu.
         </p>
       </div>
 
