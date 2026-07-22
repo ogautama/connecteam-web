@@ -3,10 +3,14 @@
 ## Status
 
 **Done** in [PR #15](https://github.com/ogautama/connecteam-web/pull/15).
-Shipped as described below. The leader flow under "Verification" was checked
-in the browser by @ogautama on 2026-07-22 — everything else on this branch was
-only ever exercised by the test suite and the build, since signing in as a
-leader needs real Google credentials.
+Shipped as described below. Partially verified in the browser by @ogautama on
+2026-07-22: adding a member through the form works, and resubmitting the same
+email surfaces the expected "already invited" inline error rather than a
+constraint failure — which is also indirect proof the `PendingInvite` row
+landed. Still unverified, because it waits on a real first sign-in: that a
+consumed invite drops out of "Belum Login" when the invited person actually
+logs in. Everything else on this branch was exercised only by the test suite
+and the build.
 
 Notes on what the implementation settled that the plan left open:
 
