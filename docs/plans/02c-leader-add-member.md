@@ -3,8 +3,12 @@
 ## Status
 
 **Done** in [PR #15](https://github.com/ogautama/connecteam-web/pull/15).
-Shipped as described below. Notes on what the implementation settled that the
-plan left open:
+Shipped as described below. The leader flow under "Verification" was checked
+in the browser by @ogautama on 2026-07-22 — everything else on this branch was
+only ever exercised by the test suite and the build, since signing in as a
+leader needs real Google credentials.
+
+Notes on what the implementation settled that the plan left open:
 
 - **Lives at `/member/admin/add-member`** inside Plan 06's member shell (that
   plan landed first, so the standalone-layout fallback wasn't needed) and is

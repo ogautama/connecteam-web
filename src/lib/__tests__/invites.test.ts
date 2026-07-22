@@ -314,4 +314,37 @@ describe("listPendingInvitesFor", () => {
     expect(invite.invitedByName).toBeNull();
     expect(invite.invitedByYou).toBe(false);
   });
+
+  it("shows B an invite A filed under B, naming A as the inviter", async () => {
+    // A recruited B, B will recruit C. A adds C with recruiter = B, so the
+    // invite reaches B through the recruiter match, not through invitedBy.
+    // B's branch is just [B]: C has no User row until they first sign in, so
+    // there's nothing below B for getDescendantUserIds to walk to yet.
+    getDescendantUserIds.mockResolvedValue(["B"]);
+    inviteFindMany.mockResolvedValue([
+      {
+        id: "invite_c",
+        email: "c@example.com",
+        role: "agent",
+        createdAt: new Date("2026-07-22T09:00:00Z"),
+        recruiterId: "B",
+        invitedBy: "A",
+      },
+    ]);
+    userFindMany.mockResolvedValue([
+      { id: "B", name: "Bagus" },
+      { id: "A", name: "Ayu" },
+    ]);
+
+    const [invite] = await listPendingInvitesFor("B");
+
+    expect(inviteFindMany).toHaveBeenCalledWith({
+      where: { OR: [{ recruiterId: { in: ["B"] } }, { invitedBy: "B" }] },
+      orderBy: { createdAt: "desc" },
+    });
+    expect(invite.recruiterName).toBe("Bagus");
+    expect(invite.invitedByName).toBe("Ayu");
+    // Not B's own doing, so the row credits A rather than saying "kamu".
+    expect(invite.invitedByYou).toBe(false);
+  });
 });
