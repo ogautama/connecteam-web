@@ -2,8 +2,9 @@
 
 ## Status
 
-**Done** in PR (pending). Shipped as described below. Notes on what the
-implementation settled that the plan left open:
+**Done** in [PR #17](https://github.com/ogautama/connecteam-web/pull/17).
+Shipped as described below. Notes on what the implementation settled that
+the plan left open:
 
 - **Content lives in `src/content/onboarding.ts`** as five typed exports
   (`KNOW_YOURSELF`/`LEARN_LINKS` links, `PLAN_YOUR_GOALS`/`JUST_DO_IT`
