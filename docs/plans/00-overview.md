@@ -102,7 +102,7 @@ are captured inline in those docs so each can be picked up independently.
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | ✅ Done — [PR #10](https://github.com/ogautama/connecteam-web/pull/10) |
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
 | 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12) |
-| 07 | Member: Get Started (`/member/onboarding`) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | |
+| 07 | Member: Get Started (`/member/onboarding`) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | ✅ Done — PR pending |
 | 08 | Member: Grow (`/member/grow`) | 06 | [08-member-grow.md](08-member-grow.md) | |
 | 09 | Member: Sell (`/member/sell`) | 06 | [09-member-sell.md](09-member-sell.md) | |
 | 10 | Member: Reference Data (`/member/reference`) | 06 | [10-member-reference.md](10-member-reference.md) | |
@@ -175,6 +175,14 @@ reviewed in any order or in parallel.
   name another *invite* as recruiter, and having `on_auth_user_created`
   repoint those children when the parent invite is consumed — schema plus
   trigger work, worth its own small plan.
+- **4 Starter Kit PDFs and 5 video/chat links have no real URL yet** (Plan
+  07). The old `/hi-partner` and `/starter-kit` pages sit behind a
+  Google-account gate, so this plan couldn't pull the actual files or links
+  for the Starter Kit PDFs (Schedule Book, Project 100, Score Card, Review
+  Polis), the 4 "Learn" videos, or the Telegram webinar-schedule link — the
+  page ships with "Segera hadir" placeholders in
+  `src/content/onboarding.ts` for all of them instead of fabricated URLs.
+  Needs someone with access to the old site to pull the real files/links.
 
 ## Working tree state when this overview was written (historical)
 

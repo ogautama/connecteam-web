@@ -1,5 +1,39 @@
 # Plan 07 — Member: Get Started (onboarding)
 
+## Status
+
+**Done** in PR (pending). Shipped as described below. Notes on what the
+implementation settled that the plan left open:
+
+- **Content lives in `src/content/onboarding.ts`** as five typed exports
+  (`KNOW_YOURSELF`/`LEARN_LINKS` links, `PLAN_YOUR_GOALS`/`JUST_DO_IT`
+  checklists, `LEARN_VIDEOS` videos, `STARTER_KIT` downloads) rather than one
+  combined shape — each section renders and validates differently (links
+  always need a URL, videos/downloads don't yet).
+- **Four items don't have real URLs yet, and this plan couldn't source
+  them**: the "How Insurance Works" + 3 basics videos, the Telegram link,
+  and all 4 Starter Kit PDFs. The old Google Sites pages sit behind a
+  Google-account gate the agent can't authenticate through, and the plan doc
+  itself only captured URLs for the Know Yourself links (DISC/MBTI/Self
+  Motivation/profile upload), not these. Rather than fabricate links, the
+  page renders a "Segera hadir" placeholder card for each and the Telegram
+  ask becomes a text note pointing at the team leader instead of a dead
+  link. **Follow-up needed**: supply the 4 PDFs (or their Drive URLs) for
+  `STARTER_KIT`, the 4 video URLs for `LEARN_VIDEOS`, and the Telegram
+  invite link — all in `src/content/onboarding.ts`.
+- **DISC test link points at `/tools/disc`** (Plan 04, done) instead of the
+  old external test, per the plan. MBTI/Self Motivation stay external
+  (`satupersen.net`) since those aren't being rebuilt.
+- **Recruitment Kit link points at `/member/grow`** (Plan 08, not yet
+  built) — an internal route rather than the old Drive folder, since Plan 08
+  owns that content going forward.
+- Verified: `npm run lint`, `npx tsc --noEmit`, `npm test` all pass. Couldn't
+  verify in a logged-in browser session — `/member/**` requires a real
+  Google OAuth sign-in against the shared dev Supabase project, which this
+  session doesn't have credentials for; confirmed instead that the route is
+  correctly gated (redirects to `/login` when signed out) and relied on the
+  page unit test, which renders the real component tree.
+
 ## Goal
 
 `/member/onboarding` — merges the current *Hi Partner* and *Starter Kit*
