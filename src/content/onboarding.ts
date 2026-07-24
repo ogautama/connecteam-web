@@ -91,3 +91,54 @@ export const STARTER_KIT: OnboardingDownload[] = [
   { label: "Score Card" },
   { label: "Review Polis" },
 ];
+
+// Plan 07 (quest hub redesign) — the same five sections above, addressed as
+// accordion items. `id` is the opaque key OnboardingProgress rows key off
+// of (prisma/schema.prisma) — stable once shipped, since renaming one loses
+// members' existing checked-off state.
+export type OnboardingSectionId =
+  | "know-yourself"
+  | "plan-your-goals"
+  | "learn"
+  | "just-do-it"
+  | "starter-kit";
+
+export type OnboardingSection = {
+  id: OnboardingSectionId;
+  title: string;
+  description: string;
+  icon: string;
+};
+
+export const ONBOARDING_SECTIONS: OnboardingSection[] = [
+  {
+    id: "know-yourself",
+    title: "Kenali Dirimu",
+    description: "Tes DISC, MBTI, Self Motivation, upload profil",
+    icon: "🧭",
+  },
+  {
+    id: "plan-your-goals",
+    title: PLAN_YOUR_GOALS.title,
+    description: "3 hal buat dipikirin sebelum mulai",
+    icon: "🎯",
+  },
+  {
+    id: "learn",
+    title: "Pelajari Sesuatu yang Baru",
+    description: "4 video dasar + Recruitment Kit",
+    icon: "📚",
+  },
+  {
+    id: "just-do-it",
+    title: JUST_DO_IT.title,
+    description: "3 langkah kecil, mulai sekarang",
+    icon: "⚡",
+  },
+  {
+    id: "starter-kit",
+    title: "Starter Kit",
+    description: "Schedule Book, Project 100, Score Card, Review Polis",
+    icon: "🎒",
+  },
+];

@@ -1,40 +1,88 @@
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
-import { STARTER_KIT } from "@/content/onboarding";
+
+const { requireMember, getCompletedItemIds } = vi.hoisted(() => ({
+  requireMember: vi.fn(),
+  getCompletedItemIds: vi.fn(),
+}));
+
+vi.mock("@/lib/auth", () => ({ requireMember }));
+vi.mock("@/lib/onboardingProgress", () => ({ getCompletedItemIds }));
+
 import OnboardingPage from "../page";
 
-describe("Onboarding page", () => {
-  test("renders all four onboarding sub-sections", () => {
-    render(<OnboardingPage />);
+beforeEach(() => {
+  vi.clearAllMocks();
+  requireMember.mockResolvedValue({ id: "user_1", name: "Rani Putri", role: "agent" });
+  getCompletedItemIds.mockResolvedValue([]);
+});
 
-    expect(
-      screen.getByRole("heading", { name: "Kenali Dirimu" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Susun Targetmu")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Pelajari Sesuatu yang Baru" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Langsung Aksi")).toBeInTheDocument();
+describe("Onboarding page", () => {
+  test("scopes progress lookup to the signed-in member", async () => {
+    render(await OnboardingPage());
+
+    expect(requireMember).toHaveBeenCalled();
+    expect(getCompletedItemIds).toHaveBeenCalledWith("user_1");
   });
 
-  test("renders all 4 starter-kit downloads", () => {
-    render(<OnboardingPage />);
+  test("never renders for a signed-out visitor — the guard redirects first", async () => {
+    requireMember.mockRejectedValue(new Error("NEXT_REDIRECT"));
 
-    const section = screen
-      .getByRole("heading", { name: "Starter Kit" })
-      .closest("section")!;
+    await expect(OnboardingPage()).rejects.toThrow("NEXT_REDIRECT");
+    expect(getCompletedItemIds).not.toHaveBeenCalled();
+  });
 
-    for (const item of STARTER_KIT) {
-      expect(within(section).getByText(item.label)).toBeInTheDocument();
+  test("renders all 5 tabs, Onboarding active by default", async () => {
+    render(await OnboardingPage());
+
+    const tabs = screen.getByRole("tablist", { name: "Quest Hub" });
+    for (const label of ["Onboarding", "Recruiting", "Selling", "Referensi", "Kontak"]) {
+      expect(within(tabs).getByRole("tab", { name: new RegExp(label) })).toBeInTheDocument();
+    }
+    expect(screen.getByRole("tab", { name: /Onboarding/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByRole("heading", { name: "Level 1 — Onboarding" })).toBeInTheDocument();
+  });
+
+  test("Onboarding tab lists all 5 real checklist items as checkboxes", async () => {
+    render(await OnboardingPage());
+
+    for (const title of [
+      "Kenali Dirimu",
+      "Susun Targetmu",
+      "Pelajari Sesuatu yang Baru",
+      "Langsung Aksi",
+      "Starter Kit",
+    ]) {
+      expect(screen.getByRole("checkbox", { name: title })).toBeInTheDocument();
     }
   });
 
-  test("DISC link points at our own tool, not the old external URL", () => {
-    render(<OnboardingPage />);
+  test("previously completed items render checked", async () => {
+    getCompletedItemIds.mockResolvedValue(["know-yourself", "just-do-it"]);
 
-    expect(screen.getByRole("link", { name: /Tes DISC/ })).toHaveAttribute(
-      "href",
-      "/tools/disc",
+    render(await OnboardingPage());
+
+    expect(screen.getByRole("checkbox", { name: "Kenali Dirimu" })).toHaveAttribute(
+      "aria-checked",
+      "true",
     );
+    expect(screen.getByRole("checkbox", { name: "Susun Targetmu" })).toHaveAttribute(
+      "aria-checked",
+      "false",
+    );
+  });
+
+  test("other tabs render as placeholder shells, not fabricated content", async () => {
+    render(await OnboardingPage());
+
+    const recruitingPanel = document.getElementById(
+      screen.getByRole("tab", { name: /Recruiting/ }).getAttribute("aria-controls")!,
+    )!;
+    expect(within(recruitingPanel).getByText("Level 2 — Recruiting")).toBeInTheDocument();
+    expect(within(recruitingPanel).getAllByText("Segera hadir").length).toBeGreaterThan(0);
+    expect(within(recruitingPanel).getByText("Di luar scope")).toBeInTheDocument();
   });
 });

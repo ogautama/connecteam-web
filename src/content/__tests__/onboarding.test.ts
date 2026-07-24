@@ -4,6 +4,7 @@ import {
   KNOW_YOURSELF,
   LEARN_LINKS,
   LEARN_VIDEOS,
+  ONBOARDING_SECTIONS,
   PLAN_YOUR_GOALS,
   STARTER_KIT,
 } from "../onboarding";
@@ -55,6 +56,17 @@ describe("onboarding content", () => {
     for (const item of STARTER_KIT) {
       expect(item.label).toBeTruthy();
       if (item.href) expect(isValidHref(item.href)).toBe(true);
+    }
+  });
+
+  test("onboarding sections (Plan 07 quest hub) have unique, stable ids", () => {
+    expect(ONBOARDING_SECTIONS).toHaveLength(5);
+    const ids = ONBOARDING_SECTIONS.map((section) => section.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const section of ONBOARDING_SECTIONS) {
+      expect(section.title).toBeTruthy();
+      expect(section.description).toBeTruthy();
+      expect(section.icon).toBeTruthy();
     }
   });
 });
