@@ -128,9 +128,14 @@ model OnboardingProgress {
 }
 ```
 
-RLS: row-level, scoped to `auth.uid() = userId`, same pattern as other
-member-owned tables. Toggle via a server action; read through the existing
-`getCurrentUser()` session plumbing.
+Access control: **not** Postgres RLS — this codebase doesn't use it
+anywhere (`User`/`PendingInvite`/`Applicant`/`Lead` are all scoped purely in
+application code, since Prisma always connects with the unpooled
+`DIRECT_URL`/`DATABASE_URL` credential, not through Supabase's
+RLS-enforced anon/PostgREST path). `OnboardingProgress` follows the same
+pattern: every query is scoped by `where: { userId }` inside server code
+that already ran `requireMember()` first. Toggle via a server action; read
+through the existing `getCurrentUser()`/`requireMember()` session plumbing.
 
 ## Unit tests
 
