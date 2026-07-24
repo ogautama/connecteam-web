@@ -42,6 +42,7 @@ model User {
   recruiter    User?      @relation("Recruiter", fields: [recruiterId], references: [id])
   recruits     User[]     @relation("Recruiter")
   applicants   Applicant[]
+  onboardingProgress OnboardingProgress[]
 }
 
 // Created by a leader (Plan 02c) before the invited person ever signs in.
@@ -98,4 +99,20 @@ model Applicant {
   status         ApplicantStatus @default(submitted)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+}
+
+// Plan 07 (quest hub redesign): one row per completed checklist item, per
+// member. itemId is an opaque string key owned by src/content/onboarding.ts
+// (e.g. "onboarding.know-yourself") — no FK to content since content is a
+// static in-repo module, not a DB table. Scoped in application code (every
+// query filters by userId from requireMember()'s session) — this codebase
+// has no Postgres RLS anywhere, see Plan 07's "Data model" note.
+model OnboardingProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  itemId      String
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, itemId])
 }
