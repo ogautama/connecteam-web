@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONNECTeam — Quest Hub mockup (Plan 07)</title>
+<style>
+  :root {
+    --page-bg: #f9fafb;
+    --page-surface: #ffffff;
+    --page-border: #edeff2;
+    --page-text: #1b212d;
+    --page-text-muted: #6c7689;
+    --page-text-faint: #aeb5c2;
+    --accent: #183f87;
+    --accent-soft: #f3f5f9;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    /* brand tokens, lifted from src/app/globals.css */
+    --brand-navy: #183f87;
+    --brand-navy-50: #f3f5f9;
+    --brand-red: #f04975;
+    --brand-red-50: #fef6f8;
+    --brand-gold: #f5ba01;
+    --brand-gold-50: #fffcf2;
+    --quest-gradient: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-red) 55%, var(--brand-gold) 100%);
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #1b212d; --page-surface: #232a38; --page-border: #3c4453;
+    --page-text: #f5f6f8; --page-text-muted: #b7bdc9; --page-text-faint: #6c7689;
+    --accent: #7088b5; --accent-soft: #232c42;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #1b212d; --page-surface: #232a38; --page-border: #3c4453;
+      --page-text: #f5f6f8; --page-text-muted: #b7bdc9; --page-text-faint: #6c7689;
+      --accent: #7088b5; --accent-soft: #232c42;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page-bg); color: var(--page-text); font-family: var(--sans); line-height: 1.5; }
+  .page { max-width: 1040px; margin: 0 auto; padding: 48px 24px 96px; display: flex; flex-direction: column; gap: 40px; }
+
+  .masthead { display: flex; flex-direction: column; gap: 10px; padding-bottom: 32px; border-bottom: 1px solid var(--page-border); }
+  .eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .masthead h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
+  .masthead p { margin: 0; max-width: 68ch; color: var(--page-text-muted); font-size: 1rem; }
+  .masthead .see-also { font-size: 0.875rem; }
+  .masthead .see-also a { color: var(--accent); }
+  .note-box {
+    display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px;
+    background: var(--brand-gold-50); border: 1px solid #fceab3; font-size: 0.875rem; color: var(--page-text);
+  }
+  :root[data-theme="dark"] .note-box, @media (prefers-color-scheme: dark) { }
+  .note-box b { color: #8e6c01; }
+
+  .section-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .section-head h2 { margin: 0; font-size: 1.125rem; font-weight: 700; }
+  .section-head p { margin: 0; font-size: 0.875rem; color: var(--page-text-muted); }
+
+  /* ---- browser chrome frame ---- */
+  .browser {
+    border-radius: 14px; overflow: hidden; border: 1px solid var(--page-border);
+    box-shadow: 0 24px 48px -24px rgba(27, 33, 45, 0.35); background: #fff;
+  }
+  .browser-bar {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    background: #ececef; border-bottom: 1px solid #ddd;
+  }
+  .browser-dots { display: flex; gap: 6px; }
+  .browser-dots span { width: 10px; height: 10px; border-radius: 999px; background: #d3d3d8; }
+  .browser-url {
+    flex: 1; background: #fff; border-radius: 999px; padding: 5px 12px; font-family: var(--mono);
+    font-size: 0.75rem; color: #6c7689; border: 1px solid #ddd;
+  }
+  .browser-body { max-height: 720px; overflow-y: auto; }
+
+  /* ---- quest hub ---- */
+  .quest-header {
+    background: var(--quest-gradient); color: #fff; padding: 28px 28px 24px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .quest-title { display: flex; align-items: baseline; gap: 8px; justify-content: center; text-align: center; }
+  .quest-title .flame { font-size: 1.1em; }
+  .quest-title h2 { margin: 0; font-size: 1.375rem; font-weight: 800; letter-spacing: -0.01em; }
+  .quest-tagline { text-align: center; font-size: 0.8125rem; color: rgba(255,255,255,0.85); margin: -8px 0 0; }
+
+  .quest-progress { background: rgba(255,255,255,0.16); border-radius: 999px; overflow: hidden; height: 8px; }
+  .quest-progress-fill { height: 100%; background: #fff; border-radius: 999px; }
+  .quest-progress-label { display: flex; justify-content: space-between; font-size: 0.6875rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+
+  .quest-tabs {
+    display: flex; gap: 4px; padding: 4px; background: rgba(255,255,255,0.16); border-radius: 999px;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .quest-tab {
+    border: none; background: none; color: rgba(255,255,255,0.85); font-family: var(--sans);
+    font-size: 0.8125rem; font-weight: 600; padding: 8px 16px; border-radius: 999px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .quest-tab .badge {
+    width: 18px; height: 18px; border-radius: 999px; background: rgba(255,255,255,0.3);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 700;
+  }
+  .quest-tab.active { background: #fff; color: var(--brand-navy); }
+  .quest-tab.active .badge { background: var(--brand-gold); color: #fff; }
+
+  .quest-body { background: var(--brand-navy-50); padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 16px; }
+  .quest-panel { display: none; flex-direction: column; gap: 16px; }
+  .quest-panel.active { display: flex; }
+
+  .level-head { display: flex; align-items: center; gap: 10px; }
+  .level-badge {
+    width: 30px; height: 30px; border-radius: 999px; background: var(--brand-navy); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9375rem; flex-shrink: 0;
+  }
+  .level-head-text { flex: 1; }
+  .level-head-text h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+  .level-head-text p { margin: 0; font-size: 0.8125rem; color: var(--page-text-muted); }
+  .level-count { font-family: var(--mono); font-size: 0.75rem; color: var(--page-text-faint); font-weight: 600; }
+
+  .accordion { display: flex; flex-direction: column; gap: 10px; }
+  .a-item { background: #fff; border: 1px solid var(--page-border); border-radius: 12px; overflow: hidden; }
+  .a-head {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; user-select: none;
+  }
+  .a-check {
+    width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid #c3cde0; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #fff;
+  }
+  .a-item.done .a-check { background: var(--brand-navy); border-color: var(--brand-navy); }
+  .a-icon { font-size: 1.05rem; flex-shrink: 0; }
+  .a-head-text { flex: 1; min-width: 0; }
+  .a-head-text .t { font-weight: 700; font-size: 0.875rem; }
+  .a-head-text .d { font-size: 0.75rem; color: var(--page-text-muted); }
+  .a-chevron { color: var(--page-text-faint); transition: transform 0.15s ease; flex-shrink: 0; }
+  .a-item.open .a-chevron { transform: rotate(90deg); }
+  .a-detail { display: none; padding: 0 16px 16px 48px; font-size: 0.8125rem; color: var(--page-text-muted); }
+  .a-item.open .a-detail { display: block; }
+  .a-detail ul { margin: 4px 0; padding-left: 18px; }
+  .a-detail li { margin: 2px 0; }
+  .a-detail a { color: var(--accent); }
+
+  .placeholder-body {
+    display: flex; align-items: center; gap: 8px; padding: 0 16px 16px 48px; font-size: 0.8125rem; color: var(--page-text-faint);
+  }
+  .placeholder-tag {
+    font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    background: var(--accent-soft); color: var(--page-text-faint); padding: 2px 8px; border-radius: 999px;
+  }
+
+  .category-head { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--page-text-faint); margin: 6px 0 -4px 2px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.8125rem; color: var(--page-text-muted); }
+  .legend b { color: var(--page-text); }
+
+  @media (prefers-reduced-motion: reduce) { .a-chevron { transition: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <span class="eyebrow">Design reference — quest hub</span>
+    <h1>Quest hub mockup — <code style="font-family: var(--mono); font-size: 0.8em;">/member/onboarding</code></h1>
+    <p>
+      Static mockup for <a href="../plans/07-member-onboarding.md">Plan 07's redesign</a>: a
+      brand-colored recreation of a UX reference video the team was shown (a
+      gamified "quest" prototype — purple/pink gradient, level tabs, progress
+      bars, accordion checklists). Colors here use the site's existing brand
+      tokens (navy <code style="font-family: var(--mono);">#183f87</code>,
+      red <code style="font-family: var(--mono);">#f04975</code>, gold
+      <code style="font-family: var(--mono);">#f5ba01</code>, see
+      <code style="font-family: var(--mono);">src/app/globals.css</code>)
+      instead of the reference's generic purple/pink. Not shipped code — a
+      reference to build from, same convention as
+      <a href="spec-alt-member-nav.html">spec-alt-member-nav.html</a>.
+    </p>
+    <p class="see-also">← Back to <a href="spec.html">primary spec (tokens + drawer nav)</a></p>
+  </header>
+
+  <section>
+    <div class="note-box">
+      <span>💡</span>
+      <span>
+        <b>What's clickable in this mockup:</b> the 5 tabs switch panels, and
+        every accordion row expands/collapses and toggles its checkbox — it's
+        a real interaction demo, not a screenshot. Only the <b>Onboarding</b>
+        tab has real copy (migrated from <code style="font-family: var(--mono);">src/content/onboarding.ts</code>);
+        the other 4 show the "Segera hadir" placeholder pattern this plan
+        ships with.
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Quest hub — desktop</h2>
+      <p>Header, progress bar, tab strip, and Level 1 (Onboarding) expanded with real content.</p>
+    </div>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">connecteam-web.vercel.app/member/onboarding</div>
+      </div>
+      <div class="browser-body">
+        <div class="quest-header">
+          <div class="quest-title"><span class="flame">🔥</span><h2>CONNECTeam Quest</h2></div>
+          <p class="quest-tagline">Jalur step-by-step buat agen baru — cari klien, jual, gaspol.</p>
+          <div>
+            <div class="quest-progress"><div class="quest-progress-fill" style="width: 22%;"></div></div>
+            <div class="quest-progress-label"><span>Progress Quest (3 Level)</span><span>22%</span></div>
+          </div>
+          <nav class="quest-tabs" id="tabs">
+            <button class="quest-tab active" data-panel="p-onboarding"><span class="badge">1</span>Onboarding</button>
+            <button class="quest-tab" data-panel="p-recruiting"><span class="badge">2</span>Recruiting</button>
+            <button class="quest-tab" data-panel="p-selling"><span class="badge">3</span>Selling</button>
+            <button class="quest-tab" data-panel="p-referensi">Referensi</button>
+            <button class="quest-tab" data-panel="p-kontak">Kontak</button>
+          </nav>
+        </div>
+
+        <div class="quest-body" id="panels">
+          <!-- Level 1 — Onboarding (real content) -->
+          <div class="quest-panel active" id="p-onboarding">
+            <div class="level-head">
+              <div class="level-badge">1</div>
+              <div class="level-head-text"><h3>Level 1 — Onboarding</h3><p>Kenali diri, susun target, pelajari dasarnya</p></div>
+              <div class="level-count">2/5</div>
+            </div>
+            <div class="accordion">
+              <div class="a-item done open">
+                <div class="a-head" data-toggle>
+                  <span class="a-check">✓</span><span class="a-icon">🧭</span>
+                  <div class="a-head-text"><div class="t">Kenali Dirimu</div><div class="d">Tes DISC, MBTI, Self Motivation, upload profil</div></div>
+                  <span class="a-chevron">›</span>
+                </div>
+                <div class="a-detail">
+                  <ul>
+                    <li><a href="#">Tes DISC</a> — versi CONNECTeam sendiri, ~2 menit</li>
+                    <li><a href="#">Tes MBTI</a></li>
+                    <li><a href="#">Tes Self Motivation</a></li>
+                    <li><a href="#">Upload Profil</a> — form singkat biar leadermu kenal kamu</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="a-item done">
+                <div class="a-head" data-toggle>
+                  <span class="a-check">✓</span><span class="a-icon">🎯</span>
+                  <div class="a-head-text"><div class="t">Susun Targetmu</div><div class="d">3 hal buat dipikirin sebelum mulai</div></div>
+                  <span class="a-chevron">›</span>
+                </div>
+                <div class="a-detail">
+                  <ul>
+                    <li>Tulis 20 nama calon partner bisnis</li>
+                    <li>Tulis 20 nama orang yang bakal mau dengerin ide-idemu</li>
+                    <li>Tulis target pribadi buat 3 bulan ke depan</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="a-item">
+                <div class="a-head" data-toggle>
+                  <span class="a-check"></span><span class="a-icon">📚</span>
+                  <div class="a-head-text"><div class="t">Pelajari Sesuatu yang Baru</div><div class="d">4 video dasar + Recruitment Kit</div></div>
+                  <span class="a-chevron">›</span>
+                </div>
+                <div class="a-detail">
+                  <p style="margin: 4px 0 8px;">4 video ("Cara Kerja Asuransi di Kehidupan Nyata", 3 dasar Health/Critical Illness/Life) belum ada link — placeholder "segera hadir" sampai sumbernya didapat.</p>
+                  <ul><li><a href="#">Recruitment Kit</a> — materi buat ngajak partner baru</li></ul>
+                </div>
+              </div>
+              <div class="a-item">
+                <div class="a-head" data-toggle>
+                  <span class="a-check"></span><span class="a-icon">⚡</span>
+                  <div class="a-head-text"><div class="t">Langsung Aksi</div><div class="d">3 langkah kecil, mulai sekarang</div></div>
+                  <span class="a-chevron">›</span>
+                </div>
+                <div class="a-detail">
+                  <ul>
+                    <li>Ajak 2 partner terbaikmu ngobrol</li>
+                    <li>Share satu produk yang beneran kamu percaya</li>
+                    <li>Bilang ke orang-orang: "Saya PRU"</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="a-item">
+                <div class="a-head" data-toggle>
+                  <span class="a-check"></span><span class="a-icon">🎒</span>
+                  <div class="a-head-text"><div class="t">Starter Kit</div><div class="d">Schedule Book, Project 100, Score Card, Review Polis</div></div>
+                  <span class="a-chevron">›</span>
+                </div>
+                <div class="a-detail">4 PDF belum ada file/link — placeholder "segera hadir" sampai file sumber didapat.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Level 2 — Recruiting (placeholder) -->
+          <div class="quest-panel" id="p-recruiting">
+            <div class="level-head">
+              <div class="level-badge">2</div>
+              <div class="level-head-text"><h3>Level 2 — Recruiting</h3><p>Bangun tim dulu sebelum jualan</p></div>
+              <div class="level-count">0/4</div>
+            </div>
+            <div class="accordion">
+              <div class="a-item">
+                <div class="a-head"><span class="a-check"></span><span class="a-icon">🤝</span><div class="a-head-text"><div class="t">Kenapa Recruit Dulu?</div></div></div>
+                <div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span>Konten Plan 08, belum disumberkan</div>
+              </div>
+              <div class="a-item">
+                <div class="a-head"><span class="a-check"></span><span class="a-icon">📋</span><div class="a-head-text"><div class="t">Bank Nama Rekrut + FAST</div></div></div>
+                <div class="placeholder-body"><span class="placeholder-tag">Di luar scope</span>Tabel CRM interaktif — fitur baru, plan terpisah</div>
+              </div>
+              <div class="a-item">
+                <div class="a-head"><span class="a-check"></span><span class="a-icon">💼</span><div class="a-head-text"><div class="t">Presentasi Bisnis ke Calon Rekrut</div></div></div>
+                <div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span>Konten Plan 08, belum disumberkan</div>
+              </div>
+              <div class="a-item">
+                <div class="a-head"><span class="a-check"></span><span class="a-icon">🛡️</span><div class="a-head-text"><div class="t">Handling Objection Calon Rekrut</div></div></div>
+                <div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span>Konten Plan 08, belum disumberkan</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Level 3 — Selling (placeholder) -->
+          <div class="quest-panel" id="p-selling">
+            <div class="level-head">
+              <div class="level-badge">3</div>
+              <div class="level-head-text"><h3>Level 3 — Selling</h3><p>Bantu klien lewat asuransi, bukan hard selling</p></div>
+              <div class="level-count">0/3</div>
+            </div>
+            <div class="accordion">
+              <div class="a-item">
+                <div class="a-head"><span class="a-check"></span><span class="a-icon">🔺</span><div class="a-head-text"><div class="t">Segitiga Kebutuhan (Basic)</div></div></div>
+                <div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span>Konten Plan 09, belum disumberkan</div>
+              </div>
+              <div class="a-item">
+                <div class="a-head"><span class="a-check"></span><span class="a-icon">📦</span><div class="a-head-text"><div class="t">Kenalan 3 Produk Dasar</div></div></div>
+                <div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span>Konten Plan 09, belum disumberkan</div>
+              </div>
+              <div class="a-item">
+                <div class="a-head"><span class="a-check"></span><span class="a-icon">🤝</span><div class="a-head-text"><div class="t">Teknik Closing</div></div></div>
+                <div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span>Konten Plan 09, belum disumberkan</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Referensi (placeholder, no progress) -->
+          <div class="quest-panel" id="p-referensi">
+            <div class="level-head">
+              <div class="level-head-text"><h3>Referensi</h3><p>Klik buat buka &amp; download langsung dari situs CONNECTeam — kategori sementara, lihat catatan grouping di Plan 07</p></div>
+            </div>
+            <div class="category-head">Reference Data — Plan 10</div>
+            <div class="accordion">
+              <div class="a-item"><div class="a-head"><span class="a-icon">💰</span><div class="a-head-text"><div class="t">Tabel Premi &amp; Tabel Medical</div></div></div><div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span></div></div>
+            </div>
+            <div class="category-head">Official Systems — Plan 11</div>
+            <div class="accordion">
+              <div class="a-item"><div class="a-head"><span class="a-icon">🖥️</span><div class="a-head-text"><div class="t">PRUForce, Lisensi AAJI/AASI, Claim</div></div></div><div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span></div></div>
+            </div>
+            <div class="category-head">Contests &amp; Campaigns — Plan 12</div>
+            <div class="accordion">
+              <div class="a-item"><div class="a-head"><span class="a-icon">🏆</span><div class="a-head-text"><div class="t">Reward &amp; Campaign</div></div></div><div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span></div></div>
+            </div>
+            <div class="category-head">Events — Plan 13</div>
+            <div class="accordion">
+              <div class="a-item"><div class="a-head"><span class="a-icon">📅</span><div class="a-head-text"><div class="t">Jadwal &amp; Registrasi</div></div></div><div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span>Leader-only items filtered server-side, unaffected by placeholder state</div></div>
+            </div>
+          </div>
+
+          <!-- Kontak (placeholder) -->
+          <div class="quest-panel" id="p-kontak">
+            <div class="level-head">
+              <div class="level-head-text"><h3>Kontak</h3><p>Plan 14 — direktori kontak, leader-only entries difilter server-side</p></div>
+            </div>
+            <div class="accordion">
+              <div class="a-item"><div class="a-head"><span class="a-icon">📇</span><div class="a-head-text"><div class="t">Yellow Pages, MRT Group, Prudential Indonesia</div></div></div><div class="placeholder-body"><span class="placeholder-tag">Segera hadir</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Notes for whoever builds this</h2></div>
+    <div class="legend">
+      <span><b>Checked items</b> — persisted via the new <code style="font-family: var(--mono);">OnboardingProgress</code> table, not localStorage.</span>
+      <span><b>Placeholder tag</b> — reused pattern from the current onboarding page's "Segera hadir" cards, just applied per-accordion-item instead of per-card.</span>
+      <span><b>"Di luar scope" tag</b> — new, marks the two explicitly-deferred features (PII form, recruit CRM) so they don't get quietly built during the reskin.</span>
+    </div>
+  </section>
+</div>
+
+<script>
+  document.querySelectorAll('.quest-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.quest-tab').forEach(function (t) { t.classList.remove('active'); });
+      document.querySelectorAll('.quest-panel').forEach(function (p) { p.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById(tab.getAttribute('data-panel')).classList.add('active');
+    });
+  });
+  document.querySelectorAll('[data-toggle]').forEach(function (head) {
+    head.addEventListener('click', function () {
+      head.closest('.a-item').classList.toggle('open');
+    });
+  });
+  document.querySelectorAll('.a-item .a-check').forEach(function (check) {
+    check.addEventListener('click', function (e) {
+      e.stopPropagation();
+      check.closest('.a-item').classList.toggle('done');
+      check.textContent = check.closest('.a-item').classList.contains('done') ? '✓' : '';
+    });
+  });
+</script>
+</body>
+</html>

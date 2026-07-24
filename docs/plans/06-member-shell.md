@@ -6,6 +6,18 @@
 Shipped as described below. Notes on what the implementation settled that the
 plan left open:
 
+**Revised 2026-07-24**: Plans 07–14 were consolidated into one tabbed "quest
+hub" page at `/member/onboarding` (see [Plan 07](07-member-onboarding.md)).
+The 8 sidebar links below still exist and still point somewhere, but 7 of
+them (everything except "Get Started") become anchors into that one route's
+tabs (`/member/onboarding#recruiting`, etc.) instead of links to 8 separate
+pages — those pages/routes go away. Role-aware nav logic
+(`visibleNavItems`/`showsLeaderBadge` in `src/lib/member/nav.ts`) is
+unaffected in principle (still decides which links show a "Leaders" badge),
+but its output changes from route hrefs to anchor hrefs — worth a small
+follow-up pass when Plan 07's shell actually ships, not done as part of this
+note.
+
 - **Role-aware nav** lives in `src/lib/member/nav.ts` as pure functions
   (`visibleNavItems`, `showsLeaderBadge`) so it's unit-testable away from the
   React tree. No section is `leaderOnly` today, as predicted; Events and
@@ -73,7 +85,9 @@ Credentials login — see [00-overview.md](00-overview.md#why-supabase--vercel-i
 
 Actual section content — Plans 07–14 each own their own page under
 `/member/<section>`, this plan only needs the nav links and placeholder/empty
-pages to exist so links don't 404.
+pages to exist so links don't 404. *(Historical: accurate as shipped. See the
+2026-07-24 revision note above — Plans 07–14 no longer describe separate
+pages.)*
 
 ## Independence notes
 

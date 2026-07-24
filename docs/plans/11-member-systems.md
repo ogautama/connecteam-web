@@ -1,14 +1,24 @@
-# Plan 11 — Member: Official Systems
+# Plan 11 — Member: Official Systems (Referensi tab category)
+
+## Status
+
+**Revised 2026-07-24**: no longer its own route. `/member/systems` goes
+away — this plan's content now fills a category group ("Official Systems")
+within the **Referensi** tab of the quest hub built by
+[Plan 07](07-member-onboarding.md). Exact grouping alongside Plans 10, 12–13's
+categories is left open until all four have real content — see Plan 07.
 
 ## Goal
 
-`/member/systems` — merges *PRUForce*, *Lisensi AAJI/AASI*, *PRU PayLink*,
-*Claim*, and *Bukti Claim* into one hub for official Prudential systems and
-the processes around them.
+Content for a Referensi-tab category: merges *PRUForce*, *Lisensi AAJI/AASI*,
+*PRU PayLink*, *Claim*, and *Bukti Claim* into one group for official
+Prudential systems and the processes around them.
 
 ## Depends on
 
-Plan 06 (member shell/nav). Independent of Plans 07–10, 12–14.
+[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills part
+of the Referensi tab rather than building its own page/route). Independent
+of Plans 08–10, 12–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
@@ -33,17 +43,19 @@ before implementing.
 
 - `src/content/systems.ts` — typed structure per sub-topic: external portal
   links, step-by-step how-to guides (ordered list), any PDFs/images.
-- `/member/systems` page: sectioned by sub-topic (Portals, Licensing,
-  PayLink, Claims Process, Claim Proof), each section collapsible.
+- Referensi tab, "Official Systems" category group: sectioned by sub-topic
+  (Portals, Licensing, PayLink, Claims Process, Claim Proof), each section
+  collapsible via Plan 07's shared accordion component.
 - Re-host any downloadable assets under `public/downloads/`.
 
 ## Unit tests
 
 - Content module schema validation.
-- Page renders all 5 sub-sections; external portal links point to the
-  correct Prudential URLs.
+- Renders all 5 sub-sections; external portal links point to the correct
+  Prudential URLs.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/systems`, confirm all sub-sections
-and links render. `npm run lint`, `npx tsc --noEmit`, `npm test`.
+`npm run dev`, log in, visit `/member/onboarding`, open the Referensi tab,
+confirm the Official Systems sub-sections and links render. `npm run lint`,
+`npx tsc --noEmit`, `npm test`.
