@@ -1,14 +1,24 @@
-# Plan 09 — Member: Sell (sales kit + product catalog)
+# Plan 09 — Member: Sell (sales kit + product catalog, quest hub tab)
+
+## Status
+
+**Revised 2026-07-24**: no longer its own route. `/member/sell` goes away —
+this plan's content now fills the **Selling** tab (Level 3) of the quest hub
+built by [Plan 07](07-member-onboarding.md). This is still the largest
+content section by far (full product catalog + sales kit); only its
+container changed, not its content scope below.
 
 ## Goal
 
-`/member/sell` — the largest content section: merges *Sales Kit*, *Script
-Selling Online*, and *Product Training* into one searchable/filterable
-product catalog instead of one giant scroll page.
+Content for the Selling tab of `/member/onboarding`: merges *Sales Kit*,
+*Script Selling Online*, and *Product Training* into one
+searchable/filterable product catalog instead of one giant scroll page.
 
 ## Depends on
 
-Plan 06 (member shell/nav). Independent of Plans 07–08, 10–14.
+[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills one of
+its tabs rather than building its own page/route). Independent of Plans
+08, 10–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
@@ -44,10 +54,10 @@ plan needs the complete product list, not just the four above.
   Product Training page (full re-audit required, see above).
 - `src/content/sales-kit.ts` — the Sales Kit resources (PDFs, Canva
   template, Quotation folder link, reference table images).
-- `/member/sell` page: category filter/search over the product catalog,
-  each product expandable to show video + highlights + terms + commission;
-  Sales Kit resources shown as a separate "Tools & Templates" section
-  above or beside the catalog.
+- Selling tab: category filter/search over the product catalog, each
+  product expandable (via Plan 07's shared accordion component) to show
+  video + highlights + terms + commission; Sales Kit resources shown as a
+  separate "Tools & Templates" group above or beside the catalog.
 - Re-host downloadable PDFs/images under `public/downloads/` (source files
   from you, or Drive/original links as fallback).
 
@@ -55,11 +65,11 @@ plan needs the complete product list, not just the four above.
 
 - Content module schema validation: every product has a non-empty
   category, at least one highlight, a valid video URL.
-- Page: category filter narrows the visible product list correctly; search
-  matches by product name.
+- Selling tab: category filter narrows the visible product list correctly;
+  search matches by product name.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/sell`, filter by each category,
-expand a few products, confirm video/commission content renders. `npm run
-lint`, `npx tsc --noEmit`, `npm test`.
+`npm run dev`, log in, visit `/member/onboarding`, open the Selling tab,
+filter by each category, expand a few products, confirm video/commission
+content renders. `npm run lint`, `npx tsc --noEmit`, `npm test`.

@@ -101,18 +101,34 @@ are captured inline in those docs so each can be picked up independently.
 | 03b | Staging deployment (public site) | 03 | [03b-staging-deploy.md](03b-staging-deploy.md) | Code gating done (PR #9); deploy = manual checklist |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | ✅ Done — [PR #10](https://github.com/ogautama/connecteam-web/pull/10) |
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
-| 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12) |
-| 07 | Member: Get Started (`/member/onboarding`) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | ✅ Done — [PR #17](https://github.com/ogautama/connecteam-web/pull/17) |
-| 08 | Member: Grow (`/member/grow`) | 06 | [08-member-grow.md](08-member-grow.md) | |
-| 09 | Member: Sell (`/member/sell`) | 06 | [09-member-sell.md](09-member-sell.md) | |
-| 10 | Member: Reference Data (`/member/reference`) | 06 | [10-member-reference.md](10-member-reference.md) | |
-| 11 | Member: Official Systems (`/member/systems`) | 06 | [11-member-systems.md](11-member-systems.md) | |
-| 12 | Member: Contests & Campaigns (`/member/contests`) | 06 | [12-member-contests.md](12-member-contests.md) | |
-| 13 | Member: Events (`/member/events`) | 06 | [13-member-events.md](13-member-events.md) | |
-| 14 | Member: Directory (`/member/directory`) | 06 | [14-member-directory.md](14-member-directory.md) | |
+| 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12); nav revised 2026-07-24§ |
+| 07 | Member: Quest Hub (`/member/onboarding`, tabs for 07–14) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | Original scope done — [PR #17](https://github.com/ogautama/connecteam-web/pull/17); redesigned 2026-07-24§, shell not yet (re)built |
+| 08 | Member: Grow (Recruiting tab content) | 07 | [08-member-grow.md](08-member-grow.md) | Revised 2026-07-24§ — no longer own route |
+| 09 | Member: Sell (Selling tab content) | 07 | [09-member-sell.md](09-member-sell.md) | Revised 2026-07-24§ — no longer own route |
+| 10 | Member: Reference Data (Referensi tab category) | 07 | [10-member-reference.md](10-member-reference.md) | Revised 2026-07-24§ — no longer own route |
+| 11 | Member: Official Systems (Referensi tab category) | 07 | [11-member-systems.md](11-member-systems.md) | Revised 2026-07-24§ — no longer own route |
+| 12 | Member: Contests & Campaigns (Referensi tab category) | 07 | [12-member-contests.md](12-member-contests.md) | Revised 2026-07-24§ — no longer own route |
+| 13 | Member: Events (Referensi tab category) | 07 | [13-member-events.md](13-member-events.md) | Revised 2026-07-24§ — no longer own route |
+| 14 | Member: Directory (Kontak tab content) | 07 | [14-member-directory.md](14-member-directory.md) | Revised 2026-07-24§ — no longer own route |
 | 15 | ~~Recruitment tree & applications (schema + access control)~~ | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) | ✅ Done, partially superseded† — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 | 15b | Recruitment tree rework (drop applicant→user promotion) | 02b | [15b-recruitment-tree-rework.md](15b-recruitment-tree-rework.md) | Not started |
 | 16 | DISC lead visibility (hierarchy-scoped `/member/leads`) | 04, 06, 15 | [16-disc-lead-visibility.md](16-disc-lead-visibility.md) | Not started |
+
+§ **2026-07-24**: after being shown a UX reference (a working "quest hub"
+prototype — gamified level tabs, progress bars, accordion checklists,
+purple/pink gradient), Plans 07–14 were consolidated: instead of 8 separate
+member-space pages linked from Plan 06's sidebar, they now share one page —
+`/member/onboarding` — as 5 tabs (Onboarding/Recruiting/Selling/Referensi/Kontak),
+brand-colored (navy/red/gold) instead of the reference's purple/pink. Plan 07
+owns the shared shell (tabs, progress bar, accordion component, per-user
+progress persistence); Plans 08–14 each own the content for one tab or
+category group within it. Only Plan 07's original "Onboarding" content ships
+with real copy — Plans 08–14 ship as placeholder shells until their content
+is sourced, same "don't fabricate" rule as before. Two things the reference
+prototype showed are treated as new product decisions, not content to
+source, and are deferred to their own future plans (see "Known deferred
+issues" below): a PII intake form (KTP/bank/NPWP) and a recruit-tracking
+CRM table with CSV export.
 
 † **2026-07-21**: switched from Neon + Auth.js/Credentials to Supabase +
 Vercel + Google OAuth (see "Why Supabase + Vercel" above). Plan 02's
@@ -135,12 +151,34 @@ a `createLead()` function) but each plan's implementation stubs/mocks those
 where Plan 02b hasn't merged yet, so they don't block on merge order in
 practice — see each doc's "Independence notes."
 
-Plans 07–14 (the eight member-space sections) are fully independent of each
-other — they only share Plan 06's shell/layout/nav and can be built and
-reviewed in any order or in parallel.
+Plans 07–14 (the eight member-space sections) are content-independent of
+each other — each owns its own `src/content/*.ts` module and can be sourced
+in any order. *(Updated 2026-07-24: they're no longer route-independent —
+see § above. Plan 07 now owns the shared shell all of them render into, so
+08–14 depend on Plan 07's shell landing first; before that, they only shared
+Plan 06's nav.)*
 
 ## Known deferred issues
 
+- **PII intake form not scoped yet** (surfaced by the 2026-07-24 quest-hub
+  redesign, Plan 07). The reference prototype's Onboarding level included a
+  form collecting KTP number, birth date, phone, bank account, and NPWP.
+  Real personal/financial data — needs its own plan covering schema, RLS,
+  and whether encryption-at-rest is warranted, before anyone builds it.
+  Deliberately left out of Plan 07's shell work.
+- **Recruit-tracking CRM table not scoped yet** (same source, Plan 08). The
+  reference prototype's Recruiting level included a mini-CRM: add candidate
+  names, score them Hot/Warm/Cold via the FAST framework, export to CSV.
+  New interactive functionality with its own data-model needs, not "content
+  to source" — needs its own plan. Deliberately left out of Plan 08.
+- **Referensi tab's exact category grouping is unresolved** (Plan 07). The
+  reference prototype grouped resources (Starter Kit, Product Training,
+  Commission & Premi, Sales Tools, Reward & Contest, Campaign, Claim) in a
+  way that doesn't map cleanly 1:1 onto Plans 09–13's existing scopes —
+  some categories pull from more than one plan's content. Plan 07 ships
+  placeholder category headers per plan (10/11/12/13) as a provisional
+  grouping; whoever builds each plan's real content should revisit whether
+  that grouping still makes sense once the content is actually in hand.
 - **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
   The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
   crowd the logo below ~400px wide — surfaced building Plan 03, left as-is

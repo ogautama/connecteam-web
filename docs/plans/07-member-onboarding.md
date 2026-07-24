@@ -1,91 +1,150 @@
-# Plan 07 — Member: Get Started (onboarding)
+# Plan 07 — Member: Quest Hub (`/member/onboarding`)
 
 ## Status
 
-**Done** in [PR #17](https://github.com/ogautama/connecteam-web/pull/17).
-Shipped as described below. Notes on what the implementation settled that
-the plan left open:
+**Original scope done** in [PR #17](https://github.com/ogautama/connecteam-web/pull/17)
+— a flat single-page onboarding checklist. **Revised 2026-07-24**: redesigned
+as a tabbed, gamified "quest hub" that consolidates Plans 07–14 into one
+page, after the team was shown a UX reference (a working prototype built by
+someone else — purple/pink gradient, level tabs, progress bars, accordion
+checklists). This doc now describes the target design; implementation of the
+new shell hasn't started yet. Plans 08–14 are revised in step (see each
+doc's own Status note) — they no longer describe standalone pages, they
+describe the content that fills one tab/category group of this hub.
 
-- **Content lives in `src/content/onboarding.ts`** as five typed exports
-  (`KNOW_YOURSELF`/`LEARN_LINKS` links, `PLAN_YOUR_GOALS`/`JUST_DO_IT`
-  checklists, `LEARN_VIDEOS` videos, `STARTER_KIT` downloads) rather than one
-  combined shape — each section renders and validates differently (links
-  always need a URL, videos/downloads don't yet).
-- **Four items don't have real URLs yet, and this plan couldn't source
-  them**: the "How Insurance Works" + 3 basics videos, the Telegram link,
-  and all 4 Starter Kit PDFs. The old Google Sites pages sit behind a
-  Google-account gate the agent can't authenticate through, and the plan doc
-  itself only captured URLs for the Know Yourself links (DISC/MBTI/Self
-  Motivation/profile upload), not these. Rather than fabricate links, the
-  page renders a "Segera hadir" placeholder card for each and the Telegram
-  ask becomes a text note pointing at the team leader instead of a dead
-  link. **Follow-up needed**: supply the 4 PDFs (or their Drive URLs) for
-  `STARTER_KIT`, the 4 video URLs for `LEARN_VIDEOS`, and the Telegram
-  invite link — all in `src/content/onboarding.ts`.
-- **DISC test link points at `/tools/disc`** (Plan 04, done) instead of the
-  old external test, per the plan. MBTI/Self Motivation stay external
-  (`satupersen.net`) since those aren't being rebuilt.
-- **Recruitment Kit link points at `/member/grow`** (Plan 08, not yet
-  built) — an internal route rather than the old Drive folder, since Plan 08
-  owns that content going forward.
-- Verified: `npm run lint`, `npx tsc --noEmit`, `npm test` all pass. Couldn't
-  verify in a logged-in browser session — `/member/**` requires a real
-  Google OAuth sign-in against the shared dev Supabase project, which this
-  session doesn't have credentials for; confirmed instead that the route is
-  correctly gated (redirects to `/login` when signed out) and relied on the
-  page unit test, which renders the real component tree.
+### What carries over from the original PR #17 build
+
+- Content module stays `src/content/onboarding.ts`, restructured (not
+  replaced) — same five sections, now shaped as accordion items instead of
+  flat cards.
+- Same known content gaps: the "How Insurance Works" + 3 basics videos, the
+  Telegram link, and all 4 Starter Kit PDFs still don't have real URLs (old
+  Google Sites pages sit behind a Google-account gate — don't fabricate,
+  keep the "Segera hadir" placeholder pattern per item).
+- DISC link stays `/tools/disc` (Plan 04); Recruitment Kit link becomes an
+  in-page tab switch to Recruiting instead of a route link to `/member/grow`
+  (that route goes away, see Plan 06's note).
 
 ## Goal
 
-`/member/onboarding` — merges the current *Hi Partner* and *Starter Kit*
-pages into one new-agent onboarding hub.
+`/member/onboarding` — the member space's single entry point: a tabbed quest
+hub replacing both the old flat Get Started page *and* the 8-route sidebar
+model Plan 06 originally built. Tabs:
+
+1. **Onboarding** (Level 1, real content) — this plan's original scope,
+   restructured into accordion checklist items with per-user completion
+   tracking.
+2. **Recruiting** (Level 2, placeholder shell) — Plan 08's content slot.
+3. **Selling** (Level 3, placeholder shell) — Plan 09's content slot.
+4. **Referensi** (static reference list, placeholder shell) — Plans
+   10–13's content, grouped by category. No per-item progress — these are
+   lookups, not tasks.
+5. **Kontak** (static, placeholder shell) — Plan 14's content slot.
+
+Only tab 1 ships with real content in this pass. Tabs 2–5 ship as working
+accordion shells (expand/collapse, category headers) with a "Segera hadir"
+body per section — the interaction is real, the copy is a placeholder
+pending each tab's own plan landing real content.
 
 ## Depends on
 
-Plan 06 (member shell/nav). Independent of Plans 08–14.
+Plan 06 (member shell/nav — its 8 sidebar links become anchors into this one
+route instead of 8 routes; see Plan 06's revision note). Supersedes the
+"each section is its own page" structure Plans 08–14 originally assumed.
 
-## Source content (from sites.google.com/view/connecteam)
+## Design reference
 
-**Hi Partner** (`/hi-partner`):
-- Know Yourself: DISC test link (→ point at our own `/tools/disc` from
-  Plan 04 instead of the external one), MBTI link
-  (`satupersen.net/psikotes-online-gratis/tes-16-kepribadian`), Self
-  Motivation link (`satupersen.net/psikotes-online-gratis/tes-self-motivation`),
-  profile upload (`forms.gle/fcneonKgvAX5Wd1F6`).
-- Plan Your Goals: checklist (list 20 potential business partners, list 20
-  people who'll listen to your ideas, write 3-month personal goals).
-- Learn Something New Today: "How Insurance Works in Real Life" YouTube
-  video, 3 basics videos (Health/Critical Illness/Life Cover), link to
-  Recruitment Kit content, Telegram link to ask for Welcoming New Agent
-  webinar schedule.
-- Just Do It: action checklist (bring 2 best partners, share a product you
-  believe in, "Tell people: I'm PRU").
+[docs/design/spec-quest-hub.html](../design/spec-quest-hub.html) — static
+mockup, brand-colored (navy `#183f87` → red `#f04975` → gold `#f5ba01`
+gradient replacing the reference prototype's purple/pink) and following the
+house style tokens already established in
+[spec.html](../design/spec.html). Not shipped code — a comparison/reference
+to build from, same convention as the existing `spec-alt-*.html` docs.
 
-**Starter Kit** (`/starter-kit`): 4 downloadable PDFs — Schedule Book,
-Project 100, Score Card, Review Polis.
+## Explicitly deferred (not this plan, not "missing content")
+
+Two things the reference prototype showed are new product features, not
+copy to source, so they're intentionally left out of this reskin rather than
+built quietly alongside it:
+
+- **"Join & Isi Data" personal-data intake form** (KTP number, birth date,
+  phone, bank account, NPWP). Real PII — needs its own plan covering
+  schema, RLS, and whether it needs encryption-at-rest, before anyone
+  builds it.
+- **Personal goals mini-form** (short/medium/long-term text goals, backed
+  by a Google Form in the reference prototype). Lower sensitivity than the
+  PII form, but still new data-entry surface — punting rather than bundling
+  into a visual reskin.
+
+Also deferred, flagged under Plan 08 since it's tied to that tab's content:
+a recruit-tracking mini-CRM (add candidate names, FAST-score them
+Hot/Warm/Cold, CSV export) shown in the Recruiting level of the reference
+prototype.
 
 ## Scope
 
-- Content module `src/content/onboarding.ts` structuring the above as
-  typed sections (checklist items, external links, video embeds, PDF
-  downloads).
-- `/member/onboarding` page rendering: a step-by-step onboarding checklist
-  (Know Yourself → Plan Your Goals → Learn → Just Do It) with our own DISC
-  tool linked instead of the external one, followed by the Starter Kit
-  downloads section.
-- Re-host the 4 Starter Kit PDFs under `public/downloads/` (source files to
-  be provided by you, or linked to their existing Drive URLs as a fallback
-  if files aren't available yet).
+### Shell (new work, this plan)
+
+- Header: brand-gradient banner, hub title, tagline, overall progress bar
+  (aggregate % of Level 1–3 items completed; Referensi/Kontak don't count
+  toward progress — they're reference material, not tasks).
+- Tab strip: 5 tabs. Level tabs (1–3) show a numbered badge and an "x/y"
+  completed counter; Referensi/Kontak don't.
+- Shared accordion card component: icon, title, one-line description,
+  optional checkbox (Level tabs only), expand/collapse for detail content.
+  Built once, reused by every tab/plan.
+- New `OnboardingProgress` model for persistence (see below) — real
+  per-user storage via Supabase, not the reference prototype's
+  `localStorage` shortcut, since we already have auth or a reason to skip
+  it.
+
+### Level 1 — Onboarding content (real, migrated from the current page)
+
+- Existing five sections (Know Yourself, Plan Your Goals, Learn, Just Do
+  It, Starter Kit) restructured into accordion items, each given a stable
+  `itemId` for progress tracking (e.g. `onboarding.know-yourself.disc`).
+
+### Tabs 2–5 — placeholder shells (this plan); real content later (Plans 08–14)
+
+- Accordion sections render with provisional category headers and a
+  "Segera hadir" body — no fabricated copy or links. Exact category
+  grouping for the Referensi tab (which plan's content lands under which
+  heading) is left to whoever builds Plans 10–13, not fixed here.
+
+## Data model
+
+New model for per-user progress (replaces the reference prototype's
+`localStorage`):
+
+```prisma
+model OnboardingProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  itemId      String   // e.g. "onboarding.know-yourself.disc"
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, itemId])
+}
+```
+
+RLS: row-level, scoped to `auth.uid() = userId`, same pattern as other
+member-owned tables. Toggle via a server action; read through the existing
+`getCurrentUser()` session plumbing.
 
 ## Unit tests
 
-- Content module: schema validation (every link has a label + valid URL,
-  every checklist has at least one item).
-- Page: renders all four onboarding sub-sections and all 4 starter-kit
-  downloads; DISC link points to `/tools/disc` (internal), not the old
-  external URL.
+- Content module: schema validation (unchanged pattern) plus `itemId`
+  uniqueness across all Level 1 items.
+- Progress logic: toggling an item creates/removes exactly one row;
+  aggregate percentage calculation is pure-logic-testable in isolation.
+- Page: renders all 5 tabs; Level 1 accordion items are checkable and
+  reflect persisted state across a reload; tabs 2–5 render their
+  placeholder state; DISC link still points at `/tools/disc`.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/onboarding`, click through each
-link/download. `npm run lint`, `npx tsc --noEmit`, `npm test`.
+`npm run dev`, log in, visit `/member/onboarding`, check a few Level 1
+items, reload, confirm state persisted server-side (not just in the
+browser). Click through all 5 tabs. `npm run lint`, `npx tsc --noEmit`,
+`npm test`.
