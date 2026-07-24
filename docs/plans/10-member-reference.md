@@ -1,15 +1,25 @@
-# Plan 10 — Member: Reference Data
+# Plan 10 — Member: Reference Data (Referensi tab category)
+
+## Status
+
+**Revised 2026-07-24**: no longer its own route. `/member/reference` goes
+away — this plan's content now fills a category group ("Reference Data")
+within the **Referensi** tab of the quest hub built by
+[Plan 07](07-member-onboarding.md). Exact grouping alongside Plans 11–13's
+categories is left open until all four have real content — see Plan 07.
 
 ## Goal
 
-`/member/reference` — merges *Tabel Premi*, *Tabel Medical*, and *Prestige*
-into one organized reference-data section. Structuring these into real
-queryable tables (vs. PDF/image downloads) is a stretch goal, not v1 — v1
-just organizes and re-hosts what exists today.
+Content for a Referensi-tab category: merges *Tabel Premi*, *Tabel Medical*,
+and *Prestige* into one organized reference-data group. Structuring these
+into real queryable tables (vs. PDF/image downloads) is a stretch goal, not
+v1 — v1 just organizes and re-hosts what exists today.
 
 ## Depends on
 
-Plan 06 (member shell/nav). Independent of Plans 07–09, 11–14.
+[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills part
+of the Referensi tab rather than building its own page/route). Independent
+of Plans 08–09, 11–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
@@ -32,18 +42,20 @@ Limit table.
 - `src/content/reference.ts` — typed structure: `{ category, taxonomy: "K"
   | "S", label, fileUrl }[]` for premium tables, plus Tabel Medical entries
   once inventoried, plus the Prestige program description.
-- `/member/reference` page: tabbed or sectioned layout (Premium Tables /
-  Medical Tables / Prestige Program), premium tables filterable by
-  category and K/S.
+- Referensi tab, "Reference Data" category group: sectioned by sub-topic
+  (Premium Tables / Medical Tables / Prestige Program), premium tables
+  filterable by category and K/S, rendered via Plan 07's shared accordion
+  component.
 - Re-host PDFs under `public/downloads/` (source files from you, or Drive
   links as fallback).
 
 ## Unit tests
 
 - Content module schema validation.
-- Page: K/S and category filters narrow the visible table list correctly.
+- K/S and category filters narrow the visible table list correctly.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/reference`, exercise filters, confirm
-downloads work. `npm run lint`, `npx tsc --noEmit`, `npm test`.
+`npm run dev`, log in, visit `/member/onboarding`, open the Referensi tab,
+exercise the Reference Data filters, confirm downloads work. `npm run
+lint`, `npx tsc --noEmit`, `npm test`.
