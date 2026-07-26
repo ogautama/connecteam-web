@@ -1,25 +1,31 @@
-# Plan 14 — Member: Directory (Kontak tab)
+# Plan 14 — Member: Directory (quest hub section)
 
 ## Status
 
-**Revised 2026-07-24**: no longer its own route. `/member/directory` goes
-away — this plan's content now fills the **Kontak** tab of the quest hub
-built by [Plan 07](07-member-onboarding.md). **The leader-only filtering
-requirement below is unchanged and still critical**, same as Plan 13's note
-— an `agent` session's page payload must still exclude leader-only entries
-entirely, not just hide them with CSS.
+**Revised 2026-07-24, again 2026-07-26**: no longer its own route.
+`/member/directory` is deleted — this plan's content now fills the
+**Directory** section of the quest hub built by
+[Plan 07](07-member-onboarding.md), reached from the sidebar at
+`/member/onboarding?section=directory`. (The 2026-07-24 revision called this
+the "Kontak tab"; the 2026-07-26 menu rework renamed it **Directory** — the
+menu keeps English section names, Bahasa for descriptive copy, per Plan
+06 — and dropped the in-page tab strip in favour of the sidebar.)
+
+**The leader-only filtering requirement below is unchanged and still
+critical**, same as Plan 13's note — an `agent` session's page payload must
+still exclude leader-only entries entirely, not just hide them with CSS.
 
 ## Goal
 
-Content for the Kontak tab of `/member/onboarding`: merges *Yellow Pages*,
-*CONNECT with Leaders*, *MRT Group*, and *Prudential Indonesia* into one
-contacts directory, with leader-only contact lines gated by role (same
+Content for the Directory section of `/member/onboarding`: merges *Yellow
+Pages*, *CONNECT with Leaders*, *MRT Group*, and *Prudential Indonesia* into
+one contacts directory, with leader-only contact lines gated by role (same
 pattern as Plan 13).
 
 ## Depends on
 
-[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills its
-own tab rather than building its own page/route) — and
+[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills one of
+its sections rather than building its own page/route) — and
 [Plan 02b](02b-supabase-auth-google-oauth.md)'s `requireRole()` helper for
 leader-only entries. Independent of Plans 08–13.
 
@@ -44,7 +50,7 @@ pages while logged in** to build the content inventory before implementing.
 - `src/content/directory.ts` — typed structure: `{ name, description?,
   contactUrl, leaderOnly: boolean }[]`, grouped by source category (Internal
   Support, Leaders, Company Info).
-- Kontak tab: renders all entries for `leader` sessions; filters out
+- Directory section: renders all entries for `leader` sessions; filters out
   `leaderOnly: true` entries for `agent` sessions server-side (same
   enforcement pattern as Plan 13, reuse the same role-filtering approach
   rather than reinventing it).
@@ -58,6 +64,7 @@ pages while logged in** to build the content inventory before implementing.
 
 ## Verification
 
-`npm run dev`, log in as both seeded users, open `/member/onboarding` →
-Kontak tab, confirm the leader-only contacts differ as expected. `npm run
-lint`, `npx tsc --noEmit`, `npm test`.
+`npm run dev`, log in as both seeded users, open **Directory** from the
+sidebar, confirm the leader-only contacts differ as expected (check the page
+source, not just the rendered output). `npm run lint`, `npx tsc --noEmit`,
+`npm test`.

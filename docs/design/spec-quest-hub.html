@@ -48,11 +48,15 @@
   .masthead p { margin: 0; max-width: 68ch; color: var(--page-text-muted); font-size: 1rem; }
   .masthead .see-also { font-size: 0.875rem; }
   .masthead .see-also a { color: var(--accent); }
+  /* Backgrounds here are fixed light values, so the text colour has to be a
+     fixed dark one too — inheriting --page-text would flip it to near-white
+     in dark mode and leave it unreadable on the pale fill. */
   .note-box {
     display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px;
-    background: var(--brand-gold-50); border: 1px solid #fceab3; font-size: 0.875rem; color: var(--page-text);
+    background: var(--brand-gold-50); border: 1px solid #fceab3; font-size: 0.875rem; color: #1b212d;
   }
-  :root[data-theme="dark"] .note-box, @media (prefers-color-scheme: dark) { }
+  .note-box code { color: #14346f; }
+  .note-box a { color: #183f87; }
   .note-box b { color: #8e6c01; }
 
   .section-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
@@ -179,15 +183,33 @@
   </header>
 
   <section>
+    <div class="note-box" style="background: #fef6f8; border-color: #fbd0db;">
+      <span>⚠️</span>
+      <span>
+        <b>Partly superseded (2026-07-26).</b> The <b>tab strip below was
+        removed</b> — it duplicated the member sidebar, so the sidebar became
+        the section switcher instead (sections live at
+        <code style="font-family: var(--mono);">/member/onboarding?section=&lt;id&gt;</code>),
+        and the menu was renamed: Get Started → Onboarding, Grow → Recruiting,
+        Sell → Selling, Reference Data → References (Official Systems folded
+        in), Kontak → Directory, plus a new Calculator section. See the menu
+        table in <a href="../plans/07-member-onboarding.md">Plan 07</a> for
+        what shipped. Everything else on this page — the gradient header,
+        progress bar, card/accordion treatment, and placeholder tags — still
+        matches the built UI.
+      </span>
+    </div>
+  </section>
+
+  <section>
     <div class="note-box">
       <span>💡</span>
       <span>
-        <b>What's clickable in this mockup:</b> the 5 tabs switch panels, and
+        <b>What's clickable in this mockup:</b> the tabs switch panels, and
         every accordion row expands/collapses and toggles its checkbox — it's
         a real interaction demo, not a screenshot. Only the <b>Onboarding</b>
-        tab has real copy (migrated from <code style="font-family: var(--mono);">src/content/onboarding.ts</code>);
-        the other 4 show the "Segera hadir" placeholder pattern this plan
-        ships with.
+        panel has real copy (from <code style="font-family: var(--mono);">src/content/onboarding.ts</code>);
+        the others show the "Segera hadir" placeholder pattern.
       </span>
     </div>
   </section>

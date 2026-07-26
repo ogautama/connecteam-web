@@ -101,34 +101,45 @@ are captured inline in those docs so each can be picked up independently.
 | 03b | Staging deployment (public site) | 03 | [03b-staging-deploy.md](03b-staging-deploy.md) | Code gating done (PR #9); deploy = manual checklist |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | ✅ Done — [PR #10](https://github.com/ogautama/connecteam-web/pull/10) |
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
-| 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12); nav revised 2026-07-24§ |
-| 07 | Member: Quest Hub (`/member/onboarding`, tabs for 07–14) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | Original scope done — [PR #17](https://github.com/ogautama/connecteam-web/pull/17); redesigned 2026-07-24§, shell not yet (re)built |
-| 08 | Member: Grow (Recruiting tab content) | 07 | [08-member-grow.md](08-member-grow.md) | Revised 2026-07-24§ — no longer own route |
-| 09 | Member: Sell (Selling tab content) | 07 | [09-member-sell.md](09-member-sell.md) | Revised 2026-07-24§ — no longer own route |
-| 10 | Member: Reference Data (Referensi tab category) | 07 | [10-member-reference.md](10-member-reference.md) | Revised 2026-07-24§ — no longer own route |
-| 11 | Member: Official Systems (Referensi tab category) | 07 | [11-member-systems.md](11-member-systems.md) | Revised 2026-07-24§ — no longer own route |
-| 12 | Member: Contests & Campaigns (Referensi tab category) | 07 | [12-member-contests.md](12-member-contests.md) | Revised 2026-07-24§ — no longer own route |
-| 13 | Member: Events (Referensi tab category) | 07 | [13-member-events.md](13-member-events.md) | Revised 2026-07-24§ — no longer own route |
-| 14 | Member: Directory (Kontak tab content) | 07 | [14-member-directory.md](14-member-directory.md) | Revised 2026-07-24§ — no longer own route |
+| 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12); nav reworked 2026-07-26§ |
+| 07 | Member: Quest Hub (`/member/onboarding`, all member sections) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | Shell built — [PR #18](https://github.com/ogautama/connecteam-web/pull/18) (open); supersedes [PR #17](https://github.com/ogautama/connecteam-web/pull/17)§ |
+| 08 | Member: Grow (Recruiting section content) | 07 | [08-member-grow.md](08-member-grow.md) | Revised§ — content only, no own route |
+| 09 | Member: Sell (Selling section content) | 07 | [09-member-sell.md](09-member-sell.md) | Revised§ — content only, no own route |
+| 10 | Member: Reference Data (References section category) | 07 | [10-member-reference.md](10-member-reference.md) | Revised§ — content only, no own route |
+| 11 | Member: Official Systems (folded into References) | 07 | [11-member-systems.md](11-member-systems.md) | Revised§ — no own route *or* nav item |
+| 12 | Member: Contests & Campaigns (own section, nested under References) | 07 | [12-member-contests.md](12-member-contests.md) | Revised§ — content only, no own route |
+| 13 | Member: Events (own section, nested under References) | 07 | [13-member-events.md](13-member-events.md) | Revised§ — content only, no own route |
+| 14 | Member: Directory (Directory section content) | 07 | [14-member-directory.md](14-member-directory.md) | Revised§ — content only, no own route |
 | 15 | ~~Recruitment tree & applications (schema + access control)~~ | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) | ✅ Done, partially superseded† — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 | 15b | Recruitment tree rework (drop applicant→user promotion) | 02b | [15b-recruitment-tree-rework.md](15b-recruitment-tree-rework.md) | Not started |
 | 16 | DISC lead visibility (hierarchy-scoped `/member/leads`) | 04, 06, 15 | [16-disc-lead-visibility.md](16-disc-lead-visibility.md) | Not started |
 
-§ **2026-07-24**: after being shown a UX reference (a working "quest hub"
-prototype — gamified level tabs, progress bars, accordion checklists,
-purple/pink gradient), Plans 07–14 were consolidated: instead of 8 separate
-member-space pages linked from Plan 06's sidebar, they now share one page —
-`/member/onboarding` — as 5 tabs (Onboarding/Recruiting/Selling/Referensi/Kontak),
-brand-colored (navy/red/gold) instead of the reference's purple/pink. Plan 07
-owns the shared shell (tabs, progress bar, accordion component, per-user
-progress persistence); Plans 08–14 each own the content for one tab or
-category group within it. Only Plan 07's original "Onboarding" content ships
-with real copy — Plans 08–14 ship as placeholder shells until their content
-is sourced, same "don't fabricate" rule as before. Two things the reference
-prototype showed are treated as new product decisions, not content to
-source, and are deferred to their own future plans (see "Known deferred
-issues" below): a PII intake form (KTP/bank/NPWP) and a recruit-tracking
-CRM table with CSV export.
+§ **2026-07-24, revised 2026-07-26**: after being shown a UX reference (a
+working "quest hub" prototype — gamified level tabs, progress bars,
+accordion checklists, purple/pink gradient), Plans 07–14 were consolidated:
+instead of 8 separate member-space pages linked from Plan 06's sidebar, they
+now share one page — `/member/onboarding` — brand-colored (navy/red/gold)
+instead of the reference's purple/pink.
+
+The first cut (07-24) put an in-page tab strip on that page. On **07-26**
+that was dropped: it duplicated the left sidebar, so **the sidebar became
+the section switcher** (`?section=<id>`), the seven standalone section
+routes were deleted, and the menu was renamed to the hub's vocabulary — Get
+Started → Onboarding, Grow → Recruiting, Sell → Selling, Reference Data →
+References (**Official Systems folded into it**), Kontak → Directory, plus
+a new **Calculator** section. The sidebar also became hide-able (collapsible
+on desktop, drawer on mobile), which closed the "no mobile nav" gap. Full
+menu table in [Plan 07](07-member-onboarding.md).
+
+Plan 07 owns the shared shell (sidebar nav, progress bar, accordion
+component, per-user progress persistence); Plans 08–14 each own the content
+for one section or category group within it. Only Plan 07's own "Onboarding"
+content ships with real copy — everything else ships as placeholder shells
+until its content is sourced, same "don't fabricate" rule as before. Three
+things the reference prototype showed are treated as new product decisions,
+not content to source, and are deferred to their own future plans (see
+"Known deferred issues" below): a PII intake form (KTP/bank/NPWP), a
+personal-goals form, and a recruit-tracking CRM table with CSV export.
 
 † **2026-07-21**: switched from Neon + Auth.js/Credentials to Supabase +
 Vercel + Google OAuth (see "Why Supabase + Vercel" above). Plan 02's
@@ -171,14 +182,22 @@ Plan 06's nav.)*
   names, score them Hot/Warm/Cold via the FAST framework, export to CSV.
   New interactive functionality with its own data-model needs, not "content
   to source" — needs its own plan. Deliberately left out of Plan 08.
-- **Referensi tab's exact category grouping is unresolved** (Plan 07). The
+- **References section's internal grouping is provisional** (Plan 07). The
   reference prototype grouped resources (Starter Kit, Product Training,
   Commission & Premi, Sales Tools, Reward & Contest, Campaign, Claim) in a
   way that doesn't map cleanly 1:1 onto Plans 09–13's existing scopes —
-  some categories pull from more than one plan's content. Plan 07 ships
-  placeholder category headers per plan (10/11/12/13) as a provisional
-  grouping; whoever builds each plan's real content should revisit whether
-  that grouping still makes sense once the content is actually in hand.
+  some categories pull from more than one plan's content. The 2026-07-26
+  menu rework settled the top level (Contests and Events are their own
+  sections nested under References; Official Systems folded *into*
+  References), but the References section itself still ships placeholder
+  category headers per plan (10/11) as a guess. Whoever builds that content
+  should revisit the grouping with the real material in hand.
+- **`Calculator` is a placeholder section, not the tool** (Plans 05 + 07).
+  The 2026-07-26 menu added a Calculator item, but `/tools/calculator`
+  doesn't exist (Plan 05 deferred, `CALCULATOR_LIVE` off), so it renders a
+  "Segera hadir" placeholder rather than linking to a 404. When Plan 05
+  ships, decide whether that section embeds the tool or links out — and
+  whether the member-area entry point changes Plan 05's public-page scope.
 - **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
   The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
   crowd the logo below ~400px wide — surfaced building Plan 03, left as-is
@@ -187,15 +206,14 @@ Plan 06's nav.)*
   are live so far (the calculator stays gated until Plan 05), which keeps it
   tolerable. Worth doing as its own small plan when `CALCULATOR_LIVE` flips
   and the fourth link comes back.
-- **Member sidebar is desktop-only** (`MemberLayout`, Plan 01, still true
-  after Plan 06). It's `hidden md:block`, so on a phone there's no way to
-  reach any section except through the dashboard's section cards — and no way
-  back to the dashboard from a section page except the in-page link. The
-  design spec already sketches both candidate fixes (a drawer in
-  [spec.html](../design/spec.html), a bottom tab bar in
-  [spec-alt-member-nav.html](../design/spec-alt-member-nav.html)); pick one as
-  its own small plan. Worth pairing with the marketing-header item above,
-  since both are the same "no mobile nav" gap.
+- ~~**Member sidebar is desktop-only**~~ — **resolved 2026-07-26** by Plan
+  07's `MemberShell`. It was `hidden md:block`, leaving no way to reach a
+  section on a phone except the dashboard's cards. The sidebar is now
+  hide-able at both breakpoints: visible and collapsible on desktop, an
+  overlay drawer with a dismiss scrim on mobile — the drawer option
+  [spec.html](../design/spec.html) sketched, rather than the bottom tab bar
+  in [spec-alt-member-nav.html](../design/spec-alt-member-nav.html). The
+  marketing-header item above is still open; it's separate chrome.
 - **`/join` embedded Google Form not verified for public access** (Plan 03).
   The iframe wiring works, but in a browser not signed into Google the embed
   showed Google's own sign-in prompt — unconfirmed whether that's just the

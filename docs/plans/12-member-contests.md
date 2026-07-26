@@ -1,26 +1,29 @@
-# Plan 12 — Member: Contests & Campaigns (Referensi tab category)
+# Plan 12 — Member: Contests & Campaigns (quest hub section)
 
 ## Status
 
-**Revised 2026-07-24**: no longer its own route. `/member/contests` goes
-away — this plan's content now fills a category group ("Contests &
-Campaigns") within the **Referensi** tab of the quest hub built by
-[Plan 07](07-member-onboarding.md). Exact grouping alongside Plans 10–11, 13's
-categories is left open until all four have real content — see Plan 07. The
-dashboard-banner tie-in below is unaffected by the route change.
+**Revised 2026-07-24, again 2026-07-26**: no longer its own route.
+`/member/contests` is deleted — this plan's content now fills the **Contests
+& Campaigns** section of the quest hub built by
+[Plan 07](07-member-onboarding.md), reached from the sidebar at
+`/member/onboarding?section=contests`, where it sits **nested under
+References**. (The 2026-07-24 revision made this a category *inside* the
+Referensi tab; the 2026-07-26 menu rework promoted it to its own section
+with References as its visual parent.) The dashboard-banner tie-in below is
+unaffected.
 
 ## Goal
 
-Content for a Referensi-tab category: merges *Contest & Reward* and
-*Campaign* into one "what's happening now" group. This also feeds the
+Content for the Contests & Campaigns section: merges *Contest & Reward* and
+*Campaign* into one "what's happening now" view. This also feeds the
 announcement banner on the Plan 06 dashboard (revisit that placeholder once
 this lands).
 
 ## Depends on
 
-[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills part
-of the Referensi tab rather than building its own page/route). Independent
-of Plans 08–11, 13–14.
+[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills one of
+its sections rather than building its own page/route). Independent of Plans
+08–11, 13–14.
 
 ## Source content
 
@@ -34,7 +37,7 @@ implementing.
 - `src/content/contests.ts` — typed structure: `{ title, description,
   imageUrl?, startDate?, endDate?, ctaLabel?, ctaUrl? }[]`, distinguishing
   ongoing contests/rewards from campaigns.
-- Referensi tab, "Contests & Campaigns" category group: current/active
+- Contests & Campaigns section: current/active
   items surfaced first, past items collapsed or filtered out (based on
   `endDate` if the source content has dates — confirm during content
   audit).
@@ -50,6 +53,6 @@ implementing.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/onboarding` (Referensi tab) and
-`/member` (dashboard banner). `npm run lint`, `npx tsc --noEmit`,
+`npm run dev`, log in, open **Contests & Campaigns** from the sidebar, and
+check `/member` (dashboard banner). `npm run lint`, `npx tsc --noEmit`,
 `npm test`.

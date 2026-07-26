@@ -1,24 +1,27 @@
-# Plan 11 — Member: Official Systems (Referensi tab category)
+# Plan 11 — Member: Official Systems (References section category)
 
 ## Status
 
-**Revised 2026-07-24**: no longer its own route. `/member/systems` goes
-away — this plan's content now fills a category group ("Official Systems")
-within the **Referensi** tab of the quest hub built by
-[Plan 07](07-member-onboarding.md). Exact grouping alongside Plans 10, 12–13's
-categories is left open until all four have real content — see Plan 07.
+**Revised 2026-07-24, again 2026-07-26**: no longer its own route, and no
+longer its own nav item. `/member/systems` is deleted and "Official Systems"
+was **folded into References** in the 2026-07-26 menu rework — it's now a
+category group inside the **References** section of the quest hub built by
+[Plan 07](07-member-onboarding.md), reached from the sidebar at
+`/member/onboarding?section=references`. That section is shared with Plan
+10's Reference Data content; exact grouping is left open until both have
+real content, see Plan 07.
 
 ## Goal
 
-Content for a Referensi-tab category: merges *PRUForce*, *Lisensi AAJI/AASI*,
-*PRU PayLink*, *Claim*, and *Bukti Claim* into one group for official
-Prudential systems and the processes around them.
+Content for a References-section category: merges *PRUForce*, *Lisensi
+AAJI/AASI*, *PRU PayLink*, *Claim*, and *Bukti Claim* into one group for
+official Prudential systems and the processes around them.
 
 ## Depends on
 
 [Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills part
-of the Referensi tab rather than building its own page/route). Independent
-of Plans 08–10, 12–14.
+of the References section rather than building its own page/route).
+Independent of Plans 08–10, 12–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
@@ -43,7 +46,7 @@ before implementing.
 
 - `src/content/systems.ts` — typed structure per sub-topic: external portal
   links, step-by-step how-to guides (ordered list), any PDFs/images.
-- Referensi tab, "Official Systems" category group: sectioned by sub-topic
+- References section, "Official Systems" category group: sectioned by sub-topic
   (Portals, Licensing, PayLink, Claims Process, Claim Proof), each section
   collapsible via Plan 07's shared accordion component.
 - Re-host any downloadable assets under `public/downloads/`.
@@ -56,6 +59,6 @@ before implementing.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/onboarding`, open the Referensi tab,
-confirm the Official Systems sub-sections and links render. `npm run lint`,
+`npm run dev`, log in, open **References** from the sidebar, confirm the
+Official Systems sub-sections and links render. `npm run lint`,
 `npx tsc --noEmit`, `npm test`.

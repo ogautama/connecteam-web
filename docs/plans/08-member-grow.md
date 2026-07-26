@@ -1,23 +1,26 @@
-# Plan 08 — Member: Grow (recruiting content, quest hub tab)
+# Plan 08 — Member: Grow (recruiting content, quest hub section)
 
 ## Status
 
-**Revised 2026-07-24**: no longer its own route. `/member/grow` goes away —
-this plan's content now fills the **Recruiting** tab (Level 2) of the quest
-hub built by [Plan 07](07-member-onboarding.md). Source content and PDF
-inventory below are unchanged; only "Scope" changed, from "build a page" to
-"fill a tab."
+**Revised 2026-07-24, again 2026-07-26**: no longer its own route.
+`/member/grow` is deleted — this plan's content now fills the **Recruiting**
+section of the quest hub built by [Plan 07](07-member-onboarding.md),
+reached from the sidebar at `/member/onboarding?section=recruiting`. (The
+2026-07-24 revision called this a "tab"; the in-page tab strip was dropped
+on 2026-07-26 in favour of the sidebar — same section, different switcher.)
+Source content and PDF inventory below are unchanged; only "Scope" changed,
+from "build a page" to "fill a section."
 
 ## Goal
 
-Content for the Recruiting tab of `/member/onboarding`: tools for recruiting
-new partners into the business — same material the old *Recruitment Kit*
-page had, just a different container.
+Content for the Recruiting section of `/member/onboarding`: tools for
+recruiting new partners into the business — same material the old
+*Recruitment Kit* page had, just a different container.
 
 ## Depends on
 
 [Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills one of
-its tabs rather than building its own page/route). Independent of Plans
+its sections rather than building its own page/route). Independent of Plans
 09–14.
 
 ## Source content (from sites.google.com/view/connecteam/recruitment-kit)
@@ -35,9 +38,10 @@ its tabs rather than building its own page/route). Independent of Plans
 - `src/content/grow.ts` — typed list of the above resources (PDF downloads,
   external links, WA order link), each with a stable `itemId` for Plan 07's
   shared accordion component.
-- Fills the Recruiting tab's accordion groups: "Assess" (FAST, FORM, Market
-  Survey), "Pitch" (BOSS/BOP), "Order materials" (CONNECT Card), plus the
-  CONNECT NOW lead link.
+- Fills the Recruiting section's accordion groups: "Assess" (FAST, FORM,
+  Market Survey), "Pitch" (BOSS/BOP), "Order materials" (CONNECT Card), plus
+  the CONNECT NOW lead link — replacing that section's placeholder entry in
+  `QuestHub.tsx`'s `SECTIONS` map.
 - Re-host the 4 PDFs under `public/downloads/` (source files from you, or
   Drive links as fallback).
 
@@ -57,5 +61,5 @@ as a deferred item in
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/onboarding`, open the Recruiting tab,
+`npm run dev`, log in, open **Recruiting** from the sidebar,
 click through each resource. `npm run lint`, `npx tsc --noEmit`, `npm test`.

@@ -1,23 +1,26 @@
-# Plan 09 — Member: Sell (sales kit + product catalog, quest hub tab)
+# Plan 09 — Member: Sell (sales kit + product catalog, quest hub section)
 
 ## Status
 
-**Revised 2026-07-24**: no longer its own route. `/member/sell` goes away —
-this plan's content now fills the **Selling** tab (Level 3) of the quest hub
-built by [Plan 07](07-member-onboarding.md). This is still the largest
-content section by far (full product catalog + sales kit); only its
-container changed, not its content scope below.
+**Revised 2026-07-24, again 2026-07-26**: no longer its own route.
+`/member/sell` is deleted — this plan's content now fills the **Selling**
+section of the quest hub built by [Plan 07](07-member-onboarding.md),
+reached from the sidebar at `/member/onboarding?section=selling`. (The
+2026-07-24 revision called this a "tab"; the in-page tab strip was dropped
+on 2026-07-26 in favour of the sidebar — same section, different switcher.)
+This is still the largest content section by far (full product catalog +
+sales kit); only its container changed, not its content scope below.
 
 ## Goal
 
-Content for the Selling tab of `/member/onboarding`: merges *Sales Kit*,
+Content for the Selling section of `/member/onboarding`: merges *Sales Kit*,
 *Script Selling Online*, and *Product Training* into one
 searchable/filterable product catalog instead of one giant scroll page.
 
 ## Depends on
 
 [Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills one of
-its tabs rather than building its own page/route). Independent of Plans
+its sections rather than building its own page/route). Independent of Plans
 08, 10–14.
 
 ## Source content (from sites.google.com/view/connecteam)
@@ -54,7 +57,7 @@ plan needs the complete product list, not just the four above.
   Product Training page (full re-audit required, see above).
 - `src/content/sales-kit.ts` — the Sales Kit resources (PDFs, Canva
   template, Quotation folder link, reference table images).
-- Selling tab: category filter/search over the product catalog, each
+- Selling section: category filter/search over the product catalog, each
   product expandable (via Plan 07's shared accordion component) to show
   video + highlights + terms + commission; Sales Kit resources shown as a
   separate "Tools & Templates" group above or beside the catalog.
@@ -65,11 +68,11 @@ plan needs the complete product list, not just the four above.
 
 - Content module schema validation: every product has a non-empty
   category, at least one highlight, a valid video URL.
-- Selling tab: category filter narrows the visible product list correctly;
+- Selling section: category filter narrows the visible product list correctly;
   search matches by product name.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/onboarding`, open the Selling tab,
+`npm run dev`, log in, open **Selling** from the sidebar,
 filter by each category, expand a few products, confirm video/commission
 content renders. `npm run lint`, `npx tsc --noEmit`, `npm test`.
