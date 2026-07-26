@@ -35,7 +35,7 @@ describe("MemberDashboard", () => {
     expect(screen.getByText(/Belum ada acara yang dijadwalin/i)).toBeInTheDocument();
   });
 
-  test("quick-links to all 8 sections", () => {
+  test("quick-links to every section, nested ones included", () => {
     render(<MemberDashboard user={agent} />);
 
     const sections = screen
@@ -43,16 +43,27 @@ describe("MemberDashboard", () => {
       .parentElement!;
     const links = within(sections).getAllByRole("link");
 
-    expect(links).toHaveLength(8);
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
       "/member/onboarding",
-      "/member/grow",
-      "/member/sell",
-      "/member/reference",
-      "/member/systems",
-      "/member/contests",
-      "/member/events",
-      "/member/directory",
+      "/member/onboarding?section=recruiting",
+      "/member/onboarding?section=selling",
+      "/member/onboarding?section=calculator",
+      "/member/onboarding?section=references",
+      "/member/onboarding?section=contests",
+      "/member/onboarding?section=events",
+      "/member/onboarding?section=directory",
     ]);
+  });
+
+  test("gives a leader the Add Member card too", () => {
+    render(<MemberDashboard user={{ ...agent, role: "leader" }} />);
+
+    const sections = screen
+      .getByRole("heading", { name: "Menu" })
+      .parentElement!;
+
+    expect(
+      within(sections).getByRole("link", { name: /Add Member/ }),
+    ).toHaveAttribute("href", "/member/admin/add-member");
   });
 });

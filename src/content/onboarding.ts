@@ -68,7 +68,7 @@ export const LEARN_VIDEOS: OnboardingVideo[] = [
 export const LEARN_LINKS: OnboardingLink[] = [
   {
     label: "Recruitment Kit",
-    href: "/member/grow",
+    href: "/member/onboarding?section=recruiting",
     note: "Materi buat ngajak partner baru",
   },
 ];

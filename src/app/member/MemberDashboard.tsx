@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CurrentUser } from "@/lib/auth";
-import { memberSections } from "@/lib/member/nav";
+import { memberSections, navItemHref } from "@/lib/member/nav";
 
 export function firstNameOf(name: string): string {
   return name.trim().split(/\s+/)[0] || name;
@@ -55,9 +55,9 @@ export default function MemberDashboard({ user }: { user: CurrentUser }) {
         </h2>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {memberSections(user.role).map((section) => (
-            <li key={section.href}>
+            <li key={section.label}>
               <Link
-                href={section.href}
+                href={navItemHref(section)}
                 className="flex h-full flex-col gap-1 rounded-xl border border-ink-100 bg-white p-4 hover:border-brand-navy-200 hover:bg-brand-navy-50"
               >
                 <span className="font-semibold text-ink-900">
@@ -80,7 +80,7 @@ export default function MemberDashboard({ user }: { user: CurrentUser }) {
         <p className="rounded-xl border border-dashed border-ink-100 bg-white p-6 text-ink-500">
           Belum ada acara yang dijadwalin. Kalendernya masih dipindahin — cek{" "}
           <Link
-            href="/member/events"
+            href="/member/onboarding?section=events"
             className="font-medium text-brand-navy-700 hover:text-brand-red-600"
           >
             Events

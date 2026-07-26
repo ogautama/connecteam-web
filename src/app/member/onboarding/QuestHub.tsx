@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useOptimistic, useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
 import {
   JUST_DO_IT,
@@ -13,18 +13,9 @@ import {
   STARTER_KIT,
   type OnboardingLink,
 } from "@/content/onboarding";
+import type { HubSectionId } from "@/lib/member/nav";
 import { summarizeProgress } from "@/lib/progress";
 import { setOnboardingItemCompletion } from "./actions";
-
-const TABS = [
-  { id: "onboarding", label: "Onboarding", level: 1 },
-  { id: "recruiting", label: "Recruiting", level: 2 },
-  { id: "selling", label: "Selling", level: 3 },
-  { id: "referensi", label: "Referensi", level: undefined },
-  { id: "kontak", label: "Kontak", level: undefined },
-] as const;
-
-type TabId = (typeof TABS)[number]["id"];
 
 type PlaceholderItem = {
   icon: string;
@@ -33,53 +24,116 @@ type PlaceholderItem = {
   note?: string;
 };
 
-const RECRUITING_ITEMS: PlaceholderItem[] = [
-  { icon: "🤝", title: "Kenapa Recruit Dulu?", tag: "Segera hadir" },
-  {
-    icon: "📋",
-    title: "Bank Nama Rekrut + FAST",
-    tag: "Di luar scope",
-    note: "Tabel CRM interaktif — fitur baru, butuh plan terpisah (lihat Plan 08).",
-  },
-  { icon: "💼", title: "Presentasi Bisnis ke Calon Rekrut", tag: "Segera hadir" },
-  { icon: "🛡️", title: "Handling Objection Calon Rekrut", tag: "Segera hadir" },
-];
+type PlaceholderGroup = { category?: string; items: PlaceholderItem[] };
 
-const SELLING_ITEMS: PlaceholderItem[] = [
-  { icon: "🔺", title: "Segitiga Kebutuhan (Basic)", tag: "Segera hadir" },
-  { icon: "📦", title: "Kenalan 3 Produk Dasar", tag: "Segera hadir" },
-  { icon: "🤝", title: "Teknik Closing", tag: "Segera hadir" },
-];
-
-const REFERENSI_GROUPS: { category: string; items: PlaceholderItem[] }[] = [
-  {
-    category: "Reference Data — Plan 10",
-    items: [{ icon: "💰", title: "Tabel Premi & Tabel Medical", tag: "Segera hadir" }],
-  },
-  {
-    category: "Official Systems — Plan 11",
-    items: [{ icon: "🖥️", title: "PRUForce, Lisensi AAJI/AASI, Claim", tag: "Segera hadir" }],
-  },
-  {
-    category: "Contests & Campaigns — Plan 12",
-    items: [{ icon: "🏆", title: "Reward & Campaign", tag: "Segera hadir" }],
-  },
-  {
-    category: "Events — Plan 13",
-    items: [
+/** Heading + placeholder content for every section that isn't Onboarding. */
+const SECTIONS: Record<
+  Exclude<HubSectionId, "onboarding">,
+  { title: string; blurb: string; level?: number; groups: PlaceholderGroup[] }
+> = {
+  recruiting: {
+    title: "Recruiting",
+    blurb: "Bangun tim dulu sebelum jualan",
+    level: 2,
+    groups: [
       {
-        icon: "📅",
-        title: "Jadwal & Registrasi",
-        tag: "Segera hadir",
-        note: "Item leader-only difilter server-side begitu konten ini dibangun — bukan cuma disembunyikan lewat CSS.",
+        items: [
+          { icon: "🤝", title: "Kenapa Recruit Dulu?", tag: "Segera hadir" },
+          {
+            icon: "📋",
+            title: "Bank Nama Rekrut + FAST",
+            tag: "Di luar scope",
+            note: "Tabel CRM interaktif — fitur baru, butuh plan terpisah (lihat Plan 08).",
+          },
+          { icon: "💼", title: "Presentasi Bisnis ke Calon Rekrut", tag: "Segera hadir" },
+          { icon: "🛡️", title: "Handling Objection Calon Rekrut", tag: "Segera hadir" },
+        ],
       },
     ],
   },
-];
-
-const KONTAK_ITEMS: PlaceholderItem[] = [
-  { icon: "📇", title: "Yellow Pages, MRT Group, Prudential Indonesia", tag: "Segera hadir" },
-];
+  selling: {
+    title: "Selling",
+    blurb: "Bantu klien lewat asuransi, bukan hard selling",
+    level: 3,
+    groups: [
+      {
+        items: [
+          { icon: "🔺", title: "Segitiga Kebutuhan (Basic)", tag: "Segera hadir" },
+          { icon: "📦", title: "Kenalan 3 Produk Dasar", tag: "Segera hadir" },
+          { icon: "🤝", title: "Teknik Closing", tag: "Segera hadir" },
+        ],
+      },
+    ],
+  },
+  calculator: {
+    title: "Calculator",
+    blurb: "Hitung potensi income",
+    groups: [
+      {
+        items: [
+          {
+            icon: "🧮",
+            title: "Kalkulator Income",
+            tag: "Segera hadir",
+            note: "Tool-nya belum dibangun (Plan 05, ditunda). Begitu jadi, bagian ini yang jadi pintu masuknya.",
+          },
+        ],
+      },
+    ],
+  },
+  references: {
+    title: "References",
+    blurb: "Tabel, sistem resmi, dan materi rujukan",
+    groups: [
+      {
+        category: "Reference Data — Plan 10",
+        items: [{ icon: "💰", title: "Tabel Premi & Tabel Medical", tag: "Segera hadir" }],
+      },
+      {
+        category: "Official Systems — Plan 11",
+        items: [
+          { icon: "🖥️", title: "PRUForce, Lisensi AAJI/AASI, Claim", tag: "Segera hadir" },
+        ],
+      },
+    ],
+  },
+  contests: {
+    title: "Contests & Campaigns",
+    blurb: "Yang lagi jalan sekarang",
+    groups: [{ items: [{ icon: "🏆", title: "Reward & Campaign", tag: "Segera hadir" }] }],
+  },
+  events: {
+    title: "Events",
+    blurb: "Acara buat diikutin dan ngajak prospek",
+    groups: [
+      {
+        items: [
+          {
+            icon: "📅",
+            title: "Jadwal & Registrasi",
+            tag: "Segera hadir",
+            note: "Item leader-only difilter server-side begitu konten ini dibangun — bukan cuma disembunyikan lewat CSS.",
+          },
+        ],
+      },
+    ],
+  },
+  directory: {
+    title: "Directory",
+    blurb: "Kontak siapa buat urusan apa",
+    groups: [
+      {
+        items: [
+          {
+            icon: "📇",
+            title: "Yellow Pages, MRT Group, Prudential Indonesia",
+            tag: "Segera hadir",
+          },
+        ],
+      },
+    ],
+  },
+};
 
 function LinkListDetail({ links }: { links: OnboardingLink[] }) {
   return (
@@ -87,7 +141,10 @@ function LinkListDetail({ links }: { links: OnboardingLink[] }) {
       {links.map((link) => (
         <li key={link.label}>
           {link.href.startsWith("/") ? (
-            <Link href={link.href} className="font-medium text-brand-navy-700 hover:text-brand-red-600">
+            <Link
+              href={link.href}
+              className="font-medium text-brand-navy-700 hover:text-brand-red-600"
+            >
               {link.label}
             </Link>
           ) : (
@@ -221,7 +278,7 @@ function AccordionItem({
 function PlaceholderTag({ tag }: { tag: PlaceholderItem["tag"] }) {
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${
+      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold tracking-wide uppercase ${
         tag === "Di luar scope"
           ? "bg-brand-red-50 text-brand-red-600"
           : "bg-ink-100 text-ink-500"
@@ -235,11 +292,14 @@ function PlaceholderTag({ tag }: { tag: PlaceholderItem["tag"] }) {
 // Unlike real Onboarding items, placeholders have nothing to reveal on
 // expand — the "Segera hadir"/"Di luar scope" tag is the whole point, so it
 // shows immediately instead of being hidden behind a click.
-function PlaceholderAccordion({ items }: { items: PlaceholderItem[] }) {
+function PlaceholderList({ items }: { items: PlaceholderItem[] }) {
   return (
     <div className="flex flex-col gap-2">
       {items.map((item) => (
-        <div key={item.title} className="rounded-xl border border-dashed border-ink-100 bg-white px-4 py-3">
+        <div
+          key={item.title}
+          className="rounded-xl border border-dashed border-ink-100 bg-white px-4 py-3"
+        >
           <div className="flex items-center gap-3">
             <span aria-hidden className="text-lg">
               {item.icon}
@@ -254,8 +314,13 @@ function PlaceholderAccordion({ items }: { items: PlaceholderItem[] }) {
   );
 }
 
-export default function QuestHub({ completedItemIds }: { completedItemIds: string[] }) {
-  const [activeTab, setActiveTab] = useState<TabId>("onboarding");
+export default function QuestHub({
+  section,
+  completedItemIds,
+}: {
+  section: HubSectionId;
+  completedItemIds: string[];
+}) {
   const [isPending, startTransition] = useTransition();
   const [optimisticCompleted, setOptimisticCompleted] = useOptimistic(
     new Set(completedItemIds),
@@ -267,8 +332,7 @@ export default function QuestHub({ completedItemIds }: { completedItemIds: strin
     },
   );
 
-  const idBase = useId();
-  const sectionIds = ONBOARDING_SECTIONS.map((section) => section.id);
+  const sectionIds = ONBOARDING_SECTIONS.map((s) => s.id);
   const overall = summarizeProgress(sectionIds, optimisticCompleted);
 
   function toggleItem(itemId: string, completed: boolean) {
@@ -278,11 +342,13 @@ export default function QuestHub({ completedItemIds }: { completedItemIds: strin
     });
   }
 
+  const meta = section === "onboarding" ? null : SECTIONS[section];
+
   return (
     <div className="mx-auto flex w-full max-w-content flex-col gap-6">
       <div className="flex flex-col gap-4 rounded-2xl bg-gradient-to-br from-brand-navy-700 via-brand-red-500 to-brand-yellow-400 p-6 text-white">
         <div className="text-center">
-          <h1 className="text-xl font-extrabold tracking-tight">🔥 CONNECTeam Quest</h1>
+          <p className="text-xl font-extrabold tracking-tight">🔥 CONNECTeam Quest</p>
           <p className="mt-1 text-sm text-white/85">
             Jalur step-by-step buat agen baru — cari klien, jual, gaspol.
           </p>
@@ -296,143 +362,72 @@ export default function QuestHub({ completedItemIds }: { completedItemIds: strin
             />
           </div>
           <div className="mt-1 flex justify-between text-xs font-semibold text-white/90">
-            <span>Progress Quest</span>
+            <span>Progress Onboarding</span>
             <span>{overall.percent}%</span>
           </div>
-        </div>
-
-        <div role="tablist" aria-label="Quest Hub" className="flex flex-wrap justify-center gap-1 rounded-full bg-white/15 p-1">
-          {TABS.map((tab) => {
-            const isActive = tab.id === activeTab;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                id={`${idBase}-tab-${tab.id}`}
-                aria-selected={isActive}
-                aria-controls={`${idBase}-panel-${tab.id}`}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold whitespace-nowrap ${
-                  isActive ? "bg-white text-brand-navy-700" : "text-white/85 hover:bg-white/10"
-                }`}
-              >
-                {tab.level !== undefined && (
-                  <span
-                    className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
-                      isActive ? "bg-brand-yellow-400 text-white" : "bg-white/25"
-                    }`}
-                  >
-                    {tab.level}
-                  </span>
-                )}
-                {tab.label}
-              </button>
-            );
-          })}
         </div>
       </div>
 
       <div className="rounded-2xl bg-brand-navy-50 p-4">
-        <div
-          role="tabpanel"
-          id={`${idBase}-panel-onboarding`}
-          aria-labelledby={`${idBase}-tab-onboarding`}
-          hidden={activeTab !== "onboarding"}
-        >
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-navy-700 text-sm font-bold text-white">
-              1
-            </div>
-            <div className="flex-1">
-              <h2 className="text-base font-bold text-ink-900">Level 1 — Onboarding</h2>
-              <p className="text-sm text-ink-500">Kenali diri, susun target, pelajari dasarnya</p>
-            </div>
-            <span className="font-mono text-sm font-semibold text-ink-400">
-              {overall.completed}/{overall.total}
-            </span>
-          </div>
-          <div className="flex flex-col gap-2">
-            {ONBOARDING_SECTIONS.map((section) => (
-              <AccordionItem
-                key={section.id}
-                icon={section.icon}
-                title={section.title}
-                description={section.description}
-                checked={optimisticCompleted.has(section.id)}
-                pending={isPending}
-                onToggleChecked={() =>
-                  toggleItem(section.id, !optimisticCompleted.has(section.id))
-                }
-              >
-                <SectionDetail id={section.id} />
-              </AccordionItem>
-            ))}
-          </div>
-        </div>
-
-        <div
-          role="tabpanel"
-          id={`${idBase}-panel-recruiting`}
-          aria-labelledby={`${idBase}-tab-recruiting`}
-          hidden={activeTab !== "recruiting"}
-        >
-          <div className="mb-3">
-            <h2 className="text-base font-bold text-ink-900">Level 2 — Recruiting</h2>
-            <p className="text-sm text-ink-500">Bangun tim dulu sebelum jualan</p>
-          </div>
-          <PlaceholderAccordion items={RECRUITING_ITEMS} />
-        </div>
-
-        <div
-          role="tabpanel"
-          id={`${idBase}-panel-selling`}
-          aria-labelledby={`${idBase}-tab-selling`}
-          hidden={activeTab !== "selling"}
-        >
-          <div className="mb-3">
-            <h2 className="text-base font-bold text-ink-900">Level 3 — Selling</h2>
-            <p className="text-sm text-ink-500">Bantu klien lewat asuransi, bukan hard selling</p>
-          </div>
-          <PlaceholderAccordion items={SELLING_ITEMS} />
-        </div>
-
-        <div
-          role="tabpanel"
-          id={`${idBase}-panel-referensi`}
-          aria-labelledby={`${idBase}-tab-referensi`}
-          hidden={activeTab !== "referensi"}
-        >
-          <div className="mb-3">
-            <h2 className="text-base font-bold text-ink-900">Referensi</h2>
-            <p className="text-sm text-ink-500">
-              Klik buat buka &amp; download langsung dari situs CONNECTeam
-            </p>
-          </div>
-          <div className="flex flex-col gap-4">
-            {REFERENSI_GROUPS.map((group) => (
-              <div key={group.category} className="flex flex-col gap-2">
-                <h3 className="text-xs font-bold tracking-wide text-ink-400 uppercase">
-                  {group.category}
-                </h3>
-                <PlaceholderAccordion items={group.items} />
+        {section === "onboarding" ? (
+          <>
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-navy-700 text-sm font-bold text-white">
+                1
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          role="tabpanel"
-          id={`${idBase}-panel-kontak`}
-          aria-labelledby={`${idBase}-tab-kontak`}
-          hidden={activeTab !== "kontak"}
-        >
-          <div className="mb-3">
-            <h2 className="text-base font-bold text-ink-900">Kontak</h2>
-            <p className="text-sm text-ink-500">Direktori kontak — leader-only entries difilter server-side</p>
-          </div>
-          <PlaceholderAccordion items={KONTAK_ITEMS} />
-        </div>
+              <div className="flex-1">
+                <h1 className="text-base font-bold text-ink-900">Onboarding</h1>
+                <p className="text-sm text-ink-500">
+                  Kenali diri, susun target, pelajari dasarnya
+                </p>
+              </div>
+              <span className="font-mono text-sm font-semibold text-ink-400">
+                {overall.completed}/{overall.total}
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {ONBOARDING_SECTIONS.map((s) => (
+                <AccordionItem
+                  key={s.id}
+                  icon={s.icon}
+                  title={s.title}
+                  description={s.description}
+                  checked={optimisticCompleted.has(s.id)}
+                  pending={isPending}
+                  onToggleChecked={() => toggleItem(s.id, !optimisticCompleted.has(s.id))}
+                >
+                  <SectionDetail id={s.id} />
+                </AccordionItem>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="mb-3 flex items-center gap-3">
+              {meta!.level !== undefined && (
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-navy-700 text-sm font-bold text-white">
+                  {meta!.level}
+                </div>
+              )}
+              <div className="flex-1">
+                <h1 className="text-base font-bold text-ink-900">{meta!.title}</h1>
+                <p className="text-sm text-ink-500">{meta!.blurb}</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              {meta!.groups.map((group, i) => (
+                <div key={group.category ?? i} className="flex flex-col gap-2">
+                  {group.category && (
+                    <h2 className="text-xs font-bold tracking-wide text-ink-400 uppercase">
+                      {group.category}
+                    </h2>
+                  )}
+                  <PlaceholderList items={group.items} />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

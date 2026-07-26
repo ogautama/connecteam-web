@@ -4,6 +4,7 @@ import MemberLayout from "../MemberLayout";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/member",
+  useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
@@ -31,10 +32,11 @@ describe("MemberLayout", () => {
     expect(
       screen.getByRole("navigation", { name: "Member" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Get Started" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Onboarding" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Directory" })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Rani Putri/ }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument();
   });
 });

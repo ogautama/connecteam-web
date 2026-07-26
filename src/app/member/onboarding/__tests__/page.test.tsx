@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 const { requireMember, getCompletedItemIds } = vi.hoisted(() => ({
   requireMember: vi.fn(),
@@ -9,7 +9,12 @@ const { requireMember, getCompletedItemIds } = vi.hoisted(() => ({
 vi.mock("@/lib/auth", () => ({ requireMember }));
 vi.mock("@/lib/onboardingProgress", () => ({ getCompletedItemIds }));
 
-import OnboardingPage from "../page";
+import MemberHubPage from "../page";
+
+function renderAt(section?: string, completed: string[] = []) {
+  getCompletedItemIds.mockResolvedValue(completed);
+  return MemberHubPage({ searchParams: Promise.resolve({ section }) });
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -17,9 +22,9 @@ beforeEach(() => {
   getCompletedItemIds.mockResolvedValue([]);
 });
 
-describe("Onboarding page", () => {
+describe("member hub page", () => {
   test("scopes progress lookup to the signed-in member", async () => {
-    render(await OnboardingPage());
+    render(await renderAt());
 
     expect(requireMember).toHaveBeenCalled();
     expect(getCompletedItemIds).toHaveBeenCalledWith("user_1");
@@ -28,27 +33,14 @@ describe("Onboarding page", () => {
   test("never renders for a signed-out visitor — the guard redirects first", async () => {
     requireMember.mockRejectedValue(new Error("NEXT_REDIRECT"));
 
-    await expect(OnboardingPage()).rejects.toThrow("NEXT_REDIRECT");
+    await expect(renderAt()).rejects.toThrow("NEXT_REDIRECT");
     expect(getCompletedItemIds).not.toHaveBeenCalled();
   });
 
-  test("renders all 5 tabs, Onboarding active by default", async () => {
-    render(await OnboardingPage());
+  test("defaults to Onboarding, listing its 5 items as checkboxes", async () => {
+    render(await renderAt());
 
-    const tabs = screen.getByRole("tablist", { name: "Quest Hub" });
-    for (const label of ["Onboarding", "Recruiting", "Selling", "Referensi", "Kontak"]) {
-      expect(within(tabs).getByRole("tab", { name: new RegExp(label) })).toBeInTheDocument();
-    }
-    expect(screen.getByRole("tab", { name: /Onboarding/ })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-    expect(screen.getByRole("heading", { name: "Level 1 — Onboarding" })).toBeInTheDocument();
-  });
-
-  test("Onboarding tab lists all 5 real checklist items as checkboxes", async () => {
-    render(await OnboardingPage());
-
+    expect(screen.getByRole("heading", { level: 1, name: "Onboarding" })).toBeInTheDocument();
     for (const title of [
       "Kenali Dirimu",
       "Susun Targetmu",
@@ -61,9 +53,7 @@ describe("Onboarding page", () => {
   });
 
   test("previously completed items render checked", async () => {
-    getCompletedItemIds.mockResolvedValue(["know-yourself", "just-do-it"]);
-
-    render(await OnboardingPage());
+    render(await renderAt(undefined, ["know-yourself", "just-do-it"]));
 
     expect(screen.getByRole("checkbox", { name: "Kenali Dirimu" })).toHaveAttribute(
       "aria-checked",
@@ -75,14 +65,31 @@ describe("Onboarding page", () => {
     );
   });
 
-  test("other tabs render as placeholder shells, not fabricated content", async () => {
-    render(await OnboardingPage());
+  test("renders the section named in the query string", async () => {
+    render(await renderAt("recruiting"));
 
-    const recruitingPanel = document.getElementById(
-      screen.getByRole("tab", { name: /Recruiting/ }).getAttribute("aria-controls")!,
-    )!;
-    expect(within(recruitingPanel).getByText("Level 2 — Recruiting")).toBeInTheDocument();
-    expect(within(recruitingPanel).getAllByText("Segera hadir").length).toBeGreaterThan(0);
-    expect(within(recruitingPanel).getByText("Di luar scope")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Recruiting" })).toBeInTheDocument();
+    expect(screen.getAllByText("Segera hadir").length).toBeGreaterThan(0);
+    // The deferred CRM feature is tagged apart from merely-unsourced content.
+    expect(screen.getByText("Di luar scope")).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  });
+
+  test("renders a nested section the same way as a top-level one", async () => {
+    render(await renderAt("events"));
+
+    expect(screen.getByRole("heading", { level: 1, name: "Events" })).toBeInTheDocument();
+  });
+
+  test("falls back to Onboarding on a junk section rather than crashing", async () => {
+    render(await renderAt("not-a-section"));
+
+    expect(screen.getByRole("heading", { level: 1, name: "Onboarding" })).toBeInTheDocument();
+  });
+
+  test("shows overall onboarding progress regardless of active section", async () => {
+    render(await renderAt("selling", ["know-yourself"]));
+
+    expect(screen.getByText("20%")).toBeInTheDocument();
   });
 });
