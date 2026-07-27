@@ -2,7 +2,12 @@ import { describe, expect, test } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import MemberDashboard, { firstNameOf } from "../MemberDashboard";
 
-const agent = { id: "user_1", name: "Rani Putri", role: "agent" as const };
+const agent = {
+  id: "user_1",
+  name: "Rani Putri",
+  email: "rani@example.com",
+  role: "agent" as const,
+};
 
 describe("firstNameOf", () => {
   test("greets people by first name only", () => {

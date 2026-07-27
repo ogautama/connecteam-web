@@ -8,7 +8,12 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
-const user = { id: "user_1", name: "Rani Putri", role: "agent" as const };
+const user = {
+  id: "user_1",
+  name: "Rani Putri",
+  email: "rani@example.com",
+  role: "agent" as const,
+};
 
 describe("MemberLayout", () => {
   test("renders children", () => {

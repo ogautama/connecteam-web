@@ -1,5 +1,7 @@
 import Link from "next/link";
 import HeaderLoginButton from "@/components/layouts/HeaderLoginButton";
+import AccountMenu from "@/components/layouts/AccountMenu";
+import type { CurrentUser } from "@/lib/auth";
 import { CALCULATOR_LIVE, DISC_LIVE } from "@/lib/features";
 
 // Tool links are hidden until their pages exist (Plans 04/05) — see
@@ -19,8 +21,13 @@ const SOCIAL_LINKS = [
 
 export default function MarketingLayout({
   children,
+  user = null,
 }: {
   children: React.ReactNode;
+  // Public marketing pages don't gate on session, but a signed-in member
+  // browsing one (e.g. via the /member/onboarding "Tes DISC" link) should
+  // still see themselves recognized instead of a generic "Login" button.
+  user?: CurrentUser | null;
 }) {
   return (
     <div className="flex min-h-full flex-col">
@@ -45,7 +52,11 @@ export default function MarketingLayout({
             </ul>
           </nav>
 
-          <HeaderLoginButton />
+          {user ? (
+            <AccountMenu name={user.name} role={user.role} />
+          ) : (
+            <HeaderLoginButton />
+          )}
         </div>
       </header>
 

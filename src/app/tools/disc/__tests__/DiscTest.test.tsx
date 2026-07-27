@@ -150,6 +150,23 @@ describe("DiscTest", () => {
     ).toBeInTheDocument();
   });
 
+  test("a signed-in member skips the form and saves under their account identity", async () => {
+    render(<DiscTest user={{ name: "Rani Putri", email: "rani@example.com" }} />);
+    completeTest("D");
+
+    // No re-ask for name/contact — they're already known.
+    expect(screen.queryByLabelText(/Nama/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Nomor WhatsApp/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Rani Putri · rani@example.com")).toBeInTheDocument();
+
+    expect(saveDiscLead).toHaveBeenCalledWith({
+      name: "Rani Putri",
+      contact: "rani@example.com",
+      answers: DISC_QUESTIONS.map(() => "D"),
+    });
+    expect(await screen.findByText("Hasilnya tersimpan")).toBeInTheDocument();
+  });
+
   test("restarting clears the answers and returns to question 1", () => {
     render(<DiscTest />);
     completeTest("D");

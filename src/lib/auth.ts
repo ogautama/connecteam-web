@@ -8,7 +8,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 // re-exported here so `@/lib/auth` stays the single Plan 02b auth entry point.
 export { signInWithGoogle, signOut } from "@/lib/auth-browser";
 
-export type CurrentUser = { id: string; name: string; role: Role };
+export type CurrentUser = { id: string; name: string; email: string; role: Role };
 
 /** The raw Supabase session user, or null if unauthenticated. */
 export async function getSession(): Promise<SupabaseUser | null> {
@@ -24,7 +24,7 @@ async function getProfile(userId: string): Promise<CurrentUser | null> {
     where: { id: userId },
     // `name` comes from Google's full_name via the on_auth_user_created
     // trigger — the member shell greets the user with it (Plan 06).
-    select: { id: true, name: true, role: true },
+    select: { id: true, name: true, email: true, role: true },
   });
 }
 
