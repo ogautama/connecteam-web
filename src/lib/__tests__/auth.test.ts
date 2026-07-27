@@ -37,7 +37,12 @@ const supabaseUser = {
   id: "user_1",
   email: "agent@example.com",
 } as unknown as SupabaseUser;
-const profile = { id: "user_1", name: "Rani Putri", role: "agent" as const };
+const profile = {
+  id: "user_1",
+  name: "Rani Putri",
+  email: "agent@example.com",
+  role: "agent" as const,
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -56,14 +61,14 @@ describe("getSession", () => {
 });
 
 describe("getCurrentUser", () => {
-  it("returns {id, role} for a session with a matching public.User row", async () => {
+  it("returns the profile for a session with a matching public.User row", async () => {
     getUser.mockResolvedValueOnce({ data: { user: supabaseUser } });
     findUnique.mockResolvedValueOnce(profile);
 
     await expect(getCurrentUser()).resolves.toEqual(profile);
     expect(findUnique).toHaveBeenCalledWith({
       where: { id: "user_1" },
-      select: { id: true, name: true, role: true },
+      select: { id: true, name: true, email: true, role: true },
     });
   });
 

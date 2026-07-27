@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { DISC_QUESTIONS, DISC_TRAITS, type DiscTrait } from "@/lib/disc/questions";
 import { scoreDisc, type DiscResult } from "@/lib/disc/score";
@@ -8,10 +8,11 @@ import { DISC_PROFILES, TRAIT_META } from "@/content/disc-profiles";
 import { saveDiscLead } from "./actions";
 
 type LeadStatus = "idle" | "saving" | "saved";
+type DiscMember = { name: string; email: string };
 
 const emptyAnswers = () => DISC_QUESTIONS.map(() => null as DiscTrait | null);
 
-export default function DiscTest() {
+export default function DiscTest({ user = null }: { user?: DiscMember | null }) {
   const [answers, setAnswers] = useState<(DiscTrait | null)[]>(emptyAnswers);
   const [step, setStep] = useState(0);
 
@@ -32,7 +33,14 @@ export default function DiscTest() {
   }
 
   if (result) {
-    return <Results result={result} answers={answers as DiscTrait[]} onRestart={restart} />;
+    return (
+      <Results
+        result={result}
+        answers={answers as DiscTrait[]}
+        onRestart={restart}
+        user={user}
+      />
+    );
   }
 
   const question = DISC_QUESTIONS[step];
@@ -102,10 +110,12 @@ function Results({
   result,
   answers,
   onRestart,
+  user,
 }: {
   result: DiscResult;
   answers: DiscTrait[];
   onRestart: () => void;
+  user: DiscMember | null;
 }) {
   const profile = DISC_PROFILES[result.profileKey];
 
@@ -168,7 +178,7 @@ function Results({
         <p className="mt-2 text-ink-700">{profile.watchOut}</p>
       </div>
 
-      <LeadCapture answers={answers} />
+      <LeadCapture answers={answers} user={user} />
 
       <div className="mt-10 flex flex-col items-center gap-4 border-t border-ink-100 pt-8 text-center">
         <p className="text-ink-500">
@@ -192,11 +202,41 @@ function Results({
   );
 }
 
-function LeadCapture({ answers }: { answers: DiscTrait[] }) {
+function LeadCapture({
+  answers,
+  user,
+}: {
+  answers: DiscTrait[];
+  user: DiscMember | null;
+}) {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
-  const [status, setStatus] = useState<LeadStatus>("idle");
+  const [status, setStatus] = useState<LeadStatus>(user ? "saving" : "idle");
   const [error, setError] = useState<string | null>(null);
+
+  // Signed-in member: we already know who they are, so save under their
+  // account identity instead of asking them to retype it.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        await saveDiscLead({ name: user.name, contact: user.email, answers });
+        if (!cancelled) setStatus("saved");
+      } catch {
+        if (!cancelled) {
+          setStatus("idle");
+          setError("Gagal menyimpan hasil kamu. Coba lagi sebentar lagi.");
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -217,6 +257,24 @@ function LeadCapture({ answers }: { answers: DiscTrait[] }) {
       setStatus("idle");
       setError("Gagal menyimpan. Coba lagi sebentar lagi.");
     }
+  }
+
+  if (user) {
+    return (
+      <div className="mt-8 rounded-2xl border border-ink-100 bg-white p-6">
+        <h3 className="text-lg font-semibold text-ink-900">
+          {status === "saved" ? "Hasilnya tersimpan" : "Menyimpan hasil ke akun kamu…"}
+        </h3>
+        <p className="mt-2 text-ink-700">
+          {user.name} &middot; {user.email}
+        </p>
+        {error && (
+          <p role="alert" className="mt-3 text-sm text-danger-500">
+            {error}
+          </p>
+        )}
+      </div>
+    );
   }
 
   if (status === "saved") {
