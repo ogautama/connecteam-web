@@ -19,7 +19,9 @@ type Status = "idle" | "uploading" | "saving" | "error";
  * see docs/plans/04-disc-tool.md's "out of scope" note) with an in-app record
  * of the result: a screenshot the member uploads straight to Supabase
  * Storage, plus a short typed summary so it's readable without opening the
- * image.
+ * image. Collapsed by default (a one-line "upload di sini" prompt, or a
+ * compact saved-result card) — the form only shows once the member opts in,
+ * so the link list doesn't get crowded with two open forms.
  */
 export default function TestResultUpload({
   source,
@@ -33,7 +35,7 @@ export default function TestResultUpload({
   initial: TestResultState | null;
 }) {
   const [saved, setSaved] = useState<TestResultState | null>(initial);
-  const [editing, setEditing] = useState(!initial);
+  const [editing, setEditing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [typed, setTyped] = useState(initial?.typed ?? "");
   const [status, setStatus] = useState<Status>("idle");
@@ -98,30 +100,46 @@ export default function TestResultUpload({
     }
   }
 
-  if (saved && !editing) {
-    return (
-      <div className="mt-2 flex flex-col gap-2 rounded-xl border border-brand-navy-200 bg-white px-4 py-3 text-sm">
-        <div className="flex items-center justify-between gap-3">
-          <span className="font-medium text-ink-900">Hasil: {saved.typed}</span>
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="shrink-0 font-medium text-brand-navy-700 hover:text-brand-red-600"
-          >
-            Ganti hasil
-          </button>
+  if (!editing) {
+    if (saved) {
+      return (
+        <div className="mt-2 flex flex-col gap-2 rounded-xl border border-brand-navy-200 bg-white px-4 py-3 text-sm">
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-medium text-ink-900">Hasil: {saved.typed}</span>
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="shrink-0 font-medium text-brand-navy-700 hover:text-brand-red-600"
+            >
+              Ganti hasil
+            </button>
+          </div>
+          {saved.screenshotUrl && (
+            <a
+              href={saved.screenshotUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-brand-navy-700 hover:text-brand-red-600"
+            >
+              Lihat screenshot
+            </a>
+          )}
         </div>
-        {saved.screenshotUrl && (
-          <a
-            href={saved.screenshotUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-brand-navy-700 hover:text-brand-red-600"
-          >
-            Lihat screenshot
-          </a>
-        )}
-      </div>
+      );
+    }
+
+    return (
+      <p className="mt-1 text-sm text-ink-500">
+        Sudah selesai tesnya? Screenshot hasilnya, lalu upload{" "}
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          className="font-medium text-brand-navy-700 underline hover:text-brand-red-600"
+        >
+          di sini
+        </button>
+        .
+      </p>
     );
   }
 
@@ -131,10 +149,6 @@ export default function TestResultUpload({
       noValidate
       className="mt-2 flex flex-col gap-3 rounded-xl border border-dashed border-ink-200 bg-white px-4 py-3 text-sm"
     >
-      <p className="text-ink-500">
-        Sudah selesai tesnya? Screenshot halaman hasilnya, lalu upload di sini.
-      </p>
-
       <label className="flex flex-col gap-1 font-medium text-ink-700">
         Screenshot hasil
         <input
@@ -174,18 +188,16 @@ export default function TestResultUpload({
               ? "Menyimpan…"
               : "Simpan hasil"}
         </button>
-        {saved && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditing(false);
-              setError(null);
-            }}
-            className="font-medium text-ink-500 hover:text-ink-700"
-          >
-            Batal
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => {
+            setEditing(false);
+            setError(null);
+          }}
+          className="font-medium text-ink-500 hover:text-ink-700"
+        >
+          Batal
+        </button>
       </div>
     </form>
   );

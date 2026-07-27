@@ -39,13 +39,13 @@ export const KNOW_YOURSELF: OnboardingLink[] = [
   {
     label: "Tes MBTI",
     href: "https://satupersen.net/psikotes-online-gratis/tes-16-kepribadian",
-    note: "Tes di situs luar — screenshot hasilnya, lalu upload di sini",
+    note: "Tes di situs luar",
     testSource: "mbti",
   },
   {
     label: "Tes Self Motivation",
     href: "https://satupersen.net/psikotes-online-gratis/tes-self-motivation",
-    note: "Tes di situs luar — screenshot hasilnya, lalu upload di sini",
+    note: "Tes di situs luar",
     testSource: "selfMotivation",
   },
 ];
