@@ -48,11 +48,6 @@ export const KNOW_YOURSELF: OnboardingLink[] = [
     note: "Tes di situs luar — screenshot hasilnya, lalu upload di sini",
     testSource: "selfMotivation",
   },
-  {
-    label: "Upload Profil",
-    href: "https://forms.gle/fcneonKgvAX5Wd1F6",
-    note: "Form singkat biar leadermu kenal kamu",
-  },
 ];
 
 export const PLAN_YOUR_GOALS: OnboardingChecklist = {
@@ -120,7 +115,7 @@ export const ONBOARDING_SECTIONS: OnboardingSection[] = [
   {
     id: "know-yourself",
     title: "Kenali Dirimu",
-    description: "Tes DISC, MBTI, Self Motivation, upload profil",
+    description: "Tes DISC, MBTI, Self Motivation",
     icon: "🧭",
   },
   {
