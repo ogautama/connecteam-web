@@ -3,6 +3,7 @@ import { requireMember } from "@/lib/auth";
 import { DEFAULT_SECTION, isValidSection } from "@/lib/member/nav";
 import { getCompletedItemIds } from "@/lib/onboardingProgress";
 import QuestHub from "./QuestHub";
+import { getTestResultState } from "./testResultState";
 
 export const metadata: Metadata = {
   title: "Member Space — CONNECTeam",
@@ -22,12 +23,18 @@ export default async function MemberHubPage({
 }) {
   const user = await requireMember();
   const { section } = await searchParams;
-  const completedItemIds = await getCompletedItemIds(user.id);
+  const [completedItemIds, mbti, selfMotivation] = await Promise.all([
+    getCompletedItemIds(user.id),
+    getTestResultState(user.email, "mbti"),
+    getTestResultState(user.email, "selfMotivation"),
+  ]);
 
   return (
     <QuestHub
       section={isValidSection(section) ? section : DEFAULT_SECTION}
       completedItemIds={completedItemIds}
+      user={user}
+      testResults={{ mbti, selfMotivation }}
     />
   );
 }

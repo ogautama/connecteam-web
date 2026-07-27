@@ -65,6 +65,8 @@ model PendingInvite {
 enum LeadSource {
   calculator
   disc
+  mbti
+  selfMotivation
 }
 
 model Lead {

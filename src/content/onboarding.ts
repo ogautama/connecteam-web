@@ -6,6 +6,8 @@ export type OnboardingLink = {
   label: string;
   href: string;
   note?: string;
+  /** Set for the two links whose result gets uploaded back in-app (Plan 17). */
+  testSource?: "mbti" | "selfMotivation";
 };
 
 export type OnboardingChecklist = {
@@ -37,10 +39,14 @@ export const KNOW_YOURSELF: OnboardingLink[] = [
   {
     label: "Tes MBTI",
     href: "https://satupersen.net/psikotes-online-gratis/tes-16-kepribadian",
+    note: "Tes di situs luar — screenshot hasilnya, lalu upload di sini",
+    testSource: "mbti",
   },
   {
     label: "Tes Self Motivation",
     href: "https://satupersen.net/psikotes-online-gratis/tes-self-motivation",
+    note: "Tes di situs luar — screenshot hasilnya, lalu upload di sini",
+    testSource: "selfMotivation",
   },
   {
     label: "Upload Profil",

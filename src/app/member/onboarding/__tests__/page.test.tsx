@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-const { requireMember, getCompletedItemIds } = vi.hoisted(() => ({
+const { requireMember, getCompletedItemIds, getTestResultState } = vi.hoisted(() => ({
   requireMember: vi.fn(),
   getCompletedItemIds: vi.fn(),
+  getTestResultState: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({ requireMember }));
 vi.mock("@/lib/onboardingProgress", () => ({ getCompletedItemIds }));
+vi.mock("../testResultState", () => ({ getTestResultState }));
 
 import MemberHubPage from "../page";
 
@@ -18,8 +20,14 @@ function renderAt(section?: string, completed: string[] = []) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  requireMember.mockResolvedValue({ id: "user_1", name: "Rani Putri", role: "agent" });
+  requireMember.mockResolvedValue({
+    id: "user_1",
+    name: "Rani Putri",
+    email: "rani@example.com",
+    role: "agent",
+  });
   getCompletedItemIds.mockResolvedValue([]);
+  getTestResultState.mockResolvedValue(null);
 });
 
 describe("member hub page", () => {
