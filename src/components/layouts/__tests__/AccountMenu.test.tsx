@@ -38,6 +38,17 @@ describe("AccountMenu", () => {
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 
+  test("links to the member space", () => {
+    render(<AccountMenu name="Rani Putri" role="agent" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Rani Putri/ }));
+
+    expect(screen.getByRole("menuitem", { name: "Member Space" })).toHaveAttribute(
+      "href",
+      "/member",
+    );
+  });
+
   test("logging out clears the session and returns to the home page", async () => {
     render(<AccountMenu name="Rani Putri" role="leader" />);
 

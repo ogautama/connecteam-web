@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { Role } from "@prisma/client";
 import { signOut } from "@/lib/auth-browser";
 
@@ -55,6 +56,13 @@ export default function AccountMenu({
           <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-ink-500">
             {ROLE_LABEL[role]}
           </p>
+          <Link
+            href="/member"
+            role="menuitem"
+            className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-ink-700 hover:bg-ink-50"
+          >
+            Member Space
+          </Link>
           <button
             type="button"
             role="menuitem"

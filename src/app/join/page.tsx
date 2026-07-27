@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
+import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Gabung — CONNECTeam",
@@ -12,9 +13,11 @@ export const metadata: Metadata = {
 const FORM_EMBED_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSdogN_R3VKMZgt4ifQMOH3oNu2nYMiwrGWPuYZH5yTKqzUJkA/viewform?embedded=true";
 
-export default function JoinPage() {
+export default async function JoinPage() {
+  const user = await getCurrentUser();
+
   return (
-    <MarketingLayout>
+    <MarketingLayout user={user}>
       <section className="mx-auto flex w-full max-w-content flex-col items-center gap-4 px-6 py-16 text-center">
         <h1 className="text-display-sm font-bold tracking-tight text-ink-900">
           Gabung CONNECTeam
