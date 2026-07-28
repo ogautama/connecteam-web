@@ -6,6 +6,8 @@ export type OnboardingLink = {
   label: string;
   href: string;
   note?: string;
+  /** Set for the two links whose result gets uploaded back in-app (Plan 17). */
+  testSource?: "mbti" | "selfMotivation";
 };
 
 export type OnboardingChecklist = {
@@ -37,15 +39,14 @@ export const KNOW_YOURSELF: OnboardingLink[] = [
   {
     label: "Tes MBTI",
     href: "https://satupersen.net/psikotes-online-gratis/tes-16-kepribadian",
+    note: "Tes di situs luar",
+    testSource: "mbti",
   },
   {
     label: "Tes Self Motivation",
     href: "https://satupersen.net/psikotes-online-gratis/tes-self-motivation",
-  },
-  {
-    label: "Upload Profil",
-    href: "https://forms.gle/fcneonKgvAX5Wd1F6",
-    note: "Form singkat biar leadermu kenal kamu",
+    note: "Tes di situs luar",
+    testSource: "selfMotivation",
   },
 ];
 
@@ -114,7 +115,7 @@ export const ONBOARDING_SECTIONS: OnboardingSection[] = [
   {
     id: "know-yourself",
     title: "Kenali Dirimu",
-    description: "Tes DISC, MBTI, Self Motivation, upload profil",
+    description: "Tes DISC, MBTI, Self Motivation",
     icon: "🧭",
   },
   {

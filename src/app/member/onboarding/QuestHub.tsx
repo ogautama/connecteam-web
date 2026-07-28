@@ -16,6 +16,16 @@ import {
 import type { HubSectionId } from "@/lib/member/nav";
 import { summarizeProgress } from "@/lib/progress";
 import { setOnboardingItemCompletion } from "./actions";
+import TestResultUpload from "./TestResultUpload";
+import type { TestResultState } from "./testResultState";
+
+type QuestHubUser = { id: string; name: string; email: string };
+type TestResults = { mbti: TestResultState | null; selfMotivation: TestResultState | null };
+
+const TEST_RESULT_PLACEHOLDER: Record<"mbti" | "selfMotivation", string> = {
+  mbti: "Tipe kamu, misalnya INFJ-A",
+  selfMotivation: "Skor / level motivasi kamu",
+};
 
 type PlaceholderItem = {
   icon: string;
@@ -164,6 +174,49 @@ function LinkListDetail({ links }: { links: OnboardingLink[] }) {
   );
 }
 
+function KnowYourselfDetail({
+  user,
+  testResults,
+}: {
+  user: QuestHubUser;
+  testResults: TestResults;
+}) {
+  return (
+    <ul className="flex flex-col gap-4">
+      {KNOW_YOURSELF.map((link) => (
+        <li key={link.label}>
+          {link.href.startsWith("/") ? (
+            <Link
+              href={link.href}
+              className="font-medium text-brand-navy-700 hover:text-brand-red-600"
+            >
+              {link.label}
+            </Link>
+          ) : (
+            <a
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-brand-navy-700 hover:text-brand-red-600"
+            >
+              {link.label}
+            </a>
+          )}
+          {link.note && <span className="text-ink-500"> — {link.note}</span>}
+          {link.testSource && (
+            <TestResultUpload
+              source={link.testSource}
+              userId={user.id}
+              resultPlaceholder={TEST_RESULT_PLACEHOLDER[link.testSource]}
+              initial={testResults[link.testSource]}
+            />
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function ChecklistDetail({ items }: { items: string[] }) {
   return (
     <ul className="flex flex-col gap-1">
@@ -174,10 +227,18 @@ function ChecklistDetail({ items }: { items: string[] }) {
   );
 }
 
-function SectionDetail({ id }: { id: (typeof ONBOARDING_SECTIONS)[number]["id"] }) {
+function SectionDetail({
+  id,
+  user,
+  testResults,
+}: {
+  id: (typeof ONBOARDING_SECTIONS)[number]["id"];
+  user: QuestHubUser;
+  testResults: TestResults;
+}) {
   switch (id) {
     case "know-yourself":
-      return <LinkListDetail links={KNOW_YOURSELF} />;
+      return <KnowYourselfDetail user={user} testResults={testResults} />;
     case "plan-your-goals":
       return <ChecklistDetail items={PLAN_YOUR_GOALS.items} />;
     case "learn":
@@ -317,9 +378,13 @@ function PlaceholderList({ items }: { items: PlaceholderItem[] }) {
 export default function QuestHub({
   section,
   completedItemIds,
+  user,
+  testResults,
 }: {
   section: HubSectionId;
   completedItemIds: string[];
+  user: QuestHubUser;
+  testResults: TestResults;
 }) {
   const [isPending, startTransition] = useTransition();
   const [optimisticCompleted, setOptimisticCompleted] = useOptimistic(
@@ -396,7 +461,7 @@ export default function QuestHub({
                   pending={isPending}
                   onToggleChecked={() => toggleItem(s.id, !optimisticCompleted.has(s.id))}
                 >
-                  <SectionDetail id={s.id} />
+                  <SectionDetail id={s.id} user={user} testResults={testResults} />
                 </AccordionItem>
               ))}
             </div>

@@ -19,3 +19,16 @@ export function createLead(input: {
     },
   });
 }
+
+// Leads accumulate one row per submission (no upsert) — this is how a
+// signed-in member's most recent result gets found again, matched by the
+// same `contact` (their account email) the auto-save path writes under.
+export function getLatestLead(input: {
+  source: LeadSource;
+  contact: string;
+}): Promise<Lead | null> {
+  return prisma.lead.findFirst({
+    where: { source: input.source, contact: input.contact },
+    orderBy: { createdAt: "desc" },
+  });
+}
