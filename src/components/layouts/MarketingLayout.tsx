@@ -33,11 +33,10 @@ export default function MarketingLayout({
     <div className="flex min-h-full flex-col">
       <header className="border-b border-ink-100 bg-white">
         <div className="mx-auto flex h-header max-w-content items-center justify-between px-6">
-          <Link
-            href="/"
-            className="bg-linear-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400 bg-clip-text text-xl font-bold text-transparent"
-          >
-            CONNECTeam
+          <Link href="/" className="text-xl font-bold">
+            <span className="text-brand-navy-700">CONNECT</span>
+            {/* Matches the "eam" red in public/logo/connecteam-wordmark.png — outside the brand-red scale, which trends pinker than the logo's coral. */}
+            <span className="text-[#f2404e]">eam</span>
           </Link>
 
           <nav aria-label="Primary">

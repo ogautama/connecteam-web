@@ -46,11 +46,10 @@ export default function MemberShell({
         } fixed inset-y-0 left-0 z-30 w-sidebar shrink-0 overflow-y-auto border-r border-ink-100 bg-white md:static md:z-auto`}
       >
         <div className="flex h-header items-center px-6">
-          <Link
-            href="/"
-            className="bg-linear-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400 bg-clip-text text-lg font-bold text-transparent"
-          >
-            CONNECTeam
+          <Link href="/" className="text-lg font-bold">
+            <span className="text-brand-navy-700">CONNECT</span>
+            {/* Matches the "eam" red in public/logo/connecteam-wordmark.png — outside the brand-red scale, which trends pinker than the logo's coral. */}
+            <span className="text-[#f2404e]">eam</span>
           </Link>
         </div>
 
