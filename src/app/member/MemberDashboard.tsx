@@ -80,7 +80,7 @@ export default function MemberDashboard({ user }: { user: CurrentUser }) {
         <p className="rounded-xl border border-dashed border-ink-100 bg-white p-6 text-ink-500">
           Belum ada acara yang dijadwalin. Kalendernya masih dipindahin — cek{" "}
           <Link
-            href="/member/onboarding?section=events"
+            href="/member/onboarding?section=references-events"
             className="font-medium text-brand-navy-700 hover:text-brand-red-600"
           >
             Events

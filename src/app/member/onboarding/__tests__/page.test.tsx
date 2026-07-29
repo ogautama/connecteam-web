@@ -73,20 +73,42 @@ describe("member hub page", () => {
     );
   });
 
-  test("renders the section named in the query string", async () => {
+  test("renders a top-level parent as a landing page linking to its children", async () => {
     render(await renderAt("recruiting"));
 
     expect(screen.getByRole("heading", { level: 1, name: "Recruiting" })).toBeInTheDocument();
-    expect(screen.getAllByText("Segera hadir").length).toBeGreaterThan(0);
-    // The deferred CRM feature is tagged apart from merely-unsourced content.
-    expect(screen.getByText("Di luar scope")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Kenapa recruit dlu\?/ }),
+    ).toHaveAttribute("href", "/member/onboarding?section=recruiting-why");
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
   });
 
-  test("renders a nested section the same way as a top-level one", async () => {
-    render(await renderAt("events"));
+  test("renders a nested leaf section with its placeholder content", async () => {
+    render(await renderAt("recruiting-bank-fast"));
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Bank nama rekrut + FAST" }),
+    ).toBeInTheDocument();
+    // The deferred CRM feature is tagged apart from merely-unsourced content.
+    expect(screen.getByText("Di luar scope")).toBeInTheDocument();
+  });
+
+  test("renders a deeply-nested section the same way as any other leaf", async () => {
+    render(await renderAt("references-events"));
 
     expect(screen.getByRole("heading", { level: 1, name: "Events" })).toBeInTheDocument();
+    expect(screen.getAllByText("Segera hadir").length).toBeGreaterThan(0);
+  });
+
+  test("gives Kenali Dirimu the real DISC/MBTI content, not a placeholder", async () => {
+    render(await renderAt("onboarding-kenali-dirimu"));
+
+    expect(screen.getByRole("heading", { level: 1, name: "Kenali Dirimu" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Tes DISC" })).toHaveAttribute(
+      "href",
+      "/tools/disc",
+    );
+    expect(screen.queryByText("Segera hadir")).not.toBeInTheDocument();
   });
 
   test("falls back to Onboarding on a junk section rather than crashing", async () => {

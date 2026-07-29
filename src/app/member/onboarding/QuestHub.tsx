@@ -13,7 +13,12 @@ import {
   STARTER_KIT,
   type OnboardingLink,
 } from "@/content/onboarding";
-import type { HubSectionId } from "@/lib/member/nav";
+import {
+  MEMBER_NAV,
+  navItemHref,
+  type HubSectionId,
+  type MemberNavItem,
+} from "@/lib/member/nav";
 import { summarizeProgress } from "@/lib/progress";
 import { setOnboardingItemCompletion } from "./actions";
 import TestResultUpload from "./TestResultUpload";
@@ -36,113 +41,274 @@ type PlaceholderItem = {
 
 type PlaceholderGroup = { category?: string; items: PlaceholderItem[] };
 
-/** Heading + placeholder content for every section that isn't Onboarding. */
-const SECTIONS: Record<
-  Exclude<HubSectionId, "onboarding">,
-  { title: string; blurb: string; level?: number; groups: PlaceholderGroup[] }
-> = {
-  recruiting: {
-    title: "Recruiting",
-    blurb: "Bangun tim dulu sebelum jualan",
-    level: 2,
-    groups: [
-      {
-        items: [
-          { icon: "🤝", title: "Kenapa Recruit Dulu?", tag: "Segera hadir" },
-          {
-            icon: "📋",
-            title: "Bank Nama Rekrut + FAST",
-            tag: "Di luar scope",
-            note: "Tabel CRM interaktif — fitur baru, butuh plan terpisah (lihat Plan 08).",
-          },
-          { icon: "💼", title: "Presentasi Bisnis ke Calon Rekrut", tag: "Segera hadir" },
-          { icon: "🛡️", title: "Handling Objection Calon Rekrut", tag: "Segera hadir" },
-        ],
-      },
-    ],
-  },
-  selling: {
-    title: "Selling",
-    blurb: "Bantu klien lewat asuransi, bukan hard selling",
-    level: 3,
-    groups: [
-      {
-        items: [
-          { icon: "🔺", title: "Segitiga Kebutuhan (Basic)", tag: "Segera hadir" },
-          { icon: "📦", title: "Kenalan 3 Produk Dasar", tag: "Segera hadir" },
-          { icon: "🤝", title: "Teknik Closing", tag: "Segera hadir" },
-        ],
-      },
-    ],
-  },
-  calculator: {
-    title: "Calculator",
-    blurb: "Hitung potensi income",
-    groups: [
-      {
-        items: [
-          {
-            icon: "🧮",
-            title: "Kalkulator Income",
-            tag: "Segera hadir",
-            note: "Tool-nya belum dibangun (Plan 05, ditunda). Begitu jadi, bagian ini yang jadi pintu masuknya.",
-          },
-        ],
-      },
-    ],
-  },
-  references: {
-    title: "References",
-    blurb: "Tabel, sistem resmi, dan materi rujukan",
-    groups: [
-      {
-        category: "Reference Data — Plan 10",
-        items: [{ icon: "💰", title: "Tabel Premi & Tabel Medical", tag: "Segera hadir" }],
-      },
-      {
-        category: "Official Systems — Plan 11",
-        items: [
-          { icon: "🖥️", title: "PRUForce, Lisensi AAJI/AASI, Claim", tag: "Segera hadir" },
-        ],
-      },
-    ],
-  },
-  contests: {
-    title: "Contests & Campaigns",
-    blurb: "Yang lagi jalan sekarang",
-    groups: [{ items: [{ icon: "🏆", title: "Reward & Campaign", tag: "Segera hadir" }] }],
-  },
-  events: {
-    title: "Events",
-    blurb: "Acara buat diikutin dan ngajak prospek",
-    groups: [
-      {
-        items: [
-          {
-            icon: "📅",
-            title: "Jadwal & Registrasi",
-            tag: "Segera hadir",
-            note: "Item leader-only difilter server-side begitu konten ini dibangun — bukan cuma disembunyikan lewat CSS.",
-          },
-        ],
-      },
-    ],
-  },
-  directory: {
-    title: "Directory",
-    blurb: "Kontak siapa buat urusan apa",
-    groups: [
-      {
-        items: [
-          {
-            icon: "📇",
-            title: "Yellow Pages, MRT Group, Prudential Indonesia",
-            tag: "Segera hadir",
-          },
-        ],
-      },
-    ],
-  },
+/** The sidebar item a section id belongs to — top-level or nested one level. */
+function findNavItem(section: HubSectionId): MemberNavItem | undefined {
+  for (const item of MEMBER_NAV) {
+    if (item.section === section) return item;
+    const child = item.children?.find((c) => c.section === section);
+    if (child) return child;
+  }
+  return undefined;
+}
+
+/** Top-level sections that still carry the reference prototype's "level"
+ * badge — unrelated to whether the section is a landing page or a leaf. */
+const SECTION_LEVELS: Partial<Record<HubSectionId, number>> = {
+  recruiting: 2,
+  selling: 3,
+};
+
+type LeafSectionId = Exclude<
+  HubSectionId,
+  | "onboarding"
+  | "onboarding-kenali-dirimu"
+  | "recruiting"
+  | "selling"
+  | "references"
+  | "directory"
+>;
+
+/**
+ * Placeholder content per leaf section — every sidebar item except
+ * "onboarding" itself (real, existing 5-item accordion), "onboarding-kenali-dirimu"
+ * (real, Plan 17), and the four parents that render as landing pages
+ * (Recruiting/Selling/References/Directory double as a menu linking to their
+ * own children, per Plan 07's table). No fabricated copy or links — items
+ * ship the "Segera hadir" tag until their own plan lands content, or
+ * "Di luar scope" for the explicitly-deferred new-feature items.
+ */
+const SECTIONS: Record<LeafSectionId, PlaceholderGroup[]> = {
+  "onboarding-join": [
+    {
+      items: [
+        {
+          icon: "📝",
+          title: "Join & Isi Data",
+          tag: "Di luar scope",
+          note: "Form intake data pribadi (KTP, tanggal lahir, no HP, rekening bank, NPWP) — data PII, butuh plan sendiri soal skema dan keamanan. Lihat \"Explicitly deferred\" di Plan 07.",
+        },
+      ],
+    },
+  ],
+  "onboarding-pruforce": [
+    {
+      items: [
+        { icon: "📲", title: "Download PruForce", tag: "Segera hadir", note: "Dipindah dari Plan 11." },
+      ],
+    },
+  ],
+  "onboarding-lisensi": [
+    {
+      items: [
+        { icon: "🪪", title: "Lisensi AAJI & AASI", tag: "Segera hadir", note: "Dipindah dari Plan 11." },
+      ],
+    },
+  ],
+  "onboarding-mfc": [
+    {
+      items: [
+        {
+          icon: "🎓",
+          title: "Kelas MFC & Sertifikasi Produk",
+          tag: "Segera hadir",
+          note: "Dipindah dari Plan 11.",
+        },
+      ],
+    },
+  ],
+  "onboarding-goals": [
+    {
+      items: [
+        {
+          icon: "🎯",
+          title: "Bikin Goals Pribadi / Susun Targetmu",
+          tag: "Di luar scope",
+          note: "Mini-form goals pribadi (jangka pendek/menengah/panjang) — fitur input data baru, belum di-scope. Lihat \"Explicitly deferred\" di Plan 07.",
+        },
+      ],
+    },
+  ],
+  "onboarding-setup-wa-ig": [
+    {
+      items: [{ icon: "📱", title: "Setup WA, IG", tag: "Segera hadir" }],
+    },
+  ],
+  "recruiting-why": [
+    {
+      items: [{ icon: "🤝", title: "Kenapa Recruit Dulu?", tag: "Segera hadir" }],
+    },
+  ],
+  "recruiting-bank-fast": [
+    {
+      items: [
+        {
+          icon: "📋",
+          title: "Bank Nama Rekrut + FAST",
+          tag: "Di luar scope",
+          note: "Tabel CRM interaktif (nama + FAST score + CSV export) — fitur baru, butuh plan terpisah (lihat Plan 08).",
+        },
+      ],
+    },
+  ],
+  "recruiting-presentasi": [
+    {
+      items: [{ icon: "💼", title: "Presentasi Bisnis ke Calon Rekrut", tag: "Segera hadir" }],
+    },
+  ],
+  "recruiting-handling-obj": [
+    {
+      items: [
+        {
+          icon: "🛡️",
+          title: "Handling Objection Calon Rekrut",
+          tag: "Segera hadir",
+          note: "Format kontennya belum diputusin (\"Bentuknya apa?\" di sheet).",
+        },
+      ],
+    },
+  ],
+  "selling-learning-center": [
+    {
+      category: "5 bagian di halaman ini (dari sheet) — baru satu yang punya nama",
+      items: [
+        {
+          icon: "📦",
+          title: "Product Details",
+          tag: "Segera hadir",
+          note: "Sama dengan References ↳ Recording — lihat Plan 18 soal shared content key.",
+        },
+      ],
+    },
+  ],
+  "selling-bank-form": [
+    {
+      items: [
+        {
+          icon: "📋",
+          title: "Bank Nama Rekrut + FORM",
+          tag: "Segera hadir",
+          note: "Cek dulu ke FORM.pdf asli Plan 08 sebelum dianggap konten baru.",
+        },
+      ],
+    },
+  ],
+  "selling-sales-tools": [
+    {
+      category: "7 bagian di halaman ini (dari sheet) — baru dua yang punya nama",
+      items: [
+        { icon: "💰", title: "Tabel Premi", tag: "Segera hadir", note: "Dipindah dari Plan 10." },
+        { icon: "🩺", title: "Tabel Medical", tag: "Segera hadir", note: "Dipindah dari Plan 10." },
+      ],
+    },
+  ],
+  "references-recording": [
+    {
+      category: "2 bagian di halaman ini (dari sheet) — baru satu yang punya nama",
+      items: [
+        {
+          icon: "📦",
+          title: "Product Details",
+          tag: "Segera hadir",
+          note: "Sama dengan Selling ↳ Learning Center — lihat Plan 18 soal shared content key.",
+        },
+      ],
+    },
+  ],
+  "references-commission": [
+    {
+      items: [
+        {
+          icon: "💵",
+          title: "Commission",
+          tag: "Segera hadir",
+          note: "Sebelumnya bagian dari tabel referensi Sales Kit Plan 09, sekarang item sendiri.",
+        },
+      ],
+    },
+  ],
+  "references-prestige": [
+    { items: [{ icon: "🏅", title: "Prestige", tag: "Segera hadir" }] },
+  ],
+  "references-schedule-book": [
+    {
+      items: [
+        {
+          icon: "📅",
+          title: "Schedule Book (PDF Download)",
+          tag: "Segera hadir",
+          note: "Salah satu PDF Starter Kit yang belum ada link — lihat 00-overview.md.",
+        },
+      ],
+    },
+  ],
+  "references-prupay-link": [
+    {
+      items: [
+        {
+          icon: "💳",
+          title: "Prupay Link",
+          tag: "Segera hadir",
+          note: "Dulu \"PRU PayLink\", dipindah dari Plan 11 (Official Systems).",
+        },
+      ],
+    },
+  ],
+  "references-claim": [
+    {
+      items: [
+        { icon: "🧾", title: "How to Claim", tag: "Segera hadir" },
+        { icon: "📄", title: "Bukti Claim", tag: "Segera hadir" },
+      ],
+    },
+  ],
+  "references-contests": [
+    { items: [{ icon: "🏆", title: "Reward & Campaign", tag: "Segera hadir" }] },
+  ],
+  "references-events": [
+    { items: [{ icon: "📅", title: "Jadwal & Registrasi", tag: "Segera hadir" }] },
+  ],
+  "directory-yellow-pages": [
+    { items: [{ icon: "📇", title: "Yellow Pages", tag: "Segera hadir" }] },
+  ],
+  "directory-who-is-prudential": [
+    {
+      items: [
+        {
+          icon: "🏢",
+          title: "Who is Prudential",
+          tag: "Segera hadir",
+          note: "Sebelumnya \"Prudential Indonesia\".",
+        },
+      ],
+    },
+  ],
+  "directory-who-is-mrt": [
+    { items: [{ icon: "🏬", title: "Who is MRT Group", tag: "Segera hadir" }] },
+  ],
+  "directory-who-is-connecteam": [
+    {
+      items: [
+        {
+          icon: "🌐",
+          title: "Who is Connecteam",
+          tag: "Segera hadir",
+          note: "Scope lama \"CONNECT with Leaders\" gak ada di sheet baru — konfirmasi ke content owner apakah dihapus atau berganti nama jadi ini, jangan diasumsikan begitu aja.",
+        },
+      ],
+    },
+  ],
+  calculator: [
+    {
+      items: [
+        {
+          icon: "🧮",
+          title: "Kalkulator Income",
+          tag: "Segera hadir",
+          note: "Tool-nya belum dibangun (Plan 05, ditunda). Begitu jadi, bagian ini yang jadi pintu masuknya.",
+        },
+      ],
+    },
+  ],
 };
 
 function LinkListDetail({ links }: { links: OnboardingLink[] }) {
@@ -375,6 +541,30 @@ function PlaceholderList({ items }: { items: PlaceholderItem[] }) {
   );
 }
 
+// Recruiting/Selling/References/Directory have no own content — each is a
+// landing page that links to its children, per Plan 07's "items with no ↳
+// double as a landing page" rule. Onboarding is the one exception: it keeps
+// its existing 5-item accordion instead (handled separately below).
+function LandingLinks({ items }: { items: MemberNavItem[] }) {
+  return (
+    <ul className="grid gap-3 sm:grid-cols-2">
+      {items.map((item) => (
+        <li key={item.label}>
+          <Link
+            href={navItemHref(item)}
+            className="flex h-full flex-col gap-1 rounded-xl border border-ink-100 bg-white p-4 hover:border-brand-navy-200 hover:bg-brand-navy-50"
+          >
+            <span className="font-semibold text-ink-900">{item.label}</span>
+            {item.description && (
+              <span className="text-sm text-ink-500">{item.description}</span>
+            )}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function QuestHub({
   section,
   completedItemIds,
@@ -407,7 +597,10 @@ export default function QuestHub({
     });
   }
 
-  const meta = section === "onboarding" ? null : SECTIONS[section];
+  const navItem = section === "onboarding" ? undefined : findNavItem(section);
+  const isLanding = Boolean(navItem?.children?.length);
+  const isKenaliDirimu = section === "onboarding-kenali-dirimu";
+  const level = SECTION_LEVELS[section];
 
   return (
     <div className="mx-auto flex w-full max-w-content flex-col gap-6">
@@ -469,28 +662,36 @@ export default function QuestHub({
         ) : (
           <>
             <div className="mb-3 flex items-center gap-3">
-              {meta!.level !== undefined && (
+              {level !== undefined && (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-navy-700 text-sm font-bold text-white">
-                  {meta!.level}
+                  {level}
                 </div>
               )}
               <div className="flex-1">
-                <h1 className="text-base font-bold text-ink-900">{meta!.title}</h1>
-                <p className="text-sm text-ink-500">{meta!.blurb}</p>
+                <h1 className="text-base font-bold text-ink-900">{navItem!.label}</h1>
+                {navItem!.description && (
+                  <p className="text-sm text-ink-500">{navItem!.description}</p>
+                )}
               </div>
             </div>
-            <div className="flex flex-col gap-4">
-              {meta!.groups.map((group, i) => (
-                <div key={group.category ?? i} className="flex flex-col gap-2">
-                  {group.category && (
-                    <h2 className="text-xs font-bold tracking-wide text-ink-400 uppercase">
-                      {group.category}
-                    </h2>
-                  )}
-                  <PlaceholderList items={group.items} />
-                </div>
-              ))}
-            </div>
+            {isKenaliDirimu ? (
+              <KnowYourselfDetail user={user} testResults={testResults} />
+            ) : isLanding ? (
+              <LandingLinks items={navItem!.children!} />
+            ) : (
+              <div className="flex flex-col gap-4">
+                {SECTIONS[section as LeafSectionId].map((group, i) => (
+                  <div key={group.category ?? i} className="flex flex-col gap-2">
+                    {group.category && (
+                      <h2 className="text-xs font-bold tracking-wide text-ink-400 uppercase">
+                        {group.category}
+                      </h2>
+                    )}
+                    <PlaceholderList items={group.items} />
+                  </div>
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
