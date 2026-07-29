@@ -104,28 +104,52 @@ model Applicant {
   updatedAt      DateTime        @updatedAt
 }
 
-// Plan 07's "Join & Isi Data" onboarding item — one row per member, filled in
-// from the in-app form (not the public /join Applicant flow, which is a
-// pre-enrollment application; this is post-signup HR paperwork for someone
-// already a User). "Unit Pengundang" isn't stored here — it's derived at
-// read time from User.recruiterId so it can't go stale against a
-// reassignment (see reassignRecruiter in src/lib/recruitTree.ts).
+enum EducationLevel {
+  smaSltaSmk
+  s1
+  s2
+  s3
+}
+
+// Plan 07's "Isi Data" onboarding item — one row per member, filled in from
+// its own full-page form (src/app/member/isi-data), not the public /join
+// Applicant flow (a pre-enrollment application; this is post-signup HR
+// paperwork for someone already a User). Field set and "Pengundang / Unit"
+// options (src/lib/memberIntake.ts's PENGUNDANG_UNIT_OPTIONS) are copied
+// from the real Google Form this replaces — not fabricated — since that
+// form is otherwise gated behind a sign-in wall.
+//
+// Photo fields store an opaque Supabase Storage key (bucket
+// "member-intake"), never bytes in Postgres — same convention as
+// Applicant.idCardPhotoKey above.
 //
 // Stored as plain columns for now (no field-level encryption) — Plan 07
 // flagged encryption-at-rest as an open question when this item was
 // deferred; the user accepted plaintext-for-now on 2026-07-29 rather than
 // block the form on resolving that. Revisit if this needs hardening later.
 model MemberIntake {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id])
-  ktpNumber   String
-  birthDate   DateTime
-  phone       String
-  bankAccount String
-  npwp        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String         @id @default(cuid())
+  userId             String         @unique
+  user               User           @relation(fields: [userId], references: [id])
+  fullName           String
+  ktpNumber          String
+  birthPlace         String
+  birthDate          DateTime
+  activeEmail        String
+  activePhone        String
+  address            String
+  education          EducationLevel
+  schoolName         String
+  graduationYear     String
+  ktpPhotoKey        String
+  selfiePhotoKey     String
+  familyCardPhotoKey String
+  savingsPhotoKey    String
+  // Only required "jika sudah berkeluarga" (if married) on the source form.
+  spousePhotoKey     String?
+  pengundangUnit     String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 }
 
 // Plan 07 (quest hub redesign): one row per completed checklist item, per

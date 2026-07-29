@@ -9,16 +9,18 @@ import {
   type HubSectionId,
   type MemberNavItem,
 } from "@/lib/member/nav";
-import type { MemberIntakeInput } from "@/lib/memberIntake";
 import { summarizeProgress } from "@/lib/progress";
 import { setOnboardingItemCompletion } from "./actions";
-import JoinDataForm from "./JoinDataForm";
 import TestResultUpload from "./TestResultUpload";
 import type { TestResultState } from "./testResultState";
 
 type QuestHubUser = { id: string; name: string; email: string };
 type TestResults = { mbti: TestResultState | null; selfMotivation: TestResultState | null };
-type JoinData = { unitPengundang: string | null; saved: MemberIntakeInput | null };
+
+/** "Isi Data" opens as its own full page in a new tab rather than expanding
+ * inline — the real form (src/app/member/isi-data) has 16 fields including
+ * 5 photo uploads, too much to fit an accordion detail. */
+const ISI_DATA_HREF = "/member/isi-data";
 
 const TEST_RESULT_PLACEHOLDER: Record<"mbti" | "selfMotivation", string> = {
   mbti: "Tipe kamu, misalnya INFJ-A",
@@ -309,20 +311,14 @@ function SectionDetail({
   id,
   user,
   testResults,
-  joinData,
 }: {
   id: (typeof ONBOARDING_SECTIONS)[number]["id"];
   user: QuestHubUser;
   testResults: TestResults;
-  joinData: JoinData;
 }) {
   switch (id) {
     case "know-yourself":
       return <KnowYourselfDetail user={user} testResults={testResults} />;
-    case "join-isi-data":
-      return (
-        <JoinDataForm unitPengundang={joinData.unitPengundang} initial={joinData.saved} />
-      );
     case "download-pruforce":
       return <PlaceholderDetail tag="Segera hadir" note="Dipindah dari Plan 11." />;
     case "lisensi-aaji-aasi":
@@ -348,6 +344,7 @@ function AccordionItem({
   checked,
   onToggleChecked,
   pending,
+  href,
   children,
 }: {
   icon: string;
@@ -356,7 +353,10 @@ function AccordionItem({
   checked?: boolean;
   onToggleChecked?: () => void;
   pending?: boolean;
-  children: React.ReactNode;
+  /** Opens its own page in a new tab instead of expanding inline — no
+   * expand/collapse chevron in this mode. */
+  href?: string;
+  children?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const hasCheckbox = onToggleChecked !== undefined;
@@ -386,25 +386,44 @@ function AccordionItem({
         <span aria-hidden className="text-lg">
           {icon}
         </span>
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-expanded={open}
-          className="flex flex-1 items-center justify-between gap-2 text-left"
-        >
-          <span>
-            <span className="block font-semibold text-ink-900">{title}</span>
-            {description && <span className="block text-sm text-ink-500">{description}</span>}
-          </span>
-          <span
-            aria-hidden
-            className={`text-ink-300 transition-transform ${open ? "rotate-90" : ""}`}
+        {href ? (
+          <Link
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-1 items-center justify-between gap-2"
           >
-            ›
-          </span>
-        </button>
+            <span>
+              <span className="block font-semibold text-ink-900">{title}</span>
+              {description && <span className="block text-sm text-ink-500">{description}</span>}
+            </span>
+            <span aria-hidden className="text-ink-300">
+              ↗
+            </span>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            className="flex flex-1 items-center justify-between gap-2 text-left"
+          >
+            <span>
+              <span className="block font-semibold text-ink-900">{title}</span>
+              {description && <span className="block text-sm text-ink-500">{description}</span>}
+            </span>
+            <span
+              aria-hidden
+              className={`text-ink-300 transition-transform ${open ? "rotate-90" : ""}`}
+            >
+              ›
+            </span>
+          </button>
+        )}
       </div>
-      {open && <div className="px-4 pb-4 pl-12 text-sm text-ink-600">{children}</div>}
+      {!href && open && (
+        <div className="px-4 pb-4 pl-12 text-sm text-ink-600">{children}</div>
+      )}
     </div>
   );
 }
@@ -478,13 +497,11 @@ export default function QuestHub({
   completedItemIds,
   user,
   testResults,
-  joinData,
 }: {
   section: HubSectionId;
   completedItemIds: string[];
   user: QuestHubUser;
   testResults: TestResults;
-  joinData: JoinData;
 }) {
   const [isPending, startTransition] = useTransition();
   const [optimisticCompleted, setOptimisticCompleted] = useOptimistic(
@@ -553,24 +570,32 @@ export default function QuestHub({
               </span>
             </div>
             <div className="flex flex-col gap-2">
-              {ONBOARDING_SECTIONS.map((s) => (
-                <AccordionItem
-                  key={s.id}
-                  icon={s.icon}
-                  title={s.title}
-                  description={s.description}
-                  checked={optimisticCompleted.has(s.id)}
-                  pending={isPending}
-                  onToggleChecked={() => toggleItem(s.id, !optimisticCompleted.has(s.id))}
-                >
-                  <SectionDetail
-                    id={s.id}
-                    user={user}
-                    testResults={testResults}
-                    joinData={joinData}
+              {ONBOARDING_SECTIONS.map((s) =>
+                s.id === "join-isi-data" ? (
+                  <AccordionItem
+                    key={s.id}
+                    icon={s.icon}
+                    title={s.title}
+                    description={s.description}
+                    checked={optimisticCompleted.has(s.id)}
+                    pending={isPending}
+                    onToggleChecked={() => toggleItem(s.id, !optimisticCompleted.has(s.id))}
+                    href={ISI_DATA_HREF}
                   />
-                </AccordionItem>
-              ))}
+                ) : (
+                  <AccordionItem
+                    key={s.id}
+                    icon={s.icon}
+                    title={s.title}
+                    description={s.description}
+                    checked={optimisticCompleted.has(s.id)}
+                    pending={isPending}
+                    onToggleChecked={() => toggleItem(s.id, !optimisticCompleted.has(s.id))}
+                  >
+                    <SectionDetail id={s.id} user={user} testResults={testResults} />
+                  </AccordionItem>
+                ),
+              )}
             </div>
           </>
         ) : (

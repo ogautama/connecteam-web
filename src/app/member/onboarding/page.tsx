@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
 import { DEFAULT_SECTION, isValidSection } from "@/lib/member/nav";
-import { getMemberIntake, getUnitPengundang } from "@/lib/memberIntake";
 import { getCompletedItemIds } from "@/lib/onboardingProgress";
 import QuestHub from "./QuestHub";
 import { getTestResultState } from "./testResultState";
@@ -24,14 +23,11 @@ export default async function MemberHubPage({
 }) {
   const user = await requireMember();
   const { section } = await searchParams;
-  const [completedItemIds, mbti, selfMotivation, joinDataSaved, unitPengundang] =
-    await Promise.all([
-      getCompletedItemIds(user.id),
-      getTestResultState(user.email, "mbti"),
-      getTestResultState(user.email, "selfMotivation"),
-      getMemberIntake(user.id),
-      getUnitPengundang(user.id),
-    ]);
+  const [completedItemIds, mbti, selfMotivation] = await Promise.all([
+    getCompletedItemIds(user.id),
+    getTestResultState(user.email, "mbti"),
+    getTestResultState(user.email, "selfMotivation"),
+  ]);
 
   return (
     <QuestHub
@@ -39,7 +35,6 @@ export default async function MemberHubPage({
       completedItemIds={completedItemIds}
       user={user}
       testResults={{ mbti, selfMotivation }}
-      joinData={{ unitPengundang, saved: joinDataSaved }}
     />
   );
 }

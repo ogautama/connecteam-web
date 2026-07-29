@@ -1,23 +1,14 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 
-const {
-  requireMember,
-  getCompletedItemIds,
-  getTestResultState,
-  getMemberIntake,
-  getUnitPengundang,
-} = vi.hoisted(() => ({
+const { requireMember, getCompletedItemIds, getTestResultState } = vi.hoisted(() => ({
   requireMember: vi.fn(),
   getCompletedItemIds: vi.fn(),
   getTestResultState: vi.fn(),
-  getMemberIntake: vi.fn(),
-  getUnitPengundang: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({ requireMember }));
 vi.mock("@/lib/onboardingProgress", () => ({ getCompletedItemIds }));
-vi.mock("@/lib/memberIntake", () => ({ getMemberIntake, getUnitPengundang }));
 vi.mock("../testResultState", () => ({ getTestResultState }));
 
 import MemberHubPage from "../page";
@@ -37,8 +28,6 @@ beforeEach(() => {
   });
   getCompletedItemIds.mockResolvedValue([]);
   getTestResultState.mockResolvedValue(null);
-  getMemberIntake.mockResolvedValue(null);
-  getUnitPengundang.mockResolvedValue("Budi Santoso");
 });
 
 describe("member hub page", () => {
@@ -105,30 +94,16 @@ describe("member hub page", () => {
     expect(screen.getByText("Segera hadir")).toBeInTheDocument();
   });
 
-  test("Isi Data is a real intake form with Unit Pengundang pre-filled, not a placeholder", async () => {
+  test("Isi Data opens its own page in a new tab instead of expanding inline", async () => {
     render(await renderAt());
 
-    fireEvent.click(screen.getByRole("button", { name: /Isi Data/ }));
-
-    expect(screen.getByDisplayValue("Budi Santoso")).toBeInTheDocument();
-    expect(screen.queryByText("Segera hadir")).not.toBeInTheDocument();
-    expect(screen.queryByText("Di luar scope")).not.toBeInTheDocument();
-  });
-
-  test("shows previously saved intake data as a read-only summary instead of the form", async () => {
-    getMemberIntake.mockResolvedValue({
-      ktpNumber: "1234567890123456",
-      birthDate: "1998-05-10",
-      phone: "081234567890",
-      bankAccount: "9988776655",
-      npwp: "12.345.678.9-012.000",
-    });
-
-    render(await renderAt());
-    fireEvent.click(screen.getByRole("button", { name: /Isi Data/ }));
-
-    expect(screen.getByText("1234567890123456")).toBeInTheDocument();
-    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    const link = screen.getByRole("link", { name: /Isi Data/ });
+    expect(link).toHaveAttribute("href", "/member/isi-data");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    // No expand toggle for this item — the checkbox (role="checkbox") is
+    // still there, but there's no separate expand button like the others.
+    expect(screen.queryByRole("button", { name: /Isi Data/ })).not.toBeInTheDocument();
   });
 
   test("renders a top-level parent as a landing page linking to its children", async () => {
