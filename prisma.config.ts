@@ -22,7 +22,10 @@ export default defineConfig({
     // auth.users (Supabase's own schema) — `migrate dev`'s shadow database
     // is a bare Postgres instance without it, so replaying that migration
     // during diffing fails with `schema "auth" does not exist` unless a
-    // stub exists for it to attach to.
+    // stub exists for it to attach to. Same problem for
+    // 20260727044848_add_mbti_self_motivation_lead_sources, which inserts
+    // into storage.buckets and creates a policy on storage.objects (Plan 17)
+    // — stub those too, or replaying that migration fails the same way.
     initShadowDb: `
       CREATE SCHEMA IF NOT EXISTS auth;
       CREATE TABLE IF NOT EXISTS auth.users (
@@ -30,6 +33,20 @@ export default defineConfig({
         email text,
         raw_user_meta_data jsonb
       );
+      CREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid AS $$ SELECT NULL::uuid $$ LANGUAGE sql STABLE;
+
+      CREATE SCHEMA IF NOT EXISTS storage;
+      CREATE TABLE IF NOT EXISTS storage.buckets (
+        id text PRIMARY KEY,
+        name text,
+        public boolean
+      );
+      CREATE TABLE IF NOT EXISTS storage.objects (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        bucket_id text,
+        name text
+      );
+      CREATE OR REPLACE FUNCTION storage.foldername(name text) RETURNS text[] AS $$ SELECT string_to_array(name, '/') $$ LANGUAGE sql STABLE;
     `,
   },
   datasource: {

@@ -43,6 +43,7 @@ model User {
   recruits     User[]     @relation("Recruiter")
   applicants   Applicant[]
   onboardingProgress OnboardingProgress[]
+  memberIntake MemberIntake?
 }
 
 // Created by a leader (Plan 02c) before the invited person ever signs in.
@@ -101,6 +102,30 @@ model Applicant {
   status         ApplicantStatus @default(submitted)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+}
+
+// Plan 07's "Join & Isi Data" onboarding item — one row per member, filled in
+// from the in-app form (not the public /join Applicant flow, which is a
+// pre-enrollment application; this is post-signup HR paperwork for someone
+// already a User). "Unit Pengundang" isn't stored here — it's derived at
+// read time from User.recruiterId so it can't go stale against a
+// reassignment (see reassignRecruiter in src/lib/recruitTree.ts).
+//
+// Stored as plain columns for now (no field-level encryption) — Plan 07
+// flagged encryption-at-rest as an open question when this item was
+// deferred; the user accepted plaintext-for-now on 2026-07-29 rather than
+// block the form on resolving that. Revisit if this needs hardening later.
+model MemberIntake {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  ktpNumber   String
+  birthDate   DateTime
+  phone       String
+  bankAccount String
+  npwp        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Plan 07 (quest hub redesign): one row per completed checklist item, per

@@ -9,13 +9,16 @@ import {
   type HubSectionId,
   type MemberNavItem,
 } from "@/lib/member/nav";
+import type { MemberIntakeInput } from "@/lib/memberIntake";
 import { summarizeProgress } from "@/lib/progress";
 import { setOnboardingItemCompletion } from "./actions";
+import JoinDataForm from "./JoinDataForm";
 import TestResultUpload from "./TestResultUpload";
 import type { TestResultState } from "./testResultState";
 
 type QuestHubUser = { id: string; name: string; email: string };
 type TestResults = { mbti: TestResultState | null; selfMotivation: TestResultState | null };
+type JoinData = { unitPengundang: string | null; saved: MemberIntakeInput | null };
 
 const TEST_RESULT_PLACEHOLDER: Record<"mbti" | "selfMotivation", string> = {
   mbti: "Tipe kamu, misalnya INFJ-A",
@@ -306,20 +309,19 @@ function SectionDetail({
   id,
   user,
   testResults,
+  joinData,
 }: {
   id: (typeof ONBOARDING_SECTIONS)[number]["id"];
   user: QuestHubUser;
   testResults: TestResults;
+  joinData: JoinData;
 }) {
   switch (id) {
     case "know-yourself":
       return <KnowYourselfDetail user={user} testResults={testResults} />;
     case "join-isi-data":
       return (
-        <PlaceholderDetail
-          tag="Di luar scope"
-          note='Form intake data pribadi (KTP, tanggal lahir, no HP, rekening bank, NPWP) — data PII, butuh plan sendiri soal skema dan keamanan. Lihat "Explicitly deferred" di Plan 07.'
-        />
+        <JoinDataForm unitPengundang={joinData.unitPengundang} initial={joinData.saved} />
       );
     case "download-pruforce":
       return <PlaceholderDetail tag="Segera hadir" note="Dipindah dari Plan 11." />;
@@ -476,11 +478,13 @@ export default function QuestHub({
   completedItemIds,
   user,
   testResults,
+  joinData,
 }: {
   section: HubSectionId;
   completedItemIds: string[];
   user: QuestHubUser;
   testResults: TestResults;
+  joinData: JoinData;
 }) {
   const [isPending, startTransition] = useTransition();
   const [optimisticCompleted, setOptimisticCompleted] = useOptimistic(
@@ -559,7 +563,12 @@ export default function QuestHub({
                   pending={isPending}
                   onToggleChecked={() => toggleItem(s.id, !optimisticCompleted.has(s.id))}
                 >
-                  <SectionDetail id={s.id} user={user} testResults={testResults} />
+                  <SectionDetail
+                    id={s.id}
+                    user={user}
+                    testResults={testResults}
+                    joinData={joinData}
+                  />
                 </AccordionItem>
               ))}
             </div>

@@ -1,14 +1,23 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 
-const { requireMember, getCompletedItemIds, getTestResultState } = vi.hoisted(() => ({
+const {
+  requireMember,
+  getCompletedItemIds,
+  getTestResultState,
+  getMemberIntake,
+  getUnitPengundang,
+} = vi.hoisted(() => ({
   requireMember: vi.fn(),
   getCompletedItemIds: vi.fn(),
   getTestResultState: vi.fn(),
+  getMemberIntake: vi.fn(),
+  getUnitPengundang: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({ requireMember }));
 vi.mock("@/lib/onboardingProgress", () => ({ getCompletedItemIds }));
+vi.mock("@/lib/memberIntake", () => ({ getMemberIntake, getUnitPengundang }));
 vi.mock("../testResultState", () => ({ getTestResultState }));
 
 import MemberHubPage from "../page";
@@ -28,6 +37,8 @@ beforeEach(() => {
   });
   getCompletedItemIds.mockResolvedValue([]);
   getTestResultState.mockResolvedValue(null);
+  getMemberIntake.mockResolvedValue(null);
+  getUnitPengundang.mockResolvedValue("Budi Santoso");
 });
 
 describe("member hub page", () => {
@@ -92,6 +103,32 @@ describe("member hub page", () => {
     fireEvent.click(screen.getByRole("button", { name: /Download PruForce/ }));
 
     expect(screen.getByText("Segera hadir")).toBeInTheDocument();
+  });
+
+  test("Join & Isi Data is a real intake form with Unit Pengundang pre-filled, not a placeholder", async () => {
+    render(await renderAt());
+
+    fireEvent.click(screen.getByRole("button", { name: /Join & Isi Data/ }));
+
+    expect(screen.getByDisplayValue("Budi Santoso")).toBeInTheDocument();
+    expect(screen.queryByText("Segera hadir")).not.toBeInTheDocument();
+    expect(screen.queryByText("Di luar scope")).not.toBeInTheDocument();
+  });
+
+  test("shows previously saved intake data as a read-only summary instead of the form", async () => {
+    getMemberIntake.mockResolvedValue({
+      ktpNumber: "1234567890123456",
+      birthDate: "1998-05-10",
+      phone: "081234567890",
+      bankAccount: "9988776655",
+      npwp: "12.345.678.9-012.000",
+    });
+
+    render(await renderAt());
+    fireEvent.click(screen.getByRole("button", { name: /Join & Isi Data/ }));
+
+    expect(screen.getByText("1234567890123456")).toBeInTheDocument();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
   });
 
   test("renders a top-level parent as a landing page linking to its children", async () => {

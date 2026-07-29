@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireMember } from "@/lib/auth";
 import { createLead } from "@/lib/leads";
+import { type MemberIntakeInput, upsertMemberIntake } from "@/lib/memberIntake";
 import { setItemCompletion } from "@/lib/onboardingProgress";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { TEST_RESULT_BUCKET, type TestResultSource } from "@/lib/testResults";
@@ -19,6 +20,37 @@ export async function setOnboardingItemCompletion(
 ): Promise<void> {
   const user = await requireMember();
   await setItemCompletion(user.id, itemId, completed);
+  revalidatePath("/member/onboarding");
+}
+
+/**
+ * "Join & Isi Data" — the personal-data intake form (Plan 07). Submitting it
+ * also marks the checklist item done, so there's no separate manual checkbox
+ * step once the real data is saved. "Unit Pengundang" isn't part of the
+ * input: it's derived from the caller's own recruiterId, not something the
+ * member can set themselves.
+ */
+export async function submitJoinData(input: MemberIntakeInput): Promise<void> {
+  const user = await requireMember();
+
+  const trimmed: MemberIntakeInput = {
+    ktpNumber: input.ktpNumber.trim(),
+    birthDate: input.birthDate.trim(),
+    phone: input.phone.trim(),
+    bankAccount: input.bankAccount.trim(),
+    npwp: input.npwp.trim(),
+  };
+
+  if (!trimmed.ktpNumber) throw new Error("Nomor KTP wajib diisi.");
+  if (!trimmed.birthDate || Number.isNaN(Date.parse(trimmed.birthDate))) {
+    throw new Error("Tanggal lahir wajib diisi.");
+  }
+  if (!trimmed.phone) throw new Error("Nomor HP wajib diisi.");
+  if (!trimmed.bankAccount) throw new Error("Nomor rekening bank wajib diisi.");
+  if (!trimmed.npwp) throw new Error("NPWP wajib diisi.");
+
+  await upsertMemberIntake(user.id, trimmed);
+  await setItemCompletion(user.id, "join-isi-data", true);
   revalidatePath("/member/onboarding");
 }
 
