@@ -164,41 +164,25 @@ describe("sectionWithinItem", () => {
 });
 
 describe("memberSections", () => {
-  it("drops the dashboard and flattens every child in, all described", () => {
+  it("shows only the top-level hub sections, no children flattened in", () => {
     const sections = memberSections("agent");
 
     expect(sections.map((item) => item.label)).toEqual([
       "Onboarding",
       "Recruiting",
-      "Kenapa recruit dlu?",
-      "Bank nama rekrut + FAST",
-      "Presentasi bisnis ke calon rekrut",
-      "Handling Obj calon rekrut",
       "Selling",
-      "Learning Center",
-      "Bank nama rekrut + FORM",
-      "Sales Tools",
-      "Calculator",
       "References",
-      "Recording",
-      "Commission",
-      "Prestige",
-      "Schedule Book (PDF Download)",
-      "Prupay Link",
-      "Claim",
-      "Contests & Campaigns",
-      "Events",
       "Directory",
-      "Yellow Pages",
-      "Who is Prudential",
-      "Who is MRT Group",
-      "Who is Connecteam",
     ]);
     expect(sections.every((item) => item.description)).toBe(true);
   });
 
-  it("gives a leader an Add Member card too", () => {
-    expect(memberSections("leader").map((i) => i.label)).toContain("Add Member");
+  it("excludes Calculator — not a real destination yet (Plan 05)", () => {
+    expect(memberSections("agent").map((i) => i.label)).not.toContain("Calculator");
+  });
+
+  it("excludes Add Member even for a leader", () => {
+    expect(memberSections("leader").map((i) => i.label)).not.toContain("Add Member");
   });
 });
 

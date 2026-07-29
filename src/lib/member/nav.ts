@@ -243,14 +243,17 @@ export function showsLeaderBadge(item: MemberNavItem, role: Role): boolean {
 }
 
 /**
- * "Dashboard" isn't a section — everything after it is, and only those get
- * quick-link cards. Nested children are flattened in so every section is
- * reachable from the dashboard, not just the top-level ones.
+ * The dashboard's quick-link cards — top-level hub sections only (Onboarding,
+ * Recruiting, Selling, References, Directory). Filtering on `.section` drops
+ * both route-only items (Dashboard, Add Member carry no `section`) in one
+ * go; Calculator is excluded explicitly since it isn't a real destination yet
+ * (Plan 05, deferred behind `CALCULATOR_LIVE`). No children flattened in —
+ * unlike the sidebar, the dashboard doesn't drill into a section's own items.
  */
 export function memberSections(role: Role): MemberNavItem[] {
-  return visibleNavItems(role)
-    .filter((item) => item.href !== "/member")
-    .flatMap((item) => [item, ...(item.children ?? [])]);
+  return visibleNavItems(role).filter(
+    (item) => item.section !== undefined && item.section !== "calculator"
+  );
 }
 
 export function isValidSection(value: string | undefined): value is HubSectionId {

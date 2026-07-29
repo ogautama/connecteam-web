@@ -40,7 +40,7 @@ describe("MemberDashboard", () => {
     expect(screen.getByText(/Belum ada acara yang dijadwalin/i)).toBeInTheDocument();
   });
 
-  test("quick-links to every section, nested ones included", () => {
+  test("quick-links to the top-level sections only — no Calculator, no children", () => {
     render(<MemberDashboard user={agent} />);
 
     const sections = screen
@@ -51,33 +51,13 @@ describe("MemberDashboard", () => {
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
       "/member/onboarding",
       "/member/onboarding?section=recruiting",
-      "/member/onboarding?section=recruiting-why",
-      "/member/onboarding?section=recruiting-bank-fast",
-      "/member/onboarding?section=recruiting-presentasi",
-      "/member/onboarding?section=recruiting-handling-obj",
       "/member/onboarding?section=selling",
-      "/member/onboarding?section=selling-learning-center",
-      "/member/onboarding?section=selling-bank-form",
-      "/member/onboarding?section=selling-sales-tools",
-      "/member/onboarding?section=calculator",
       "/member/onboarding?section=references",
-      "/member/onboarding?section=references-recording",
-      "/member/onboarding?section=references-commission",
-      "/member/onboarding?section=references-prestige",
-      "/member/onboarding?section=references-schedule-book",
-      "/member/onboarding?section=references-prupay-link",
-      "/member/onboarding?section=references-claim",
-      "/member/onboarding?section=references-contests",
-      "/member/onboarding?section=references-events",
       "/member/onboarding?section=directory",
-      "/member/onboarding?section=directory-yellow-pages",
-      "/member/onboarding?section=directory-who-is-prudential",
-      "/member/onboarding?section=directory-who-is-mrt",
-      "/member/onboarding?section=directory-who-is-connecteam",
     ]);
   });
 
-  test("gives a leader the Add Member card too", () => {
+  test("excludes Add Member from the dashboard even for a leader", () => {
     render(<MemberDashboard user={{ ...agent, role: "leader" }} />);
 
     const sections = screen
@@ -85,7 +65,7 @@ describe("MemberDashboard", () => {
       .parentElement!;
 
     expect(
-      within(sections).getByRole("link", { name: /Add Member/ }),
-    ).toHaveAttribute("href", "/member/admin/add-member");
+      within(sections).queryByRole("link", { name: /Add Member/ }),
+    ).not.toBeInTheDocument();
   });
 });
