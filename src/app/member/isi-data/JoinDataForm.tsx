@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { EducationLevel } from "@prisma/client";
 import type { MemberIntakeInput, MemberIntakeRecord } from "@/lib/memberIntake";
 import {
@@ -115,15 +115,26 @@ function SummaryFileRow({ label, url }: { label: string; url: string | null }) {
 }
 
 // Required fields show "Label *" on one line — the asterisk has to be part
-// of the same inline child as the label text, since these labels are
-// `flex flex-col`: two separate children (a bare text node plus a sibling
-// span) each become their own stacked flex item instead of sitting inline.
+// of the same inline child as the label text, since a `flex flex-col`
+// ancestor would otherwise stack a bare text node and a sibling span as two
+// separate rows instead of sitting them inline.
 function FieldLabel({ label, required }: { label: string; required?: boolean }) {
   return (
-    <span>
+    <span className="font-medium text-ink-900">
       {label}
       {required && <span className="text-brand-red-500"> *</span>}
     </span>
+  );
+}
+
+// Google-Forms-style "one box per question" — each field is its own card
+// rather than all 16 fields packed into a single bordered block, which read
+// as crowded (see the mockup this matches, approved 2026-07-29).
+function QuestionCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3 rounded-xl border border-ink-100 bg-white p-5 shadow-sm">
+      {children}
+    </div>
   );
 }
 
@@ -141,15 +152,18 @@ function TextField({
   type?: string;
 }) {
   return (
-    <label className="flex flex-col gap-1 font-medium text-ink-700">
-      <FieldLabel label={label} required={required} />
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-lg border border-ink-100 px-3 py-2 font-normal text-ink-900"
-      />
-    </label>
+    <QuestionCard>
+      <label className="flex flex-col gap-2">
+        <FieldLabel label={label} required={required} />
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Jawaban kamu"
+          className="border-b border-ink-100 bg-transparent px-0.5 py-2 text-ink-900 placeholder:text-ink-300 focus:border-b-2 focus:border-brand-navy-700 focus:pb-[7px] focus:outline-none"
+        />
+      </label>
+    </QuestionCard>
   );
 }
 
@@ -165,15 +179,18 @@ function TextAreaField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1 font-medium text-ink-700">
-      <FieldLabel label={label} required={required} />
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={3}
-        className="rounded-lg border border-ink-100 px-3 py-2 font-normal text-ink-900"
-      />
-    </label>
+    <QuestionCard>
+      <label className="flex flex-col gap-2">
+        <FieldLabel label={label} required={required} />
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={2}
+          placeholder="Jawaban kamu"
+          className="resize-none border-b border-ink-100 bg-transparent px-0.5 py-2 text-ink-900 placeholder:text-ink-300 focus:border-b-2 focus:border-brand-navy-700 focus:pb-[7px] focus:outline-none"
+        />
+      </label>
+    </QuestionCard>
   );
 }
 
@@ -191,27 +208,53 @@ function RadioGroup({
   onChange: (value: string) => void;
 }) {
   return (
-    <fieldset role="radiogroup" aria-label={label} className="flex flex-col gap-2">
-      <legend className="font-medium text-ink-700">
-        <FieldLabel label={label} required={required} />
-      </legend>
-      <div className="flex flex-col gap-1.5">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className="flex items-center gap-2 font-normal text-ink-900"
-          >
-            <input
-              type="radio"
-              name={label}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
-            />
-            {option.label}
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    <QuestionCard>
+      <fieldset role="radiogroup" aria-label={label} className="flex flex-col gap-2">
+        <legend>
+          <FieldLabel label={label} required={required} />
+        </legend>
+        <div className="flex flex-col">
+          {options.map((option) => {
+            const checked = value === option.value;
+            return (
+              <label
+                key={option.value}
+                className={`flex items-center gap-3 rounded-lg px-1 py-2 ${
+                  checked ? "font-semibold text-ink-900" : "text-ink-700"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name={label}
+                  checked={checked}
+                  onChange={() => onChange(option.value)}
+                  className="h-[18px] w-[18px] accent-brand-navy-700"
+                />
+                {option.label}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+    </QuestionCard>
+  );
+}
+
+function UploadIcon() {
+  return (
+    <svg
+      aria-hidden
+      width="26"
+      height="26"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="shrink-0 text-brand-navy-700"
+    >
+      <path d="M12 16V4M12 4l-4 4M12 4l4 4" />
+      <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+    </svg>
   );
 }
 
@@ -228,30 +271,45 @@ function FileField({
   existingUrl: string | null;
   onChange: (file: File | null) => void;
 }) {
+  const inputId = useId();
+
   return (
-    <label className="flex flex-col gap-1 font-medium text-ink-700">
+    <QuestionCard>
       <FieldLabel label={label} required={required} />
+      <label
+        htmlFor={inputId}
+        className="flex cursor-pointer items-center gap-3 rounded-lg border-[1.5px] border-dashed border-brand-navy-200 bg-brand-navy-50 px-4 py-3 hover:bg-brand-navy-100"
+      >
+        <UploadIcon />
+        <span className="flex flex-col gap-0.5">
+          <span className="text-sm font-semibold text-brand-navy-700">Pilih file</span>
+          <span className="text-xs text-ink-500">
+            {file
+              ? `File dipilih: ${file.name}`
+              : existingUrl
+                ? "Sudah ada file tersimpan"
+                : "Belum ada file dipilih"}
+          </span>
+        </span>
+      </label>
       <input
+        id={inputId}
         type="file"
         accept="image/*,application/pdf"
         onChange={(e) => onChange(e.target.files?.[0] ?? null)}
-        className="text-ink-700 file:mr-3 file:rounded-full file:border-0 file:bg-brand-navy-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-brand-navy-700"
+        className="hidden"
       />
-      {file ? (
-        <span className="text-xs font-normal text-ink-500">
-          File dipilih: {file.name}
-        </span>
-      ) : existingUrl ? (
+      {existingUrl && !file && (
         <a
           href={existingUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-normal text-brand-navy-700 underline"
+          className="self-start text-xs font-medium text-brand-navy-700 underline"
         >
           Lihat file yang udah diupload
         </a>
-      ) : null}
-    </label>
+      )}
+    </QuestionCard>
   );
 }
 
@@ -386,7 +444,7 @@ export default function JoinDataForm({
 
   if (!editing && saved) {
     return (
-      <div className="flex flex-col gap-3 rounded-2xl border border-ink-100 bg-white p-6">
+      <div className="flex flex-col gap-3 rounded-2xl border border-ink-100 bg-white p-6 shadow-sm">
         <SummaryRow label="Nama Lengkap (sesuai KTP)" value={saved.fullName} />
         <SummaryRow label="No KTP" value={saved.ktpNumber} />
         <SummaryRow label="Tempat Lahir" value={saved.birthPlace} />
@@ -415,11 +473,7 @@ export default function JoinDataForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
-      className="flex flex-col gap-4 rounded-2xl border border-ink-100 bg-white p-6"
-    >
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
       <TextField
         label="Nama Lengkap (sesuai KTP)"
         required
@@ -480,6 +534,10 @@ export default function JoinDataForm({
         onChange={(v) => update("graduationYear", v)}
       />
 
+      <p className="px-1 text-xs text-ink-500">
+        Upload dokumen — foto jelas &amp; tidak buram, maks. 100MB per file.
+      </p>
+
       <FileField
         label="Foto KTP"
         required
@@ -524,16 +582,16 @@ export default function JoinDataForm({
       />
 
       {error && (
-        <p role="alert" className="text-danger-500">
+        <p role="alert" className="px-1 text-danger-500">
           {error}
         </p>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4 px-1">
         <button
           type="submit"
           disabled={status === "uploading" || status === "saving"}
-          className="rounded-full bg-brand-navy-700 px-4 py-2 font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
+          className="rounded-full bg-brand-navy-700 px-6 py-2.5 font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
         >
           {status === "uploading"
             ? "Mengupload…"
@@ -555,6 +613,7 @@ export default function JoinDataForm({
             Batal
           </button>
         )}
+        <span className="text-sm text-ink-500">Otomatis kecentang di checklist Onboarding</span>
       </div>
     </form>
   );
