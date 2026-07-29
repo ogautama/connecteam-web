@@ -4,11 +4,16 @@ const { findUnique: intakeFindUnique, upsert } = vi.hoisted(() => ({
   findUnique: vi.fn(),
   upsert: vi.fn(),
 }));
+const { findMany: userFindMany, findFirst: userFindFirst } = vi.hoisted(() => ({
+  findMany: vi.fn(),
+  findFirst: vi.fn(),
+}));
 const { createSignedUrl } = vi.hoisted(() => ({ createSignedUrl: vi.fn() }));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     memberIntake: { findUnique: intakeFindUnique, upsert },
+    user: { findMany: userFindMany, findFirst: userFindFirst },
   },
 }));
 vi.mock("@/lib/supabase-server", () => ({
@@ -17,7 +22,12 @@ vi.mock("@/lib/supabase-server", () => ({
   }),
 }));
 
-import { getMemberIntake, upsertMemberIntake } from "@/lib/memberIntake";
+import {
+  getMemberIntake,
+  getPengundangUnitOptions,
+  resolvePengundangUnitLeaderId,
+  upsertMemberIntake,
+} from "@/lib/memberIntake";
 
 const savedRow = {
   fullName: "Rani Putri",
@@ -100,5 +110,42 @@ describe("upsertMemberIntake", () => {
       update: { ...input, birthDate: new Date("1998-05-10") },
       create: { userId: "user_1", ...input, birthDate: new Date("1998-05-10") },
     });
+  });
+});
+
+describe("getPengundangUnitOptions", () => {
+  test("returns every leader's name, not a fixed list", async () => {
+    userFindMany.mockResolvedValue([{ name: "Budi Santoso" }, { name: "Zaki Firmansyah" }]);
+
+    expect(await getPengundangUnitOptions()).toEqual(["Budi Santoso", "Zaki Firmansyah"]);
+    expect(userFindMany).toHaveBeenCalledWith({
+      where: { role: "leader" },
+      select: { name: true },
+      orderBy: { name: "asc" },
+    });
+  });
+
+  test("returns an empty list when there are no leaders", async () => {
+    userFindMany.mockResolvedValue([]);
+
+    expect(await getPengundangUnitOptions()).toEqual([]);
+  });
+});
+
+describe("resolvePengundangUnitLeaderId", () => {
+  test("returns the id of the leader matching the chosen name", async () => {
+    userFindFirst.mockResolvedValue({ id: "leader_1" });
+
+    expect(await resolvePengundangUnitLeaderId("Robert / Lini")).toBe("leader_1");
+    expect(userFindFirst).toHaveBeenCalledWith({
+      where: { role: "leader", name: "Robert / Lini" },
+      select: { id: true },
+    });
+  });
+
+  test("returns null when no leader matches", async () => {
+    userFindFirst.mockResolvedValue(null);
+
+    expect(await resolvePengundangUnitLeaderId("Nobody")).toBeNull();
   });
 });

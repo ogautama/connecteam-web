@@ -89,6 +89,33 @@ export async function getMemberIntake(
   };
 }
 
+/**
+ * "Pengundang / Unit" options — the live list of leader names, not a fixed
+ * picklist. The source Google Form hardcoded 6 names because it has no way
+ * to query our data; we do, so this stays correct as leaders come and go
+ * instead of needing a form edit every time the org changes.
+ */
+export async function getPengundangUnitOptions(): Promise<string[]> {
+  const leaders = await prisma.user.findMany({
+    where: { role: "leader" },
+    select: { name: true },
+    orderBy: { name: "asc" },
+  });
+  return leaders.map((leader) => leader.name);
+}
+
+/** Maps a chosen "Pengundang / Unit" name back to that leader's id, so
+ * submitJoinData can set them as the recruiter on a new PendingInvite. */
+export async function resolvePengundangUnitLeaderId(
+  name: string
+): Promise<string | null> {
+  const leader = await prisma.user.findFirst({
+    where: { role: "leader", name },
+    select: { id: true },
+  });
+  return leader?.id ?? null;
+}
+
 export async function upsertMemberIntake(
   userId: string,
   input: MemberIntakeInput

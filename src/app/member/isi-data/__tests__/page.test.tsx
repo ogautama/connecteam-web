@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-const { requireMember, getMemberIntake } = vi.hoisted(() => ({
+const { requireMember, getMemberIntake, getPengundangUnitOptions } = vi.hoisted(() => ({
   requireMember: vi.fn(),
   getMemberIntake: vi.fn(),
+  getPengundangUnitOptions: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({ requireMember }));
@@ -11,7 +12,7 @@ vi.mock("@/lib/memberIntake", async () => {
   const actual = await vi.importActual<typeof import("@/lib/memberIntake")>(
     "@/lib/memberIntake",
   );
-  return { ...actual, getMemberIntake };
+  return { ...actual, getMemberIntake, getPengundangUnitOptions };
 });
 
 import IsiDataPage from "../page";
@@ -25,6 +26,7 @@ beforeEach(() => {
     role: "agent",
   });
   getMemberIntake.mockResolvedValue(null);
+  getPengundangUnitOptions.mockResolvedValue(["Robert / Lini", "Haryo / Daisy"]);
 });
 
 describe("isi-data page", () => {
@@ -59,5 +61,15 @@ describe("isi-data page", () => {
     expect(screen.getByRole("textbox", { name: /Email Aktif/ })).toHaveValue(
       "rani@example.com",
     );
+  });
+
+  test("renders Pengundang / Unit options from the live leader list, not a fixed picklist", async () => {
+    getPengundangUnitOptions.mockResolvedValue(["Zaki Firmansyah"]);
+
+    render(await IsiDataPage());
+
+    expect(getPengundangUnitOptions).toHaveBeenCalled();
+    expect(screen.getByRole("radio", { name: "Zaki Firmansyah" })).toBeInTheDocument();
+    expect(screen.queryByRole("radio", { name: "Robert / Lini" })).not.toBeInTheDocument();
   });
 });

@@ -8,7 +8,7 @@ import {
   memberIntakeStoragePath,
   type MemberIntakeFileField,
 } from "@/lib/memberIntakeFiles";
-import { EDUCATION_OPTIONS, PENGUNDANG_UNIT_OPTIONS } from "@/lib/memberIntakeOptions";
+import { EDUCATION_OPTIONS } from "@/lib/memberIntakeOptions";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
 import { submitJoinData } from "./actions";
 
@@ -114,20 +114,35 @@ function SummaryFileRow({ label, url }: { label: string; url: string | null }) {
   );
 }
 
+// Required fields show "Label *" on one line — the asterisk has to be part
+// of the same inline child as the label text, since these labels are
+// `flex flex-col`: two separate children (a bare text node plus a sibling
+// span) each become their own stacked flex item instead of sitting inline.
+function FieldLabel({ label, required }: { label: string; required?: boolean }) {
+  return (
+    <span>
+      {label}
+      {required && <span className="text-brand-red-500"> *</span>}
+    </span>
+  );
+}
+
 function TextField({
   label,
+  required,
   value,
   onChange,
   type = "text",
 }: {
   label: string;
+  required?: boolean;
   value: string;
   onChange: (value: string) => void;
   type?: string;
 }) {
   return (
     <label className="flex flex-col gap-1 font-medium text-ink-700">
-      {label}
+      <FieldLabel label={label} required={required} />
       <input
         type={type}
         value={value}
@@ -140,16 +155,18 @@ function TextField({
 
 function TextAreaField({
   label,
+  required,
   value,
   onChange,
 }: {
   label: string;
+  required?: boolean;
   value: string;
   onChange: (value: string) => void;
 }) {
   return (
     <label className="flex flex-col gap-1 font-medium text-ink-700">
-      {label}
+      <FieldLabel label={label} required={required} />
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -162,18 +179,22 @@ function TextAreaField({
 
 function RadioGroup({
   label,
+  required,
   options,
   value,
   onChange,
 }: {
   label: string;
+  required?: boolean;
   options: { value: string; label: string }[];
   value: string;
   onChange: (value: string) => void;
 }) {
   return (
     <fieldset role="radiogroup" aria-label={label} className="flex flex-col gap-2">
-      <legend className="font-medium text-ink-700">{label}</legend>
+      <legend className="font-medium text-ink-700">
+        <FieldLabel label={label} required={required} />
+      </legend>
       <div className="flex flex-col gap-1.5">
         {options.map((option) => (
           <label
@@ -209,8 +230,7 @@ function FileField({
 }) {
   return (
     <label className="flex flex-col gap-1 font-medium text-ink-700">
-      {label}
-      {required && <span className="text-brand-red-500"> *</span>}
+      <FieldLabel label={label} required={required} />
       <input
         type="file"
         accept="image/*,application/pdf"
@@ -236,22 +256,28 @@ function FileField({
 }
 
 /**
- * "Isi Data" — the personal-data intake form (Plan 07), fields and
- * "Pengundang / Unit" options copied from the real Google Form this
- * replaces (that form is gated behind sign-in, so these were transcribed
- * from a screenshot the user provided, not fabricated). Photo fields upload
- * straight to Supabase Storage from the browser, same pattern as
- * TestResultUpload.tsx — the server action only ever sees the resulting
- * storage path.
+ * "Isi Data" — the personal-data intake form (Plan 07), fields copied from
+ * the real Google Form this replaces (that form is gated behind sign-in, so
+ * these were transcribed from a screenshot the user provided, not
+ * fabricated). "Pengundang / Unit" is the one field that isn't a fixed
+ * copy — it's the live leader list, passed down from the page rather than a
+ * hardcoded picklist. Photo fields upload straight to Supabase Storage from
+ * the browser, same pattern as TestResultUpload.tsx — the server action
+ * only ever sees the resulting storage path.
  */
 export default function JoinDataForm({
   userId,
   defaultEmail,
   initial,
+  pengundangUnitOptions,
 }: {
   userId: string;
   defaultEmail: string;
   initial: MemberIntakeRecord | null;
+  /** Live leader names (src/lib/memberIntake.ts's getPengundangUnitOptions),
+   * not a fixed list — the source form hardcodes 6 names because it can't
+   * query our data; we can. */
+  pengundangUnitOptions: string[];
 }) {
   const [saved, setSaved] = useState<MemberIntakeRecord | null>(initial);
   const [editing, setEditing] = useState(!initial);
@@ -394,41 +420,62 @@ export default function JoinDataForm({
       noValidate
       className="flex flex-col gap-4 rounded-2xl border border-ink-100 bg-white p-6"
     >
-      <TextField label="Nama Lengkap (sesuai KTP)" value={form.fullName} onChange={(v) => update("fullName", v)} />
-      <TextField label="No KTP" value={form.ktpNumber} onChange={(v) => update("ktpNumber", v)} />
-      <TextField label="Tempat Lahir" value={form.birthPlace} onChange={(v) => update("birthPlace", v)} />
+      <TextField
+        label="Nama Lengkap (sesuai KTP)"
+        required
+        value={form.fullName}
+        onChange={(v) => update("fullName", v)}
+      />
+      <TextField label="No KTP" required value={form.ktpNumber} onChange={(v) => update("ktpNumber", v)} />
+      <TextField
+        label="Tempat Lahir"
+        required
+        value={form.birthPlace}
+        onChange={(v) => update("birthPlace", v)}
+      />
       <TextField
         label="Tanggal Lahir"
+        required
         type="date"
         value={form.birthDate}
         onChange={(v) => update("birthDate", v)}
       />
       <TextField
         label="Email Aktif"
+        required
         type="email"
         value={form.activeEmail}
         onChange={(v) => update("activeEmail", v)}
       />
       <TextField
         label="No HP aktif (Whatsapp)"
+        required
         type="tel"
         value={form.activePhone}
         onChange={(v) => update("activePhone", v)}
       />
-      <TextAreaField label="Alamat Domisili" value={form.address} onChange={(v) => update("address", v)} />
+      <TextAreaField
+        label="Alamat Domisili"
+        required
+        value={form.address}
+        onChange={(v) => update("address", v)}
+      />
       <RadioGroup
         label="Pendidikan Terakhir"
+        required
         options={EDUCATION_OPTIONS}
         value={form.education}
         onChange={(v) => update("education", v as EducationLevel)}
       />
       <TextField
         label="Nama Sekolah / Universitas (pendidikan terakhir)"
+        required
         value={form.schoolName}
         onChange={(v) => update("schoolName", v)}
       />
       <TextField
         label="Tahun Kelulusan"
+        required
         value={form.graduationYear}
         onChange={(v) => update("graduationYear", v)}
       />
@@ -470,7 +517,8 @@ export default function JoinDataForm({
 
       <RadioGroup
         label="Pengundang / Unit"
-        options={PENGUNDANG_UNIT_OPTIONS.map((u) => ({ value: u, label: u }))}
+        required
+        options={pengundangUnitOptions.map((u) => ({ value: u, label: u }))}
         value={form.pengundangUnit}
         onChange={(v) => update("pengundangUnit", v)}
       />

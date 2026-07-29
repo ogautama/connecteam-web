@@ -4,20 +4,35 @@ const {
   requireMember,
   upsertMemberIntake,
   getMemberIntake,
+  getPengundangUnitOptions,
+  resolvePengundangUnitLeaderId,
   setItemCompletion,
   revalidatePath,
+  createPendingInvite,
 } = vi.hoisted(() => ({
   requireMember: vi.fn(),
   upsertMemberIntake: vi.fn(),
   getMemberIntake: vi.fn(),
+  getPengundangUnitOptions: vi.fn(),
+  resolvePengundangUnitLeaderId: vi.fn(),
   setItemCompletion: vi.fn(),
   revalidatePath: vi.fn(),
+  createPendingInvite: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath }));
 vi.mock("@/lib/auth", () => ({ requireMember }));
-vi.mock("@/lib/memberIntake", () => ({ upsertMemberIntake, getMemberIntake }));
+vi.mock("@/lib/memberIntake", () => ({
+  upsertMemberIntake,
+  getMemberIntake,
+  getPengundangUnitOptions,
+  resolvePengundangUnitLeaderId,
+}));
 vi.mock("@/lib/onboardingProgress", () => ({ setItemCompletion }));
+vi.mock("@/lib/invites", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/invites")>("@/lib/invites");
+  return { ...actual, createPendingInvite };
+});
 
 import { submitJoinData } from "../actions";
 
@@ -51,6 +66,9 @@ beforeEach(() => {
     role: "agent",
   });
   getMemberIntake.mockResolvedValue(savedRecord);
+  getPengundangUnitOptions.mockResolvedValue(["Robert / Lini", "Haryo / Daisy"]);
+  resolvePengundangUnitLeaderId.mockResolvedValue("leader_1");
+  createPendingInvite.mockResolvedValue({ ok: true, invite: {} });
 });
 
 describe("submitJoinData", () => {
@@ -94,7 +112,7 @@ describe("submitJoinData", () => {
     expect(upsertMemberIntake).not.toHaveBeenCalled();
   });
 
-  test("rejects a Pengundang / Unit value outside the fixed picklist", async () => {
+  test("rejects a Pengundang / Unit value outside the live leader list", async () => {
     await expect(
       submitJoinData({ ...validInput, pengundangUnit: "Someone Else" }),
     ).rejects.toThrow("Pengundang / Unit wajib dipilih.");
@@ -136,5 +154,41 @@ describe("submitJoinData", () => {
 
     await expect(submitJoinData(validInput)).rejects.toThrow("NEXT_REDIRECT");
     expect(upsertMemberIntake).not.toHaveBeenCalled();
+  });
+
+  test("rejects a malformed active email before touching the database", async () => {
+    await expect(
+      submitJoinData({ ...validInput, activeEmail: "not-an-email" }),
+    ).rejects.toThrow("Format email aktif belum bener.");
+    expect(upsertMemberIntake).not.toHaveBeenCalled();
+  });
+
+  test("pre-authorizes Email Aktif as an agent recruited by the chosen Pengundang / Unit leader", async () => {
+    await submitJoinData(validInput);
+
+    expect(resolvePengundangUnitLeaderId).toHaveBeenCalledWith("Robert / Lini");
+    expect(createPendingInvite).toHaveBeenCalledWith({
+      email: "rani@example.com",
+      recruiterId: "leader_1",
+      role: "agent",
+      invitedBy: "leader_1",
+    });
+  });
+
+  test("does not fail the save when Email Aktif already belongs to a real user", async () => {
+    createPendingInvite.mockResolvedValue({ ok: false, reason: "existing-user" });
+
+    const result = await submitJoinData(validInput);
+
+    expect(upsertMemberIntake).toHaveBeenCalled();
+    expect(result).toEqual(savedRecord);
+  });
+
+  test("skips creating an invite if the chosen leader can't be resolved", async () => {
+    resolvePengundangUnitLeaderId.mockResolvedValue(null);
+
+    await submitJoinData(validInput);
+
+    expect(createPendingInvite).not.toHaveBeenCalled();
   });
 });

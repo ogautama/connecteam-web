@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
-import { getMemberIntake } from "@/lib/memberIntake";
+import { getMemberIntake, getPengundangUnitOptions } from "@/lib/memberIntake";
 import JoinDataForm from "./JoinDataForm";
 
 export const metadata: Metadata = {
@@ -15,7 +15,10 @@ export const metadata: Metadata = {
  */
 export default async function IsiDataPage() {
   const user = await requireMember();
-  const saved = await getMemberIntake(user.id);
+  const [saved, pengundangUnitOptions] = await Promise.all([
+    getMemberIntake(user.id),
+    getPengundangUnitOptions(),
+  ]);
 
   return (
     <div className="mx-auto flex w-full max-w-content flex-col gap-6">
@@ -26,7 +29,12 @@ export default async function IsiDataPage() {
           checklist Onboarding begitu tersimpan.
         </p>
       </div>
-      <JoinDataForm userId={user.id} defaultEmail={user.email} initial={saved} />
+      <JoinDataForm
+        userId={user.id}
+        defaultEmail={user.email}
+        initial={saved}
+        pengundangUnitOptions={pengundangUnitOptions}
+      />
     </div>
   );
 }
