@@ -24,8 +24,8 @@ export async function setOnboardingItemCompletion(
 }
 
 /**
- * "Join & Isi Data" — the personal-data intake form (Plan 07). Submitting it
- * also marks the checklist item done, so there's no separate manual checkbox
+ * "Isi Data" — the personal-data intake form (Plan 07). Submitting it also
+ * marks the checklist item done, so there's no separate manual checkbox
  * step once the real data is saved. "Unit Pengundang" isn't part of the
  * input: it's derived from the caller's own recruiterId, not something the
  * member can set themselves.

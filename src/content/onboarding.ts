@@ -55,7 +55,7 @@ export type OnboardingSection = {
 export const ONBOARDING_SECTIONS: OnboardingSection[] = [
   {
     id: "join-isi-data",
-    title: "Join & Isi Data",
+    title: "Isi Data",
     description: "Lengkapi data pribadi buat proses join",
     icon: "📝",
   },

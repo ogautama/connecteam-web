@@ -61,7 +61,7 @@ describe("member hub page", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Onboarding" })).toBeInTheDocument();
     for (const title of [
-      "Join & Isi Data",
+      "Isi Data",
       "Download PruForce",
       "Lisensi AAJI & AASI",
       "Kelas MFC & Sertifikasi Produk",
@@ -80,7 +80,7 @@ describe("member hub page", () => {
       "aria-checked",
       "true",
     );
-    expect(screen.getByRole("checkbox", { name: "Join & Isi Data" })).toHaveAttribute(
+    expect(screen.getByRole("checkbox", { name: "Isi Data" })).toHaveAttribute(
       "aria-checked",
       "false",
     );
@@ -105,10 +105,10 @@ describe("member hub page", () => {
     expect(screen.getByText("Segera hadir")).toBeInTheDocument();
   });
 
-  test("Join & Isi Data is a real intake form with Unit Pengundang pre-filled, not a placeholder", async () => {
+  test("Isi Data is a real intake form with Unit Pengundang pre-filled, not a placeholder", async () => {
     render(await renderAt());
 
-    fireEvent.click(screen.getByRole("button", { name: /Join & Isi Data/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Isi Data/ }));
 
     expect(screen.getByDisplayValue("Budi Santoso")).toBeInTheDocument();
     expect(screen.queryByText("Segera hadir")).not.toBeInTheDocument();
@@ -125,7 +125,7 @@ describe("member hub page", () => {
     });
 
     render(await renderAt());
-    fireEvent.click(screen.getByRole("button", { name: /Join & Isi Data/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Isi Data/ }));
 
     expect(screen.getByText("1234567890123456")).toBeInTheDocument();
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();

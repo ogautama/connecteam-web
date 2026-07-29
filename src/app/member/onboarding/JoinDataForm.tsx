@@ -41,9 +41,9 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 }
 
 /**
- * "Join & Isi Data" — the personal-data intake form (Plan 07). "Unit
- * Pengundang" is always read-only: it comes from the member's own
- * recruiterId, not something they can type in themselves.
+ * "Isi Data" — the personal-data intake form (Plan 07). "Unit Pengundang"
+ * is always read-only: it comes from the member's own recruiterId, not
+ * something they can type in themselves.
  */
 export default function JoinDataForm({
   unitPengundang,
