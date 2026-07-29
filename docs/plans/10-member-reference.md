@@ -12,6 +12,17 @@ the in-page tab strip dropped on 2026-07-26 in favour of the sidebar.) That
 section is shared with Plan 11's Official Systems content — exact grouping
 is left open until both have real content, see Plan 07.
 
+**Revised again 2026-07-29**: scope shrinks. Tabel Premi and Tabel Medical
+**move to [Plan 09](09-member-sell.md)'s "Sales Tools" item** (part of the
+Selling section now, not References) — see
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet).
+This plan's remaining scope is just **Prestige**, which is now its own flat
+References item (`references-prestige`) rather than a category heading —
+References is no longer grouped into "Reference Data" / "Official Systems"
+sub-headings, it's a flat list of 8 items (Plan 07's table). Prestige's
+source content and the Non-Medical Limit cross-reference to Tabel Medical
+below are otherwise unchanged.
+
 ## Goal
 
 Content for a References-section category: merges *Tabel Premi*, *Tabel

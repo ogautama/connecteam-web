@@ -65,7 +65,11 @@ member login replaces the old `secure.connecteam.id` link on the homepage.
 - **Content**: product catalog, reference tables, and static page copy as
   structured TypeScript/JSON data modules in-repo (no CMS for v1). Source
   PDFs/images re-hosted under `public/` or linked from Drive, organized by
-  section instead of one flat sidebar.
+  section instead of one flat sidebar. *(Narrow exception, 2026-07-29 — see
+  [Plan 18](18-content-admin.md)):* a small set of pages flagged as "living
+  documents" needing at-least-monthly updates (Contests & Campaigns,
+  Recording) move to a database-backed `ContentBlock` model with an
+  admin-gated edit UI, once Plan 18 ships. Everything else stays static.
 - **Testing**: Vitest for unit tests (pure logic: scoring engines, role
   gating, content schema validation). Introduced in Plan 01 so every later
   plan can add tests against a working setup. Note: anything that goes
@@ -113,6 +117,8 @@ are captured inline in those docs so each can be picked up independently.
 | 15 | ~~Recruitment tree & applications (schema + access control)~~ | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) | ✅ Done, partially superseded† — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 | 15b | Recruitment tree rework (drop applicant→user promotion) | 02b | [15b-recruitment-tree-rework.md](15b-recruitment-tree-rework.md) | Not started |
 | 16 | DISC lead visibility (hierarchy-scoped `/member/leads`) | 04, 06, 15 | [16-disc-lead-visibility.md](16-disc-lead-visibility.md) | Not started |
+| 17 | MBTI / Self Motivation result upload (Onboarding "Kenali Dirimu") | 07 | [17-mbti-self-motivation-result-upload.md](17-mbti-self-motivation-result-upload.md) | ✅ Done — [PR #22](https://github.com/ogautama/connecteam-web/pull/22) |
+| 18 | IT & Content Admin (admin/super-admin roles, editable living-document content) | 02b, 07 | [18-content-admin.md](18-content-admin.md) | Proposed 2026-07-29 — scheduled after 07–14 ship |
 
 § **2026-07-24, revised 2026-07-26**: after being shown a UX reference (a
 working "quest hub" prototype — gamified level tabs, progress bars,
@@ -182,16 +188,20 @@ Plan 06's nav.)*
   names, score them Hot/Warm/Cold via the FAST framework, export to CSV.
   New interactive functionality with its own data-model needs, not "content
   to source" — needs its own plan. Deliberately left out of Plan 08.
-- **References section's internal grouping is provisional** (Plan 07). The
-  reference prototype grouped resources (Starter Kit, Product Training,
-  Commission & Premi, Sales Tools, Reward & Contest, Campaign, Claim) in a
-  way that doesn't map cleanly 1:1 onto Plans 09–13's existing scopes —
-  some categories pull from more than one plan's content. The 2026-07-26
-  menu rework settled the top level (Contests and Events are their own
-  sections nested under References; Official Systems folded *into*
-  References), but the References section itself still ships placeholder
-  category headers per plan (10/11) as a guess. Whoever builds that content
-  should revisit the grouping with the real material in hand.
+- ~~**References section's internal grouping is provisional**~~ —
+  **resolved 2026-07-29** by a real content-inventory sheet, not a guess.
+  References is now a flat list of 8 items (Recording, Commission, Prestige,
+  Schedule Book, Prupay Link, Claim, Contests & Campaigns, Events) — no more
+  category headers. Content ownership moved across several plans in the
+  process (Tabel Premi/Medical: Plan 10 → 09; PRUForce/Lisensi/MFC: Plan 11 →
+  07's Onboarding; PayLink/Claim stay on Plan 11 but flatten out of "Official
+  Systems") — see [Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet)
+  for the authoritative mapping and each of Plans 08–14's revision notes for
+  what specifically changed in their scope. The same session also decided
+  role gating is now Add-Member-only (Plans 13/14's leader-only filtering is
+  dropped) and scoped [Plan 18](18-content-admin.md) for admin-editable
+  "living document" pages and content shared across multiple nav positions
+  (e.g. Product Details under both Selling and References).
 - **`Calculator` is a placeholder section, not the tool** (Plans 05 + 07).
   The 2026-07-26 menu added a Calculator item, but `/tools/calculator`
   doesn't exist (Plan 05 deferred, `CALCULATOR_LIVE` off), so it renders a

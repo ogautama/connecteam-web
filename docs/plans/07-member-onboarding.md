@@ -21,6 +21,33 @@ Plans 08–14 are revised in step (see each doc's own Status note) — they no
 longer describe standalone pages, they describe the content that fills one
 section of this hub.
 
+3. **2026-07-29** — the menu was restructured again, this time from a real
+   content inventory (a spreadsheet the team filled in), not a guess. Every
+   top-level item gains real sub-items instead of being a bare placeholder
+   `?section=` switch — see the rebuilt table below. Two structural decisions
+   came out of that session:
+   - **Still exactly two levels deep.** The sheet's 3rd level (its
+     "Subcategory" column — e.g. Learning Center's five videos) becomes
+     sections *inside* a page's content, not more sidebar entries.
+     `MemberNav.tsx` already supports one level of children; nothing about
+     its depth needs to change, only how many leaf items exist.
+   - **Role gating is now Add Member only.** Events and Directory lose the
+     "Leaders" badge/filtering they had — see Plans 13 and 14's revision
+     notes, since both previously treated leader-only filtering as the
+     centerpiece of their scope.
+   - **Sidebar sections became independently collapsible** (a chevron per
+     top-level item, separate from clicking its label), reset to "only the
+     active section open" on every visit — no persisted state. This is on
+     top of Plan 07's existing whole-sidebar hide/show; it's a second,
+     finer-grained collapse *within* the visible sidebar.
+   - **Some items point at the same content.** E.g. "Product Details" is the
+     same page under both Selling ↳ Learning Center and References ↳
+     Recording — edit once, both show the change. Today's static
+     `SECTIONS`-object architecture can only fake this with copy-paste;
+     [Plan 18](18-content-admin.md) proposes the real fix (a shared content
+     key multiple nav items can point at) alongside admin-only in-app
+     editing for pages that need updating monthly.
+
 ### What carries over from the original PR #17 build
 
 - Content module stays `src/content/onboarding.ts`, restructured (not
@@ -40,33 +67,72 @@ section of this hub.
 switched from the left sidebar. There is no in-page tab strip: the sidebar
 is the only navigation.
 
-### Menu
+### Menu (rebuilt 2026-07-29 from the content-inventory sheet)
+
+`↳` marks a child of the item above it — the sidebar's one supported nesting
+level. Items with no `↳` are top-level and double as a landing page linking
+to their own children. "Owner" is which plan sources that item's real
+content; "moved from Plan N" flags content that plan already scoped under a
+different section before this restructure — implementers should reconcile
+against that plan's source-content list rather than re-capturing it from
+scratch.
 
 | Sidebar item | `?section=` | Owner | Content |
 |---|---|---|---|
 | Dashboard | — (`/member`) | Plan 06 | real |
-| Onboarding | *(default, bare path)* | Plan 07 | **real** |
-| Recruiting | `recruiting` | Plan 08 | placeholder |
-| Selling | `selling` | Plan 09 | placeholder |
-| Calculator | `calculator` | Plan 05 | placeholder |
-| References | `references` | Plans 10 + 11 | placeholder |
-| ↳ Contests & Campaigns | `contests` | Plan 12 | placeholder |
-| ↳ Events | `events` | Plan 13 | placeholder |
-| Directory | `directory` | Plan 14 | placeholder |
+| **Onboarding** | `onboarding` *(default)* | Plan 07 | **real** — existing 5 accordion items, kept |
+| ↳ Join & Isi Data | `onboarding-join` | Plan 07 | deferred — PII intake form, see "Explicitly deferred" below |
+| ↳ Download PruForce | `onboarding-pruforce` | Plan 07 | placeholder — moved from Plan 11 |
+| ↳ Lisensi AAJI & AASI | `onboarding-lisensi` | Plan 07 | placeholder — moved from Plan 11 |
+| ↳ Kelas MFC & Sertifikasi Produk | `onboarding-mfc` | Plan 07 | placeholder — moved from Plan 11 |
+| ↳ Kenali Dirimu | `onboarding-kenali-dirimu` | Plan 07 | real — DISC/MBTI/Self Motivation upload, [Plan 17](17-mbti-self-motivation-result-upload.md) |
+| ↳ Bikin Goals Pribadi / Susun Targetmu | `onboarding-goals` | Plan 07 | placeholder — goals mini-form still deferred, see below |
+| ↳ Setup WA, IG | `onboarding-setup-wa-ig` | Plan 07 | placeholder |
+| **Recruiting** | `recruiting` | Plan 08 | placeholder |
+| ↳ Kenapa recruit dlu? | `recruiting-why` | Plan 08 | placeholder |
+| ↳ Bank nama rekrut + FAST | `recruiting-bank-fast` | Plan 08 | placeholder |
+| ↳ Presentasi bisnis ke calon rekrut | `recruiting-presentasi` | Plan 08 | placeholder |
+| ↳ Handling Obj calon rekrut | `recruiting-handling-obj` | Plan 08 | placeholder — format not decided yet ("Bentuknya apa?" per the sheet) |
+| **Selling** | `selling` | Plan 09 | placeholder |
+| ↳ Learning Center | `selling-learning-center` | Plan 09 | placeholder — page with 5 in-page sections; its "Product Details" section is shared with References ↳ Recording, see Plan 18 |
+| ↳ Bank nama rekrut + FORM | `selling-bank-form` | Plan 09 | placeholder — check against Plan 08's original FORM.pdf before treating as new |
+| ↳ Sales Tools | `selling-sales-tools` | Plan 09 | placeholder — page with 7 in-page sections; absorbs Tabel Premi/Tabel Medical, **moved from Plan 10** |
+| **Calculator** | `calculator` | Plan 05 | placeholder |
+| **References** | `references` | *(split — see children)* | placeholder |
+| ↳ Recording | `references-recording` | Plan 09 (new) | placeholder — page with 2 in-page sections; "Product Details" section shared with Selling ↳ Learning Center, see Plan 18 |
+| ↳ Commission | `references-commission` | Plan 09 | placeholder — was part of Plan 09's Sales Kit reference tables, now its own item |
+| ↳ Prestige | `references-prestige` | Plan 10 | placeholder — unchanged from Plan 10's existing scope |
+| ↳ Schedule Book (PDF Download) | `references-schedule-book` | Plan 07 | placeholder — one of the Starter Kit PDF gaps already tracked in [00-overview.md](00-overview.md#known-deferred-issues) |
+| ↳ Prupay Link | `references-prupay-link` | Plan 11 | placeholder — was "PRU PayLink", **moved from** Plan 11's Official Systems scope |
+| ↳ Claim | `references-claim` | Plan 11 | placeholder — page with 2 in-page sections (How to Claim, Bukti Claim), unchanged from Plan 11's existing scope |
+| ↳ Contests & Campaigns | `references-contests` | Plan 12 | placeholder |
+| ↳ Events | `references-events` | Plan 13 | placeholder — **no longer role-gated**, see Plan 13's revision note |
+| **Directory** | `directory` | Plan 14 | placeholder |
+| ↳ Yellow Pages | `directory-yellow-pages` | Plan 14 | placeholder |
+| ↳ Who is Prudential | `directory-who-is-prudential` | Plan 14 | placeholder — was "Prudential Indonesia" |
+| ↳ Who is MRT Group | `directory-who-is-mrt` | Plan 14 | placeholder |
+| ↳ Who is Connecteam | `directory-who-is-connecteam` | Plan 14 | placeholder — the old scope's "CONNECT with Leaders" isn't in the new sheet; confirm with the content owner whether it's dropped or renamed to this before assuming either |
 | Add Member *(leader only)* | — (`/member/admin/add-member`) | Plan 02c | real |
 
 Renames from the pre-2026-07-26 menu: Get Started → Onboarding, Grow →
 Recruiting, Sell → Selling, Reference Data → References (with **Official
 Systems folded into it**, per Plan 11's revision), Kontak → Directory.
+References' internal grouping — previously an open question (see
+[00-overview.md](00-overview.md#known-deferred-issues)) — is now resolved by
+the table above: it's a flat list of 8 children, not further category
+headers.
 
 **Calculator is a placeholder section, not a link to `/tools/calculator`** —
 that page doesn't exist yet (Plan 05, deferred behind `CALCULATOR_LIVE`), so
 linking it would 404. When Plan 05 ships, this section becomes its entry
 point; decide then whether it embeds the tool or links out.
 
-Only Onboarding ships real content. Every other section renders a
-"Segera hadir" placeholder list — no fabricated copy or links — until its
-own plan lands content.
+Onboarding and Kenali Dirimu ship real content (the latter via Plan 17).
+Every other item renders a "Segera hadir" placeholder — no fabricated copy
+or links — until its own plan lands content. `HubSectionId` in
+`src/lib/member/nav.ts` grows from 8 values to one per row above (~30) —
+mechanically the same one-level-of-children shape it already has, just far
+more leaves.
 
 ## Depends on
 
@@ -135,9 +201,10 @@ state** — treat them as stable once shipped.
 
 ### Other sections — placeholders (this plan); real content later (Plans 05, 08–14)
 
-Rendered from a `SECTIONS` map in `QuestHub.tsx`. The References section's
-category grouping (which plan's content sits under which heading) is
-provisional — revisit when Plans 10–13 have real content in hand.
+Rendered from a `SECTIONS` map in `QuestHub.tsx`. References' grouping is no
+longer provisional — the 2026-07-29 menu table above is the resolved
+structure; what's still open is which plan sources each item's real content
+(also noted per-row above).
 
 ## Data model
 

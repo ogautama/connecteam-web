@@ -12,6 +12,16 @@ Referensi tab; the 2026-07-26 menu rework promoted it to its own section
 with References as its visual parent.) The dashboard-banner tie-in below is
 unaffected.
 
+**Revised again 2026-07-29**: position and scope unchanged — still
+`references-contests`, still one of References' children (now 8 siblings
+instead of 2, see
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet)).
+Flagged as a **living document** — content here needs updating at least
+monthly once real contests/campaigns exist, which is the motivating example
+for [Plan 18](18-content-admin.md)'s admin-editable content blocks. Build
+this plan's v1 as static content per the scope below; migrating it to
+Plan 18's DB-backed model is that plan's job, not this one's.
+
 ## Goal
 
 Content for the Contests & Campaigns section: merges *Contest & Reward* and

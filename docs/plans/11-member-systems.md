@@ -11,11 +11,29 @@ category group inside the **References** section of the quest hub built by
 10's Reference Data content; exact grouping is left open until both have
 real content, see Plan 07.
 
+**Revised again 2026-07-29**: scope splits across two sections. See
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet).
+
+- **PRUForce, Lisensi AAJI/AASI, and the MFC how-to guide move to
+  Onboarding** (Plan 07 — `onboarding-pruforce`, `onboarding-lisensi`,
+  `onboarding-mfc`), not References. The source content below (portal links,
+  the MFC step-by-step, the iOS troubleshooting notes) is unchanged — only
+  which section it renders under.
+- **PRU PayLink and Claim/Bukti Claim stay under References**, but as flat
+  items rather than one "Official Systems" category: `references-prupay-link`
+  and `references-claim` (Claim's page now has 2 in-page sections — How to
+  Claim, Bukti Claim — instead of being 2 separate sidebar entries).
+- This plan's `src/content/systems.ts` module likely needs to split into an
+  Onboarding-facing piece and a References-facing piece rather than staying
+  one file — implementer's call based on how much the two halves end up
+  sharing.
+
 ## Goal
 
-Content for a References-section category: merges *PRUForce*, *Lisensi
-AAJI/AASI*, *PRU PayLink*, *Claim*, and *Bukti Claim* into one group for
-official Prudential systems and the processes around them.
+Content for two sections: PRUForce, Lisensi AAJI/AASI, and the MFC guide now
+live under Onboarding; PRU PayLink and Claim (with Bukti Claim as an
+in-page section) stay under References. Original goal, unchanged in
+substance: cover official Prudential systems and the processes around them.
 
 ## Depends on
 

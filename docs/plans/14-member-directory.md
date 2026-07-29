@@ -11,16 +11,28 @@ the "Kontak tab"; the 2026-07-26 menu rework renamed it **Directory** — the
 menu keeps English section names, Bahasa for descriptive copy, per Plan
 06 — and dropped the in-page tab strip in favour of the sidebar.)
 
-**The leader-only filtering requirement below is unchanged and still
-critical**, same as Plan 13's note — an `agent` session's page payload must
-still exclude leader-only entries entirely, not just hide them with CSS.
+**Reversed 2026-07-29 — read this before the section below.** Same reversal
+as [Plan 13](13-member-events.md): as part of the 2026-07-29 menu
+restructure, the only role-gated item anywhere in the member nav is now Add
+Member. Directory (still `directory`, unnested — see
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet))
+is open to every agent, including PRU Sales Friends. `leaderOnly` filtering
+is no longer part of this plan's scope.
+
+**Item list also changed.** The sheet gives Directory 4 children: Yellow
+Pages, Who is Prudential, Who is MRT Group, Who is Connecteam. "Prudential
+Indonesia" and "MRT Group" below map cleanly to the last two. "Who is
+Connecteam" has no obvious match in the source content below — the old
+scope's "CONNECT with Leaders" isn't mentioned in the sheet at all. Confirm
+with the content owner whether it's dropped, renamed, or something new
+before assuming either.
 
 ## Goal
 
-Content for the Directory section of `/member/onboarding`: merges *Yellow
-Pages*, *CONNECT with Leaders*, *MRT Group*, and *Prudential Indonesia* into
-one contacts directory, with leader-only contact lines gated by role (same
-pattern as Plan 13).
+Content for the Directory section of `/member/onboarding`: Yellow Pages, Who
+is Prudential (was "Prudential Indonesia"), Who is MRT Group, and Who is
+Connecteam (mapping to the old "CONNECT with Leaders" unconfirmed — see
+above) as four separate items, no role gating.
 
 ## Depends on
 
@@ -48,23 +60,18 @@ pages while logged in** to build the content inventory before implementing.
 ## Scope
 
 - `src/content/directory.ts` — typed structure: `{ name, description?,
-  contactUrl, leaderOnly: boolean }[]`, grouped by source category (Internal
-  Support, Leaders, Company Info).
-- Directory section: renders all entries for `leader` sessions; filters out
-  `leaderOnly: true` entries for `agent` sessions server-side (same
-  enforcement pattern as Plan 13, reuse the same role-filtering approach
-  rather than reinventing it).
+  contactUrl }[]`, one entry per Directory child item (Yellow Pages, Who is
+  Prudential, Who is MRT Group, Who is Connecteam). **No `leaderOnly`
+  field** — see the reversal above.
+- Directory section: renders every entry to every session. No role
+  filtering.
 
 ## Unit tests
 
 - Content module schema validation.
-- Server-side render test: `agent` session response excludes PRU Sales
-  Friends and any other entries marked `leaderOnly`; `leader` session
-  response includes them.
 
 ## Verification
 
-`npm run dev`, log in as both seeded users, open **Directory** from the
-sidebar, confirm the leader-only contacts differ as expected (check the page
-source, not just the rendered output). `npm run lint`, `npx tsc --noEmit`,
-`npm test`.
+`npm run dev`, log in, open **Directory** from the sidebar, confirm all four
+items render for both the seeded `agent` and `leader` users. `npm run lint`,
+`npx tsc --noEmit`, `npm test`.

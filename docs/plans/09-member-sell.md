@@ -11,6 +11,32 @@ on 2026-07-26 in favour of the sidebar — same section, different switcher.)
 This is still the largest content section by far (full product catalog +
 sales kit); only its container changed, not its content scope below.
 
+**Revised again 2026-07-29**: scope grows on both sides. See
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet)
+for the authoritative item list.
+
+- Selling itself gets 3 named children instead of one undivided catalog:
+  **Learning Center** (5 video sections: Segitiga kebutuhan (Basic), Kenalan
+  3 Produk Dasar, Product Details, Teknik Closing, Handling Obj Selling —
+  likely the Product Training videos below, re-cut into named sections
+  rather than a flat per-product list), **Bank nama rekrut + FORM** (check
+  against Plan 08's original FORM.pdf before treating as new content), and
+  **Sales Tools** (7 sections: Tabel Premi, Tabel Medical, Tabel TB & BB,
+  Template Screenshot Video Call, Script siap pakai untuk d share, Product
+  Sales Kit, Review Polis — the first two, **Tabel Premi and Tabel Medical,
+  move here from [Plan 10](10-member-reference.md)**, whose own scope is
+  reduced accordingly; the rest were already this plan's Sales Kit content).
+- This plan also now owns two new References items: **Recording** (2
+  sections — Sharing n Motivation, Product Details — video links) and
+  **Commission** (the Commission table already listed below, now surfaced
+  as its own References item instead of just a Sales Kit image).
+- **Recording's "Product Details" section and Learning Center's "Product
+  Details" section are the same page, shown in two places** — confirmed by
+  the person who owns this content. Don't build two copies; see
+  [Plan 18](18-content-admin.md) for the shared-content mechanism this is
+  meant to use once it ships. Until then, the two nav positions can point at
+  the same static content-module entry as a stopgap.
+
 ## Goal
 
 Content for the Selling section of `/member/onboarding`: merges *Sales Kit*,
