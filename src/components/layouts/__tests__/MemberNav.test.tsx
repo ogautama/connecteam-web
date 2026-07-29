@@ -15,14 +15,15 @@ beforeEach(() => {
 });
 
 describe("MemberNav", () => {
-  test("renders the dashboard plus every top-level section, collapsed by default except the active one", () => {
+  test("renders the dashboard plus every top-level section, collapsed by default (Onboarding has no children to expand)", () => {
     usePathname.mockReturnValue("/member/onboarding");
     render(<MemberNav role="agent" />);
 
     const nav = screen.getByRole("navigation", { name: "Member" });
     // Dashboard, Onboarding, Recruiting, Selling, Calculator, References,
-    // Directory, plus Onboarding's 7 children (it's the default section).
-    expect(within(nav).getAllByRole("link")).toHaveLength(14);
+    // Directory — nothing expands since Onboarding (the default/active
+    // section) has no sidebar children of its own.
+    expect(within(nav).getAllByRole("link")).toHaveLength(7);
     expect(within(nav).getByRole("link", { name: "Onboarding" })).toHaveAttribute(
       "href",
       "/member/onboarding",
@@ -35,6 +36,10 @@ describe("MemberNav", () => {
       "href",
       "/member/onboarding?section=directory",
     );
+    // Onboarding has no children at all, so no chevron renders for it.
+    expect(
+      within(nav).queryByRole("button", { name: /Onboarding/ }),
+    ).not.toBeInTheDocument();
     // Recruiting has children but isn't the active section, so they're hidden.
     expect(
       within(nav).queryByRole("link", { name: "Kenapa recruit dlu?" }),

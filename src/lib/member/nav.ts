@@ -8,17 +8,12 @@ import type { Role } from "@prisma/client";
  * Rebuilt 2026-07-29 from the content-inventory sheet (Plan 07) — still
  * exactly two levels deep (top-level Section + one level of children); the
  * sheet's 3rd level ("Subcategory") becomes in-page sections instead of more
- * sidebar entries.
+ * sidebar entries. Onboarding is a further exception: its own children don't
+ * get `?section=` entries at all — they render as its existing accordion
+ * checklist instead (see ONBOARDING_SECTIONS in @/content/onboarding).
  */
 export type HubSectionId =
   | "onboarding"
-  | "onboarding-join"
-  | "onboarding-pruforce"
-  | "onboarding-lisensi"
-  | "onboarding-mfc"
-  | "onboarding-kenali-dirimu"
-  | "onboarding-goals"
-  | "onboarding-setup-wa-ig"
   | "recruiting"
   | "recruiting-why"
   | "recruiting-bank-fast"
@@ -63,47 +58,14 @@ export type MemberNavItem = {
 
 export const MEMBER_NAV: MemberNavItem[] = [
   { label: "Dashboard", href: "/member" },
+  // No sidebar children — its 7-item checklist (Join & Isi Data, Kenali
+  // Dirimu, etc.) renders inline as accordion items on the page itself
+  // (ONBOARDING_SECTIONS in @/content/onboarding), not as separate
+  // `?section=` entries.
   {
     label: "Onboarding",
     section: "onboarding",
     description: "Langkah pertama kamu sebagai agent baru",
-    children: [
-      {
-        label: "Join & Isi Data",
-        section: "onboarding-join",
-        description: "Lengkapi data pribadi buat proses join",
-      },
-      {
-        label: "Download PruForce",
-        section: "onboarding-pruforce",
-        description: "Unduh & install aplikasi PRUForce",
-      },
-      {
-        label: "Lisensi AAJI & AASI",
-        section: "onboarding-lisensi",
-        description: "Ambil lisensi wajib buat mulai jualan",
-      },
-      {
-        label: "Kelas MFC & Sertifikasi Produk",
-        section: "onboarding-mfc",
-        description: "Kelas dan sertifikasi produk yang dibutuhin",
-      },
-      {
-        label: "Kenali Dirimu",
-        section: "onboarding-kenali-dirimu",
-        description: "Tes DISC, MBTI, Self Motivation",
-      },
-      {
-        label: "Bikin Goals Pribadi / Susun Targetmu",
-        section: "onboarding-goals",
-        description: "Susun target jangka pendek, menengah, panjang",
-      },
-      {
-        label: "Setup WA, IG",
-        section: "onboarding-setup-wa-ig",
-        description: "Siapin WhatsApp & Instagram buat kerja",
-      },
-    ],
   },
   {
     label: "Recruiting",

@@ -50,13 +50,6 @@ describe("MemberDashboard", () => {
 
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
       "/member/onboarding",
-      "/member/onboarding?section=onboarding-join",
-      "/member/onboarding?section=onboarding-pruforce",
-      "/member/onboarding?section=onboarding-lisensi",
-      "/member/onboarding?section=onboarding-mfc",
-      "/member/onboarding?section=onboarding-kenali-dirimu",
-      "/member/onboarding?section=onboarding-goals",
-      "/member/onboarding?section=onboarding-setup-wa-ig",
       "/member/onboarding?section=recruiting",
       "/member/onboarding?section=recruiting-why",
       "/member/onboarding?section=recruiting-bank-fast",

@@ -2,17 +2,7 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
-import {
-  JUST_DO_IT,
-  KNOW_YOURSELF,
-  LEARN_LINKS,
-  LEARN_NOTE,
-  LEARN_VIDEOS,
-  ONBOARDING_SECTIONS,
-  PLAN_YOUR_GOALS,
-  STARTER_KIT,
-  type OnboardingLink,
-} from "@/content/onboarding";
+import { KNOW_YOURSELF, ONBOARDING_SECTIONS } from "@/content/onboarding";
 import {
   MEMBER_NAV,
   navItemHref,
@@ -60,79 +50,19 @@ const SECTION_LEVELS: Partial<Record<HubSectionId, number>> = {
 
 type LeafSectionId = Exclude<
   HubSectionId,
-  | "onboarding"
-  | "onboarding-kenali-dirimu"
-  | "recruiting"
-  | "selling"
-  | "references"
-  | "directory"
+  "onboarding" | "recruiting" | "selling" | "references" | "directory"
 >;
 
 /**
  * Placeholder content per leaf section — every sidebar item except
- * "onboarding" itself (real, existing 5-item accordion), "onboarding-kenali-dirimu"
- * (real, Plan 17), and the four parents that render as landing pages
- * (Recruiting/Selling/References/Directory double as a menu linking to their
- * own children, per Plan 07's table). No fabricated copy or links — items
- * ship the "Segera hadir" tag until their own plan lands content, or
- * "Di luar scope" for the explicitly-deferred new-feature items.
+ * "onboarding" itself (real, its 7-item accordion checklist) and the four
+ * parents that render as landing pages (Recruiting/Selling/References/
+ * Directory double as a menu linking to their own children, per Plan 07's
+ * table). No fabricated copy or links — items ship the "Segera hadir" tag
+ * until their own plan lands content, or "Di luar scope" for the
+ * explicitly-deferred new-feature items.
  */
 const SECTIONS: Record<LeafSectionId, PlaceholderGroup[]> = {
-  "onboarding-join": [
-    {
-      items: [
-        {
-          icon: "📝",
-          title: "Join & Isi Data",
-          tag: "Di luar scope",
-          note: "Form intake data pribadi (KTP, tanggal lahir, no HP, rekening bank, NPWP) — data PII, butuh plan sendiri soal skema dan keamanan. Lihat \"Explicitly deferred\" di Plan 07.",
-        },
-      ],
-    },
-  ],
-  "onboarding-pruforce": [
-    {
-      items: [
-        { icon: "📲", title: "Download PruForce", tag: "Segera hadir", note: "Dipindah dari Plan 11." },
-      ],
-    },
-  ],
-  "onboarding-lisensi": [
-    {
-      items: [
-        { icon: "🪪", title: "Lisensi AAJI & AASI", tag: "Segera hadir", note: "Dipindah dari Plan 11." },
-      ],
-    },
-  ],
-  "onboarding-mfc": [
-    {
-      items: [
-        {
-          icon: "🎓",
-          title: "Kelas MFC & Sertifikasi Produk",
-          tag: "Segera hadir",
-          note: "Dipindah dari Plan 11.",
-        },
-      ],
-    },
-  ],
-  "onboarding-goals": [
-    {
-      items: [
-        {
-          icon: "🎯",
-          title: "Bikin Goals Pribadi / Susun Targetmu",
-          tag: "Di luar scope",
-          note: "Mini-form goals pribadi (jangka pendek/menengah/panjang) — fitur input data baru, belum di-scope. Lihat \"Explicitly deferred\" di Plan 07.",
-        },
-      ],
-    },
-  ],
-  "onboarding-setup-wa-ig": [
-    {
-      items: [{ icon: "📱", title: "Setup WA, IG", tag: "Segera hadir" }],
-    },
-  ],
   "recruiting-why": [
     {
       items: [{ icon: "🤝", title: "Kenapa Recruit Dulu?", tag: "Segera hadir" }],
@@ -311,35 +241,6 @@ const SECTIONS: Record<LeafSectionId, PlaceholderGroup[]> = {
   ],
 };
 
-function LinkListDetail({ links }: { links: OnboardingLink[] }) {
-  return (
-    <ul className="flex flex-col gap-1">
-      {links.map((link) => (
-        <li key={link.label}>
-          {link.href.startsWith("/") ? (
-            <Link
-              href={link.href}
-              className="font-medium text-brand-navy-700 hover:text-brand-red-600"
-            >
-              {link.label}
-            </Link>
-          ) : (
-            <a
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-brand-navy-700 hover:text-brand-red-600"
-            >
-              {link.label}
-            </a>
-          )}
-          {link.note && <span className="text-ink-500"> — {link.note}</span>}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 function KnowYourselfDetail({
   user,
   testResults,
@@ -383,13 +284,21 @@ function KnowYourselfDetail({
   );
 }
 
-function ChecklistDetail({ items }: { items: string[] }) {
+// Inline version of PlaceholderTag's tag treatment, for a checklist item's
+// expanded detail rather than its own card — used by every onboarding
+// checklist item except Kenali Dirimu, which has real content.
+function PlaceholderDetail({
+  tag,
+  note,
+}: {
+  tag: PlaceholderItem["tag"];
+  note?: string;
+}) {
   return (
-    <ul className="flex flex-col gap-1">
-      {items.map((item) => (
-        <li key={item}>{item}</li>
-      ))}
-    </ul>
+    <div className="flex flex-col gap-1">
+      <PlaceholderTag tag={tag} />
+      {note && <p className="text-ink-500">{note}</p>}
+    </div>
   );
 }
 
@@ -405,32 +314,28 @@ function SectionDetail({
   switch (id) {
     case "know-yourself":
       return <KnowYourselfDetail user={user} testResults={testResults} />;
-    case "plan-your-goals":
-      return <ChecklistDetail items={PLAN_YOUR_GOALS.items} />;
-    case "learn":
+    case "join-isi-data":
       return (
-        <div className="flex flex-col gap-2">
-          <p>
-            4 video ({LEARN_VIDEOS.map((v) => v.title).join(", ")}) belum ada
-            link — placeholder &quot;segera hadir&quot; sampai sumbernya didapat.
-          </p>
-          <LinkListDetail links={LEARN_LINKS} />
-          <p className="text-ink-500">{LEARN_NOTE}</p>
-        </div>
+        <PlaceholderDetail
+          tag="Di luar scope"
+          note='Form intake data pribadi (KTP, tanggal lahir, no HP, rekening bank, NPWP) — data PII, butuh plan sendiri soal skema dan keamanan. Lihat "Explicitly deferred" di Plan 07.'
+        />
       );
-    case "just-do-it":
-      return <ChecklistDetail items={JUST_DO_IT.items} />;
-    case "starter-kit":
+    case "download-pruforce":
+      return <PlaceholderDetail tag="Segera hadir" note="Dipindah dari Plan 11." />;
+    case "lisensi-aaji-aasi":
+      return <PlaceholderDetail tag="Segera hadir" note="Dipindah dari Plan 11." />;
+    case "kelas-mfc-sertifikasi":
+      return <PlaceholderDetail tag="Segera hadir" note="Dipindah dari Plan 11." />;
+    case "goals-pribadi":
       return (
-        <ul className="flex flex-col gap-1">
-          {STARTER_KIT.map((item) => (
-            <li key={item.label}>
-              {item.label}
-              {!item.href && <span className="text-ink-400"> — segera hadir</span>}
-            </li>
-          ))}
-        </ul>
+        <PlaceholderDetail
+          tag="Di luar scope"
+          note='Mini-form goals pribadi (jangka pendek/menengah/panjang) — fitur input data baru, belum di-scope. Lihat "Explicitly deferred" di Plan 07.'
+        />
       );
+    case "setup-wa-ig":
+      return <PlaceholderDetail tag="Segera hadir" />;
   }
 }
 
@@ -543,8 +448,9 @@ function PlaceholderList({ items }: { items: PlaceholderItem[] }) {
 
 // Recruiting/Selling/References/Directory have no own content — each is a
 // landing page that links to its children, per Plan 07's "items with no ↳
-// double as a landing page" rule. Onboarding is the one exception: it keeps
-// its existing 5-item accordion instead (handled separately below).
+// double as a landing page" rule. Onboarding is the one exception: its
+// children render as its own accordion checklist instead (handled below),
+// not as separate `?section=` pages.
 function LandingLinks({ items }: { items: MemberNavItem[] }) {
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
@@ -599,7 +505,6 @@ export default function QuestHub({
 
   const navItem = section === "onboarding" ? undefined : findNavItem(section);
   const isLanding = Boolean(navItem?.children?.length);
-  const isKenaliDirimu = section === "onboarding-kenali-dirimu";
   const level = SECTION_LEVELS[section];
 
   return (
@@ -636,7 +541,7 @@ export default function QuestHub({
               <div className="flex-1">
                 <h1 className="text-base font-bold text-ink-900">Onboarding</h1>
                 <p className="text-sm text-ink-500">
-                  Kenali diri, susun target, pelajari dasarnya
+                  Langkah pertama kamu sebagai agent baru
                 </p>
               </div>
               <span className="font-mono text-sm font-semibold text-ink-400">
@@ -674,9 +579,7 @@ export default function QuestHub({
                 )}
               </div>
             </div>
-            {isKenaliDirimu ? (
-              <KnowYourselfDetail user={user} testResults={testResults} />
-            ) : isLanding ? (
+            {isLanding ? (
               <LandingLinks items={navItem!.children!} />
             ) : (
               <div className="flex flex-col gap-4">

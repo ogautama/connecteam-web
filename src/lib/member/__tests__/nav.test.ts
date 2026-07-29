@@ -47,15 +47,9 @@ describe("visibleNavItems", () => {
   });
 
   it("keeps every top-level item's children nested rather than flattening them", () => {
-    expect(onboarding.children!.map((child) => child.label)).toEqual([
-      "Join & Isi Data",
-      "Download PruForce",
-      "Lisensi AAJI & AASI",
-      "Kelas MFC & Sertifikasi Produk",
-      "Kenali Dirimu",
-      "Bikin Goals Pribadi / Susun Targetmu",
-      "Setup WA, IG",
-    ]);
+    // Onboarding has no sidebar children — its checklist renders inline on
+    // its own page instead (ONBOARDING_SECTIONS in @/content/onboarding).
+    expect(onboarding.children).toBeUndefined();
     expect(recruiting.children!.map((child) => child.label)).toEqual([
       "Kenapa recruit dlu?",
       "Bank nama rekrut + FAST",
@@ -130,7 +124,6 @@ describe("isValidSection", () => {
   it("accepts a real section, including a nested one", () => {
     expect(isValidSection("selling")).toBe(true);
     expect(isValidSection("references-events")).toBe(true);
-    expect(isValidSection("onboarding-kenali-dirimu")).toBe(true);
   });
 
   it("rejects junk, undefined, and the old pre-restructure ids", () => {
@@ -176,13 +169,6 @@ describe("memberSections", () => {
 
     expect(sections.map((item) => item.label)).toEqual([
       "Onboarding",
-      "Join & Isi Data",
-      "Download PruForce",
-      "Lisensi AAJI & AASI",
-      "Kelas MFC & Sertifikasi Produk",
-      "Kenali Dirimu",
-      "Bikin Goals Pribadi / Susun Targetmu",
-      "Setup WA, IG",
       "Recruiting",
       "Kenapa recruit dlu?",
       "Bank nama rekrut + FAST",
