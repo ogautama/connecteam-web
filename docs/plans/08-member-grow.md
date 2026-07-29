@@ -11,6 +11,21 @@ on 2026-07-26 in favour of the sidebar — same section, different switcher.)
 Source content and PDF inventory below are unchanged; only "Scope" changed,
 from "build a page" to "fill a section."
 
+**Revised again 2026-07-29**: the Recruiting section now has 4 named
+sub-items instead of one flat resource list — see
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet).
+The item names come from a content-inventory sheet, not this plan's original
+page audit, so map them against the resources below rather than assuming a
+1:1 match — likely correspondences (unconfirmed): "Kenapa recruit dlu?"
+(Earned Income/AP/AAB/AB, per a Google Sheet formula from Robert) probably
+isn't any of the 4 PDFs below and may be new; "Bank nama rekrut + FAST"
+likely reuses FAST.pdf; "Presentasi bisnis ke calon rekrut" (a Canva link)
+likely reuses BOSS/BOP; "Handling Obj calon rekrut" has no format decided
+yet per the sheet's own notes ("Bentuknya apa?") and may be new content, not
+a re-hosted PDF. FORM.pdf and Market Survey don't obviously map to any of
+the 4 new items — check whether they're now covered elsewhere (Selling's
+"Bank nama rekrut + FORM", Plan 09) before assuming they're dropped.
+
 ## Goal
 
 Content for the Recruiting section of `/member/onboarding`: tools for

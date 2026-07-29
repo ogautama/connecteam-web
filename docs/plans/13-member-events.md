@@ -10,20 +10,27 @@ sits **nested under References**. (The 2026-07-24 revision made this a
 category *inside* the Referensi tab; the 2026-07-26 menu rework promoted it
 to its own section with References as its visual parent.)
 
-**The leader-only filtering requirement below is unchanged and still
-critical**: none of this reshuffling relaxes it — an `agent` session's page
-payload must still exclude Power Monday entirely, not just hide it with
-CSS. Note the nav already models this correctly (the Events item carries
-`leaderExtras`, so its "Leaders" badge shows to leaders only), but the
-badge is cosmetic — the server-side content filtering is the actual gate
-and still has to be built here.
+**Reversed 2026-07-29 — read this before the section below.** The
+leader-only filtering requirement that used to be this plan's whole point is
+gone: as part of the 2026-07-29 menu restructure, the team decided the
+**only** role-gated item anywhere in the member nav is Add Member. Events
+(`references-events` — moved position too, see
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet))
+is now open to every agent, Power Monday included. `MEMBER_NAV`'s
+`leaderExtras` flag on the Events item goes away along with the "Leaders"
+badge. This is a deliberate product decision made in that session, not an
+oversight — if Power Monday needs to go back to leader-only later, that's a
+new decision to make explicitly, not a bug to fix. The "Source content" and
+"Scope" sections below are historical context for what Power Monday *was*
+gated on; the server-side filtering and its unit test are no longer part of
+this plan's scope.
 
 ## Goal
 
 Content for the Events section: rebuild of *Support System* as a real events
-list. This is the section that most directly exercises role gating: "Power
-Monday" is confirmed **leader-only** in the source content and must be
-hidden from `agent` sessions, not just labeled.
+list. "Power Monday" was leader-only in the original source content, but per
+the 2026-07-29 decision above it's now visible to every agent — no role
+gating in this plan.
 
 ## Depends on
 
@@ -47,22 +54,17 @@ the leader-only item. Independent of Plans 08–12, 14.
 ## Scope
 
 - `src/content/events.ts` — typed structure: `{ title, description,
-  schedule, leaderOnly: boolean, registerUrl? }[]`.
-- Events section: renders all events for `leader` sessions; filters out
-  `leaderOnly: true` events for `agent` sessions using Plan 02b's role
-  helper (server-side, not just CSS-hidden — an agent should not receive
-  Power Monday's details in the page payload at all, even though every
-  section now shares one page).
+  schedule, registerUrl? }[]`. **No `leaderOnly` field** — see the reversal
+  above.
+- Events section (`references-events`): renders every event to every
+  session. No role filtering.
 
 ## Unit tests
 
 - Content module schema validation.
-- Server-side render test: `agent` session response excludes the Power
-  Monday event entirely; `leader` session response includes it.
 
 ## Verification
 
-`npm run dev`, log in as the seeded `agent` user, open **Events** from the
-sidebar — confirm Power Monday is absent (check the page source, not just
-the rendered output); log in as the seeded `leader` user — confirm it's
-present. `npm run lint`, `npx tsc --noEmit`, `npm test`.
+`npm run dev`, log in, open **Events** from the sidebar (under References),
+confirm all events render for both the seeded `agent` and `leader` users.
+`npm run lint`, `npx tsc --noEmit`, `npm test`.
