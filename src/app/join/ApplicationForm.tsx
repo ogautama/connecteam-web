@@ -127,9 +127,18 @@ export default function ApplicationForm({
         if (!file) return null;
         const ext = file.name.split(".").pop() || "jpg";
         const path = applicantStoragePath(submissionId, field, ext);
+        // upsert: false (not true, unlike TestResultUpload/JoinDataForm) —
+        // submissionId is a fresh crypto.randomUUID() every Submit click, so
+        // there's never a real path collision to overwrite here. That
+        // matters beyond style: upsert makes Storage check for an existing
+        // object first, which needs SELECT-level access on the bucket — but
+        // anon (applicants have no account yet) only has an INSERT policy
+        // here, no SELECT at all, so upsert:true fails outright for them
+        // with "new row violates row-level security policy" even though the
+        // object never existed.
         const { error: uploadError } = await supabase.storage
           .from(APPLICANT_INTAKE_BUCKET)
-          .upload(path, file, { upsert: true, contentType: file.type });
+          .upload(path, file, { upsert: false, contentType: file.type });
         if (uploadError) throw uploadError;
         return path;
       }
