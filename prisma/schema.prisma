@@ -90,18 +90,42 @@ enum ApplicantStatus {
 // exclusively through the leader-driven pending-invite flow, not by
 // promoting an Applicant into a User — accepted stays a record of the
 // leader's decision with no side effect on User.
+//
+// Field set aligned with MemberIntake (2026-07-30): the public /join
+// application form shows the same 16-question form as the member "Isi
+// Data" page, not the original lighter (name/email/phone/dob/ID photo)
+// scope Plan 15 sketched — the user asked to show "the same form"
+// verbatim. Unlike MemberIntake, "accepted" does *not* auto-create a
+// PendingInvite — the user chose to keep that a manual step for the
+// leader (via the existing Add Member form), rather than build the
+// auto-invite path this round. recruiterId is still resolved from the
+// chosen "Pengundang / Unit" leader at submission time, so it stays a
+// real FK (not a duplicated name string like MemberIntake.pengundangUnit)
+// — this is what reassignRecruiter (src/lib/recruitTree.ts) operates on
+// before a leader decides.
 model Applicant {
-  id             String          @id @default(cuid())
-  name           String
-  email          String
-  phone          String
-  dob            DateTime
-  idCardPhotoKey String
-  recruiterId    String
-  recruiter      User            @relation(fields: [recruiterId], references: [id])
-  status         ApplicantStatus @default(submitted)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id                 String          @id @default(cuid())
+  recruiterId        String
+  recruiter          User            @relation(fields: [recruiterId], references: [id])
+  status             ApplicantStatus @default(submitted)
+  fullName           String
+  ktpNumber          String
+  birthPlace         String
+  birthDate          DateTime
+  activeEmail        String
+  activePhone        String
+  address            String
+  education          EducationLevel
+  schoolName         String
+  graduationYear     String
+  ktpPhotoKey        String
+  selfiePhotoKey     String
+  familyCardPhotoKey String
+  savingsPhotoKey    String
+  // Only required "jika sudah berkeluarga" (if married) on the source form.
+  spousePhotoKey     String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 enum EducationLevel {
