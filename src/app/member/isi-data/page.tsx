@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
+import { getAcceptedApplicantByEmail } from "@/lib/applicant";
 import { getMemberIntake, getPengundangUnitOptions } from "@/lib/memberIntake";
 import JoinDataForm from "./JoinDataForm";
 
@@ -16,6 +17,11 @@ export const metadata: Metadata = {
  * Capped at 640px and one question per card (JoinDataForm) rather than the
  * app's usual max-w-content — a Google-Forms-style layout the user asked
  * for after the first version read as one crowded box.
+ *
+ * If this member already has an *accepted* /join application under the
+ * same email, JoinDataForm shows that read-only instead of a blank form
+ * (2026-07-30) — no need to fill the same data twice. Read-only only: the
+ * user explicitly deferred building an edit path for that case.
  */
 export default async function IsiDataPage() {
   const user = await requireMember();
@@ -23,6 +29,10 @@ export default async function IsiDataPage() {
     getMemberIntake(user.id),
     getPengundangUnitOptions(),
   ]);
+  // Only worth looking up when there's nothing saved yet — an existing
+  // MemberIntake row always wins, so a matched application would never be
+  // shown anyway.
+  const linkedApplication = saved ? null : await getAcceptedApplicantByEmail(user.email);
 
   return (
     <div className="mx-auto flex w-full max-w-[640px] flex-col gap-4">
@@ -44,6 +54,7 @@ export default async function IsiDataPage() {
         defaultEmail={user.email}
         initial={saved}
         pengundangUnitOptions={pengundangUnitOptions}
+        linkedApplication={linkedApplication}
       />
     </div>
   );

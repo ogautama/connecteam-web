@@ -47,6 +47,29 @@ export type ApplicantSummary = {
   spousePhotoUrl: string | null;
 };
 
+/** Same shape IntakeSummary (@/components/forms/IntakeFormFields) renders
+ * for MemberIntake — "pengundangUnit" here is the joined recruiter's name,
+ * for display parity, not a stored column (Applicant keeps a real FK,
+ * see the schema comment). */
+export type ApplicantAsIntake = {
+  fullName: string;
+  ktpNumber: string;
+  birthPlace: string;
+  birthDate: string;
+  activeEmail: string;
+  activePhone: string;
+  address: string;
+  education: EducationLevel;
+  schoolName: string;
+  graduationYear: string;
+  pengundangUnit: string;
+  ktpPhotoUrl: string | null;
+  selfiePhotoUrl: string | null;
+  familyCardPhotoUrl: string | null;
+  savingsPhotoUrl: string | null;
+  spousePhotoUrl: string | null;
+};
+
 const SIGNED_URL_TTL_SECONDS = 60 * 10;
 
 function toDateOnly(date: Date): string {
@@ -86,6 +109,48 @@ export async function createApplicant(
       spousePhotoKey: input.spousePhotoKey,
     },
   });
+}
+
+/**
+ * Links a signed-in member back to an accepted /join application with the
+ * same email, so "Isi Data" can show it read-only instead of asking them to
+ * fill everything in twice. There's no stored FK from Applicant to the
+ * eventual User row (Plan 15b deliberately doesn't promote applicants into
+ * users), so email is the only thing to match on — matched against the
+ * member's verified sign-in email (User.email), not the other way around.
+ * Only "accepted" counts: a rejected or still-"submitted" application isn't
+ * a legitimate signal this is the same reviewed person. If more than one
+ * accepted row shares the email (re-applied after rejection, say), the most
+ * recent wins.
+ */
+export async function getAcceptedApplicantByEmail(
+  email: string
+): Promise<ApplicantAsIntake | null> {
+  const applicant = await prisma.applicant.findFirst({
+    where: { activeEmail: email, status: "accepted" },
+    orderBy: { createdAt: "desc" },
+    include: { recruiter: { select: { name: true } } },
+  });
+  if (!applicant) return null;
+
+  return {
+    fullName: applicant.fullName,
+    ktpNumber: applicant.ktpNumber,
+    birthPlace: applicant.birthPlace,
+    birthDate: toDateOnly(applicant.birthDate),
+    activeEmail: applicant.activeEmail,
+    activePhone: applicant.activePhone,
+    address: applicant.address,
+    education: applicant.education,
+    schoolName: applicant.schoolName,
+    graduationYear: applicant.graduationYear,
+    pengundangUnit: applicant.recruiter.name,
+    ktpPhotoUrl: await signedUrl(applicant.ktpPhotoKey),
+    selfiePhotoUrl: await signedUrl(applicant.selfiePhotoKey),
+    familyCardPhotoUrl: await signedUrl(applicant.familyCardPhotoKey),
+    savingsPhotoUrl: await signedUrl(applicant.savingsPhotoKey),
+    spousePhotoUrl: await signedUrl(applicant.spousePhotoKey),
+  };
 }
 
 /**

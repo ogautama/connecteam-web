@@ -4,12 +4,12 @@ import { useState } from "react";
 import type { EducationLevel } from "@prisma/client";
 import {
   FileField,
+  IntakeSummary,
   RadioGroup,
-  SummaryFileRow,
-  SummaryRow,
   TextAreaField,
   TextField,
 } from "@/components/forms/IntakeFormFields";
+import type { ApplicantAsIntake } from "@/lib/applicant";
 import type { MemberIntakeInput, MemberIntakeRecord } from "@/lib/memberIntake";
 import {
   MEMBER_INTAKE_BUCKET,
@@ -78,21 +78,6 @@ function formFromSaved(saved: MemberIntakeRecord): FormState {
   };
 }
 
-function formatDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function educationLabel(value: EducationLevel): string {
-  return EDUCATION_OPTIONS.find((o) => o.value === value)?.label ?? value;
-}
-
 /**
  * "Isi Data" — the personal-data intake form (Plan 07), fields copied from
  * the real Google Form this replaces (that form is gated behind sign-in, so
@@ -108,6 +93,7 @@ export default function JoinDataForm({
   defaultEmail,
   initial,
   pengundangUnitOptions,
+  linkedApplication,
 }: {
   userId: string;
   defaultEmail: string;
@@ -116,9 +102,14 @@ export default function JoinDataForm({
    * not a fixed list — the source form hardcodes 6 names because it can't
    * query our data; we can. */
   pengundangUnitOptions: string[];
+  /** An accepted /join application matching this member's own email
+   * (src/lib/applicant.ts's getAcceptedApplicantByEmail) — only looked at
+   * when there's no MemberIntake yet. Shown read-only: editing that data
+   * is future work, not built this round. */
+  linkedApplication: ApplicantAsIntake | null;
 }) {
   const [saved, setSaved] = useState<MemberIntakeRecord | null>(initial);
-  const [editing, setEditing] = useState(!initial);
+  const [editing, setEditing] = useState(!initial && !linkedApplication);
   const [form, setForm] = useState<FormState>(
     initial ? formFromSaved(initial) : emptyForm(defaultEmail),
   );
@@ -224,31 +215,19 @@ export default function JoinDataForm({
 
   if (!editing && saved) {
     return (
-      <div className="flex flex-col gap-3 rounded-2xl border border-ink-100 bg-white p-6 shadow-sm">
-        <SummaryRow label="Nama Lengkap (sesuai KTP)" value={saved.fullName} />
-        <SummaryRow label="No KTP" value={saved.ktpNumber} />
-        <SummaryRow label="Tempat Lahir" value={saved.birthPlace} />
-        <SummaryRow label="Tanggal Lahir" value={formatDate(saved.birthDate)} />
-        <SummaryRow label="Email Aktif" value={saved.activeEmail} />
-        <SummaryRow label="No HP Aktif (Whatsapp)" value={saved.activePhone} />
-        <SummaryRow label="Alamat Domisili" value={saved.address} />
-        <SummaryRow label="Pendidikan Terakhir" value={educationLabel(saved.education)} />
-        <SummaryRow label="Nama Sekolah / Universitas" value={saved.schoolName} />
-        <SummaryRow label="Tahun Kelulusan" value={saved.graduationYear} />
-        <SummaryFileRow label="Foto KTP" url={saved.ktpPhotoUrl} />
-        <SummaryFileRow label="Foto Selfie" url={saved.selfiePhotoUrl} />
-        <SummaryFileRow label="Kartu Keluarga" url={saved.familyCardPhotoUrl} />
-        <SummaryFileRow label="Foto Buku Tabungan" url={saved.savingsPhotoUrl} />
-        <SummaryFileRow label="Foto KTP Pasangan" url={saved.spousePhotoUrl} />
-        <SummaryRow label="Pengundang / Unit" value={saved.pengundangUnit} />
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className="mt-1 self-start font-medium text-brand-navy-700 underline hover:text-brand-red-600"
-        >
-          Ubah data
-        </button>
-      </div>
+      <IntakeSummary
+        data={{ ...saved, pengundangUnitLabel: saved.pengundangUnit }}
+        onEdit={() => setEditing(true)}
+      />
+    );
+  }
+
+  if (!saved && linkedApplication) {
+    return (
+      <IntakeSummary
+        data={{ ...linkedApplication, pengundangUnitLabel: linkedApplication.pengundangUnit }}
+        note="Data ini diambil dari aplikasi Join Us kamu yang udah diterima. Belum bisa diubah dari sini — hubungi leader kamu kalau ada yang salah."
+      />
     );
   }
 

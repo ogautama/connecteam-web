@@ -1,6 +1,8 @@
 "use client";
 
 import { useId } from "react";
+import type { EducationLevel } from "@prisma/client";
+import { EDUCATION_OPTIONS } from "@/lib/memberIntakeOptions";
 
 /**
  * Shared "one box per question" field kit — Google-Forms-style, approved
@@ -229,6 +231,89 @@ export function SummaryFileRow({ label, url }: { label: string; url: string | nu
         </a>
       ) : (
         <span className="text-ink-400">—</span>
+      )}
+    </div>
+  );
+}
+
+export function formatIntakeDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+export function intakeEducationLabel(value: EducationLevel): string {
+  return EDUCATION_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export type IntakeSummaryData = {
+  fullName: string;
+  ktpNumber: string;
+  birthPlace: string;
+  birthDate: string; // raw "YYYY-MM-DD" — formatted internally
+  activeEmail: string;
+  activePhone: string;
+  address: string;
+  education: EducationLevel;
+  schoolName: string;
+  graduationYear: string;
+  /** Either MemberIntake.pengundangUnit directly or an Applicant's joined
+   * recruiter name — same display slot either way. */
+  pengundangUnitLabel: string;
+  ktpPhotoUrl: string | null;
+  selfiePhotoUrl: string | null;
+  familyCardPhotoUrl: string | null;
+  savingsPhotoUrl: string | null;
+  spousePhotoUrl: string | null;
+};
+
+/**
+ * The read-only recap shown once intake data exists — reused as-is for two
+ * sources: a member's own saved MemberIntake (editable via onEdit) and a
+ * signed-in member's accepted /join Applicant, shown with no onEdit at all
+ * (editing that is future work, per the user's explicit 2026-07-30 call).
+ */
+export function IntakeSummary({
+  data,
+  note,
+  onEdit,
+}: {
+  data: IntakeSummaryData;
+  note?: string;
+  onEdit?: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-ink-100 bg-white p-6 shadow-sm">
+      <SummaryRow label="Nama Lengkap (sesuai KTP)" value={data.fullName} />
+      <SummaryRow label="No KTP" value={data.ktpNumber} />
+      <SummaryRow label="Tempat Lahir" value={data.birthPlace} />
+      <SummaryRow label="Tanggal Lahir" value={formatIntakeDate(data.birthDate)} />
+      <SummaryRow label="Email Aktif" value={data.activeEmail} />
+      <SummaryRow label="No HP Aktif (Whatsapp)" value={data.activePhone} />
+      <SummaryRow label="Alamat Domisili" value={data.address} />
+      <SummaryRow label="Pendidikan Terakhir" value={intakeEducationLabel(data.education)} />
+      <SummaryRow label="Nama Sekolah / Universitas" value={data.schoolName} />
+      <SummaryRow label="Tahun Kelulusan" value={data.graduationYear} />
+      <SummaryFileRow label="Foto KTP" url={data.ktpPhotoUrl} />
+      <SummaryFileRow label="Foto Selfie" url={data.selfiePhotoUrl} />
+      <SummaryFileRow label="Kartu Keluarga" url={data.familyCardPhotoUrl} />
+      <SummaryFileRow label="Foto Buku Tabungan" url={data.savingsPhotoUrl} />
+      <SummaryFileRow label="Foto KTP Pasangan" url={data.spousePhotoUrl} />
+      <SummaryRow label="Pengundang / Unit" value={data.pengundangUnitLabel} />
+      {note && <p className="text-sm text-ink-500">{note}</p>}
+      {onEdit && (
+        <button
+          type="button"
+          onClick={onEdit}
+          className="mt-1 self-start font-medium text-brand-navy-700 underline hover:text-brand-red-600"
+        >
+          Ubah data
+        </button>
       )}
     </div>
   );

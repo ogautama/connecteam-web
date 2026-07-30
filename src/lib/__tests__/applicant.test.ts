@@ -1,12 +1,18 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { create: applicantCreate, findMany: applicantFindMany, findUnique: applicantFindUnique, update: applicantUpdate } =
-  vi.hoisted(() => ({
-    create: vi.fn(),
-    findMany: vi.fn(),
-    findUnique: vi.fn(),
-    update: vi.fn(),
-  }));
+const {
+  create: applicantCreate,
+  findMany: applicantFindMany,
+  findFirst: applicantFindFirst,
+  findUnique: applicantFindUnique,
+  update: applicantUpdate,
+} = vi.hoisted(() => ({
+  create: vi.fn(),
+  findMany: vi.fn(),
+  findFirst: vi.fn(),
+  findUnique: vi.fn(),
+  update: vi.fn(),
+}));
 const { getDescendantUserIds } = vi.hoisted(() => ({ getDescendantUserIds: vi.fn() }));
 const { createSignedUrl } = vi.hoisted(() => ({ createSignedUrl: vi.fn() }));
 
@@ -15,6 +21,7 @@ vi.mock("@/lib/prisma", () => ({
     applicant: {
       create: applicantCreate,
       findMany: applicantFindMany,
+      findFirst: applicantFindFirst,
       findUnique: applicantFindUnique,
       update: applicantUpdate,
     },
@@ -27,7 +34,12 @@ vi.mock("@/lib/supabase-server", () => ({
   }),
 }));
 
-import { createApplicant, listApplicantsFor, setApplicantStatus } from "@/lib/applicant";
+import {
+  createApplicant,
+  getAcceptedApplicantByEmail,
+  listApplicantsFor,
+  setApplicantStatus,
+} from "@/lib/applicant";
 
 const input = {
   fullName: "Rani Putri",
@@ -117,6 +129,46 @@ describe("listApplicantsFor", () => {
     expect(result[0].birthDate).toBe("1998-05-10");
     expect(result[0].ktpPhotoUrl).toBe("https://signed.example/file");
     expect(result[0].spousePhotoUrl).toBeNull();
+  });
+});
+
+describe("getAcceptedApplicantByEmail", () => {
+  test("matches only an accepted application, most recent first, with signed photo URLs", async () => {
+    applicantFindFirst.mockResolvedValue({
+      fullName: "Rani Putri",
+      ktpNumber: "1234567890123456",
+      birthPlace: "Jakarta",
+      birthDate: new Date("1998-05-10T00:00:00.000Z"),
+      activeEmail: "rani@example.com",
+      activePhone: "081234567890",
+      address: "Jl. Sudirman No. 1",
+      education: "s1",
+      schoolName: "Universitas Indonesia",
+      graduationYear: "2020",
+      ktpPhotoKey: "sub_1/ktp.jpg",
+      selfiePhotoKey: "sub_1/selfie.jpg",
+      familyCardPhotoKey: "sub_1/familyCard.jpg",
+      savingsPhotoKey: "sub_1/savings.jpg",
+      spousePhotoKey: null,
+      recruiter: { name: "Budi Santoso" },
+    });
+
+    const result = await getAcceptedApplicantByEmail("rani@example.com");
+
+    expect(applicantFindFirst).toHaveBeenCalledWith({
+      where: { activeEmail: "rani@example.com", status: "accepted" },
+      orderBy: { createdAt: "desc" },
+      include: { recruiter: { select: { name: true } } },
+    });
+    expect(result?.pengundangUnit).toBe("Budi Santoso");
+    expect(result?.birthDate).toBe("1998-05-10");
+    expect(result?.ktpPhotoUrl).toBe("https://signed.example/file");
+  });
+
+  test("returns null when there's no accepted application for that email", async () => {
+    applicantFindFirst.mockResolvedValue(null);
+
+    expect(await getAcceptedApplicantByEmail("nobody@example.com")).toBeNull();
   });
 });
 

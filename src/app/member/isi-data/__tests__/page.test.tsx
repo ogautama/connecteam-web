@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-const { requireMember, getMemberIntake, getPengundangUnitOptions } = vi.hoisted(() => ({
-  requireMember: vi.fn(),
-  getMemberIntake: vi.fn(),
-  getPengundangUnitOptions: vi.fn(),
-}));
+const { requireMember, getMemberIntake, getPengundangUnitOptions, getAcceptedApplicantByEmail } =
+  vi.hoisted(() => ({
+    requireMember: vi.fn(),
+    getMemberIntake: vi.fn(),
+    getPengundangUnitOptions: vi.fn(),
+    getAcceptedApplicantByEmail: vi.fn(),
+  }));
 
 vi.mock("@/lib/auth", () => ({ requireMember }));
 vi.mock("@/lib/memberIntake", async () => {
@@ -14,6 +16,7 @@ vi.mock("@/lib/memberIntake", async () => {
   );
   return { ...actual, getMemberIntake, getPengundangUnitOptions };
 });
+vi.mock("@/lib/applicant", () => ({ getAcceptedApplicantByEmail }));
 
 import IsiDataPage from "../page";
 
@@ -27,6 +30,7 @@ beforeEach(() => {
   });
   getMemberIntake.mockResolvedValue(null);
   getPengundangUnitOptions.mockResolvedValue(["Robert / Lini", "Haryo / Daisy"]);
+  getAcceptedApplicantByEmail.mockResolvedValue(null);
 });
 
 describe("isi-data page", () => {
@@ -71,5 +75,59 @@ describe("isi-data page", () => {
     expect(getPengundangUnitOptions).toHaveBeenCalled();
     expect(screen.getByRole("radio", { name: "Zaki Firmansyah" })).toBeInTheDocument();
     expect(screen.queryByRole("radio", { name: "Robert / Lini" })).not.toBeInTheDocument();
+  });
+
+  test("shows a matched accepted application read-only instead of a blank form", async () => {
+    getAcceptedApplicantByEmail.mockResolvedValue({
+      fullName: "Rani Putri",
+      ktpNumber: "1234567890123456",
+      birthPlace: "Jakarta",
+      birthDate: "1998-05-10",
+      activeEmail: "rani@example.com",
+      activePhone: "081234567890",
+      address: "Jl. Sudirman No. 1",
+      education: "s1",
+      schoolName: "Universitas Indonesia",
+      graduationYear: "2020",
+      pengundangUnit: "Budi Santoso",
+      ktpPhotoUrl: "https://signed.example/ktp",
+      selfiePhotoUrl: null,
+      familyCardPhotoUrl: null,
+      savingsPhotoUrl: null,
+      spousePhotoUrl: null,
+    });
+
+    render(await IsiDataPage());
+
+    expect(getAcceptedApplicantByEmail).toHaveBeenCalledWith("rani@example.com");
+    expect(screen.getByText("1234567890123456")).toBeInTheDocument();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Ubah data" })).not.toBeInTheDocument();
+  });
+
+  test("skips the applicant lookup entirely once MemberIntake already exists", async () => {
+    getMemberIntake.mockResolvedValue({
+      fullName: "Rani Putri",
+      ktpNumber: "1234567890123456",
+      birthPlace: "Jakarta",
+      birthDate: "1998-05-10",
+      activeEmail: "rani@example.com",
+      activePhone: "081234567890",
+      address: "Jl. Sudirman No. 1",
+      education: "s1",
+      schoolName: "Universitas Indonesia",
+      graduationYear: "2020",
+      pengundangUnit: "Budi Santoso",
+      ktpPhotoUrl: null,
+      selfiePhotoUrl: null,
+      familyCardPhotoUrl: null,
+      savingsPhotoUrl: null,
+      spousePhotoUrl: null,
+    });
+
+    render(await IsiDataPage());
+
+    expect(getAcceptedApplicantByEmail).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Ubah data" })).toBeInTheDocument();
   });
 });
