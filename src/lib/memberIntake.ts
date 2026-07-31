@@ -13,6 +13,7 @@ export type MemberIntakeInput = {
   address: string;
   education: EducationLevel;
   schoolName: string;
+  schoolCity: string;
   graduationYear: string;
   /** Storage keys the client already uploaded to the member-intake bucket
    * (mirrors TestResultUpload's "upload first, then record the path"
@@ -74,6 +75,7 @@ export async function getMemberIntake(
     address: row.address,
     education: row.education,
     schoolName: row.schoolName,
+    schoolCity: row.schoolCity,
     graduationYear: row.graduationYear,
     ktpPhotoKey: row.ktpPhotoKey,
     selfiePhotoKey: row.selfiePhotoKey,
@@ -130,6 +132,7 @@ export async function upsertMemberIntake(
     address: input.address,
     education: input.education,
     schoolName: input.schoolName,
+    schoolCity: input.schoolCity,
     graduationYear: input.graduationYear,
     ktpPhotoKey: input.ktpPhotoKey,
     selfiePhotoKey: input.selfiePhotoKey,

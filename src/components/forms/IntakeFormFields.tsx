@@ -261,6 +261,7 @@ export type IntakeSummaryData = {
   address: string;
   education: EducationLevel;
   schoolName: string;
+  schoolCity: string;
   graduationYear: string;
   /** Either MemberIntake.pengundangUnit directly or an Applicant's joined
    * recruiter name — same display slot either way. */
@@ -298,6 +299,7 @@ export function IntakeSummary({
       <SummaryRow label="Alamat Domisili" value={data.address} />
       <SummaryRow label="Pendidikan Terakhir" value={intakeEducationLabel(data.education)} />
       <SummaryRow label="Nama Sekolah / Universitas" value={data.schoolName} />
+      <SummaryRow label="Kota Sekolah / Universitas" value={data.schoolCity} />
       <SummaryRow label="Tahun Kelulusan" value={data.graduationYear} />
       <SummaryFileRow label="Foto KTP" url={data.ktpPhotoUrl} />
       <SummaryFileRow label="Foto Selfie" url={data.selfiePhotoUrl} />

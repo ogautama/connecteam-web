@@ -40,7 +40,7 @@ function ApplicantCard({ applicant }: { applicant: ApplicantSummary }) {
         <p className="text-sm text-ink-500">
           {applicant.birthPlace}, {applicant.birthDate} · {educationLabel(applicant.education)}
           {" — "}
-          {applicant.schoolName} ({applicant.graduationYear})
+          {applicant.schoolName}, {applicant.schoolCity} ({applicant.graduationYear})
         </p>
         <p className="text-sm text-ink-500">{applicant.address}</p>
         <p className="mt-1 text-sm text-ink-500">

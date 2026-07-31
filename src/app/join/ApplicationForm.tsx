@@ -30,6 +30,7 @@ type FormState = {
   address: string;
   education: EducationLevel | "";
   schoolName: string;
+  schoolCity: string;
   graduationYear: string;
   pengundangUnit: string;
 };
@@ -46,6 +47,7 @@ const EMPTY_FORM: FormState = {
   address: "",
   education: "",
   schoolName: "",
+  schoolCity: "",
   graduationYear: "",
   pengundangUnit: "",
 };
@@ -237,6 +239,12 @@ export default function ApplicationForm({
         required
         value={form.schoolName}
         onChange={(v) => update("schoolName", v)}
+      />
+      <TextField
+        label="Kota Sekolah / Universitas"
+        required
+        value={form.schoolCity}
+        onChange={(v) => update("schoolCity", v)}
       />
       <TextField
         label="Tahun Kelulusan"

@@ -94,6 +94,7 @@ describe("/member/admin/add-member", () => {
         address: "Jl. Sudirman No. 1",
         education: "s1",
         schoolName: "Universitas Indonesia",
+        schoolCity: "Jakarta",
         graduationYear: "2020",
         recruiterName: "Budi Santoso",
         ktpPhotoUrl: "https://signed.example/ktp",

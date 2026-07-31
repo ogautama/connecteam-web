@@ -46,6 +46,7 @@ const validInput = {
   address: "Jl. Sudirman No. 1",
   education: "s1" as const,
   schoolName: "Universitas Indonesia",
+  schoolCity: "Jakarta",
   graduationYear: "2020",
   ktpPhotoKey: "user_1/ktp.jpg",
   selfiePhotoKey: "user_1/selfie.jpg",
@@ -99,6 +100,7 @@ describe("submitJoinData", () => {
     ["activePhone", "No HP aktif wajib diisi."],
     ["address", "Alamat domisili wajib diisi."],
     ["schoolName", "Nama sekolah/universitas wajib diisi."],
+    ["schoolCity", "Kota sekolah/universitas wajib diisi."],
     ["graduationYear", "Tahun kelulusan wajib diisi."],
   ] as const)("rejects an empty %s before touching the database", async (field, message) => {
     await expect(submitJoinData({ ...validInput, [field]: "  " })).rejects.toThrow(message);

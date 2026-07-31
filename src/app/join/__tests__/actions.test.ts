@@ -22,6 +22,7 @@ const validInput = {
   address: "Jl. Sudirman No. 1",
   education: "s1" as const,
   schoolName: "Universitas Indonesia",
+  schoolCity: "Jakarta",
   graduationYear: "2020",
   ktpPhotoKey: "sub_1/ktp.jpg",
   selfiePhotoKey: "sub_1/selfie.jpg",
@@ -50,6 +51,7 @@ describe("submitApplication", () => {
       address: validInput.address,
       education: validInput.education,
       schoolName: validInput.schoolName,
+      schoolCity: validInput.schoolCity,
       graduationYear: validInput.graduationYear,
       ktpPhotoKey: validInput.ktpPhotoKey,
       selfiePhotoKey: validInput.selfiePhotoKey,
@@ -69,6 +71,7 @@ describe("submitApplication", () => {
     ["activePhone", "No HP aktif wajib diisi."],
     ["address", "Alamat domisili wajib diisi."],
     ["schoolName", "Nama sekolah/universitas wajib diisi."],
+    ["schoolCity", "Kota sekolah/universitas wajib diisi."],
     ["graduationYear", "Tahun kelulusan wajib diisi."],
   ] as const)("rejects an empty %s before touching the database", async (field, message) => {
     await expect(submitApplication({ ...validInput, [field]: "  " })).rejects.toThrow(message);

@@ -50,6 +50,7 @@ export async function submitJoinData(
     address: input.address.trim(),
     education: input.education,
     schoolName: input.schoolName.trim(),
+    schoolCity: input.schoolCity.trim(),
     graduationYear: input.graduationYear.trim(),
     ktpPhotoKey: input.ktpPhotoKey,
     selfiePhotoKey: input.selfiePhotoKey,
@@ -72,6 +73,7 @@ export async function submitJoinData(
   if (!trimmed.activePhone) throw new Error("No HP aktif wajib diisi.");
   if (!trimmed.address) throw new Error("Alamat domisili wajib diisi.");
   if (!trimmed.schoolName) throw new Error("Nama sekolah/universitas wajib diisi.");
+  if (!trimmed.schoolCity) throw new Error("Kota sekolah/universitas wajib diisi.");
   if (!trimmed.graduationYear) throw new Error("Tahun kelulusan wajib diisi.");
   const pengundangUnitOptions = await getPengundangUnitOptions();
   if (!pengundangUnitOptions.includes(trimmed.pengundangUnit)) {

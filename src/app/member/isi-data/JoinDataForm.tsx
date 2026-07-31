@@ -32,6 +32,7 @@ type FormState = {
   address: string;
   education: EducationLevel | "";
   schoolName: string;
+  schoolCity: string;
   graduationYear: string;
   pengundangUnit: string;
 };
@@ -57,6 +58,7 @@ function emptyForm(defaultEmail: string): FormState {
     address: "",
     education: "",
     schoolName: "",
+    schoolCity: "",
     graduationYear: "",
     pengundangUnit: "",
   };
@@ -73,6 +75,7 @@ function formFromSaved(saved: MemberIntakeRecord): FormState {
     address: saved.address,
     education: saved.education,
     schoolName: saved.schoolName,
+    schoolCity: saved.schoolCity,
     graduationYear: saved.graduationYear,
     pengundangUnit: saved.pengundangUnit,
   };
@@ -285,6 +288,12 @@ export default function JoinDataForm({
         required
         value={form.schoolName}
         onChange={(v) => update("schoolName", v)}
+      />
+      <TextField
+        label="Kota Sekolah / Universitas"
+        required
+        value={form.schoolCity}
+        onChange={(v) => update("schoolCity", v)}
       />
       <TextField
         label="Tahun Kelulusan"

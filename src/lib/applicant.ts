@@ -14,6 +14,7 @@ export type ApplicantInput = {
   address: string;
   education: EducationLevel;
   schoolName: string;
+  schoolCity: string;
   graduationYear: string;
   ktpPhotoKey: string;
   selfiePhotoKey: string;
@@ -38,6 +39,7 @@ export type ApplicantSummary = {
   address: string;
   education: EducationLevel;
   schoolName: string;
+  schoolCity: string;
   graduationYear: string;
   recruiterName: string | null;
   ktpPhotoUrl: string | null;
@@ -61,6 +63,7 @@ export type ApplicantAsIntake = {
   address: string;
   education: EducationLevel;
   schoolName: string;
+  schoolCity: string;
   graduationYear: string;
   pengundangUnit: string;
   ktpPhotoUrl: string | null;
@@ -101,6 +104,7 @@ export async function createApplicant(
       address: input.address,
       education: input.education,
       schoolName: input.schoolName,
+      schoolCity: input.schoolCity,
       graduationYear: input.graduationYear,
       ktpPhotoKey: input.ktpPhotoKey,
       selfiePhotoKey: input.selfiePhotoKey,
@@ -143,6 +147,7 @@ export async function getAcceptedApplicantByEmail(
     address: applicant.address,
     education: applicant.education,
     schoolName: applicant.schoolName,
+    schoolCity: applicant.schoolCity,
     graduationYear: applicant.graduationYear,
     pengundangUnit: applicant.recruiter.name,
     ktpPhotoUrl: await signedUrl(applicant.ktpPhotoKey),
@@ -184,6 +189,7 @@ export async function listApplicantsFor(
       address: applicant.address,
       education: applicant.education,
       schoolName: applicant.schoolName,
+      schoolCity: applicant.schoolCity,
       graduationYear: applicant.graduationYear,
       recruiterName: applicant.recruiter.name,
       ktpPhotoUrl: await signedUrl(applicant.ktpPhotoKey),
