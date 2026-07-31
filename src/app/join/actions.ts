@@ -2,8 +2,23 @@
 
 import { revalidatePath } from "next/cache";
 import { createApplicant, type ApplicantInput } from "@/lib/applicant";
-import { isValidEmail } from "@/lib/invites";
+import { isValidEmail, userExistsForEmail } from "@/lib/invites";
 import { resolvePengundangUnitLeaderId } from "@/lib/memberIntake";
+
+/**
+ * Does this "Email Aktif" already belong to a member? (Plan 07c.) The form
+ * asks once, at submit — before it uploads anything — so an existing member
+ * who wandered onto the public /join form gets pointed at their real Isi
+ * Data page instead of quietly becoming a duplicate Applicant row.
+ *
+ * Deliberately not called per keystroke: one submit-time answer is a far
+ * worse membership-enumeration oracle than a live-validating field.
+ */
+export async function checkExistingMember(activeEmail: string): Promise<boolean> {
+  const email = activeEmail.trim();
+  if (!email || !isValidEmail(email)) return false;
+  return userExistsForEmail(email);
+}
 
 /**
  * The public "Join Us" application (Plan 15's deferred follow-on plan,

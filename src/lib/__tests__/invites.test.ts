@@ -38,6 +38,7 @@ import {
   listRecruiterOptionsFor,
   normalizeEmail,
   resolveInviteRecruiter,
+  userExistsForEmail,
 } from "@/lib/invites";
 
 beforeEach(() => {
@@ -60,6 +61,24 @@ describe("isValidEmail", () => {
 describe("normalizeEmail", () => {
   it("trims and lowercases so duplicates actually collide", () => {
     expect(normalizeEmail("  Rani@Gmail.COM ")).toBe("rani@gmail.com");
+  });
+});
+
+describe("userExistsForEmail", () => {
+  it("is true when a User row exists, matching on the normalized email", async () => {
+    userFindUnique.mockResolvedValue({ id: "user_5" });
+
+    expect(await userExistsForEmail("  Rani@Gmail.COM ")).toBe(true);
+    expect(userFindUnique).toHaveBeenCalledWith({
+      where: { email: "rani@gmail.com" },
+      select: { id: true },
+    });
+  });
+
+  it("is false when nobody has that email", async () => {
+    userFindUnique.mockResolvedValue(null);
+
+    expect(await userExistsForEmail("nobody@example.com")).toBe(false);
   });
 });
 

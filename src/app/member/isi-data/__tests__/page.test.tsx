@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 
 const { requireMember, getMemberIntake, getPengundangUnitOptions, getAcceptedApplicantByEmail } =
   vi.hoisted(() => ({
@@ -18,10 +18,47 @@ vi.mock("@/lib/memberIntake", async () => {
 });
 vi.mock("@/lib/applicant", () => ({ getAcceptedApplicantByEmail }));
 
+import { saveJoinDraft, type JoinDraft } from "@/lib/joinDraft";
 import IsiDataPage from "../page";
+
+const savedIntake = {
+  fullName: "Rani Putri",
+  ktpNumber: "1234567890123456",
+  birthPlace: "Jakarta",
+  birthDate: "1998-05-10",
+  activeEmail: "rani@example.com",
+  activePhone: "081234567890",
+  address: "Jl. Sudirman No. 1",
+  education: "s1" as const,
+  schoolName: "Universitas Indonesia",
+  schoolCity: "Jakarta",
+  graduationYear: "2020",
+  pengundangUnit: "Budi Santoso",
+  ktpPhotoUrl: null,
+  selfiePhotoUrl: null,
+  familyCardPhotoUrl: null,
+  savingsPhotoUrl: null,
+  spousePhotoUrl: null,
+};
+
+const draft: JoinDraft = {
+  fullName: "Rani Dari Join",
+  ktpNumber: "9999999999999999",
+  birthPlace: "Bandung",
+  birthDate: "1999-01-02",
+  activeEmail: "Rani@Example.com ",
+  activePhone: "089999999999",
+  address: "Jl. Asia Afrika No. 9",
+  education: "s1",
+  schoolName: "Institut Teknologi Bandung",
+  schoolCity: "Bandung",
+  graduationYear: "2021",
+  pengundangUnit: "Robert / Lini",
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
+  window.sessionStorage.clear();
   requireMember.mockResolvedValue({
     id: "user_1",
     name: "Rani Putri",
@@ -107,29 +144,83 @@ describe("isi-data page", () => {
   });
 
   test("skips the applicant lookup entirely once MemberIntake already exists", async () => {
-    getMemberIntake.mockResolvedValue({
-      fullName: "Rani Putri",
-      ktpNumber: "1234567890123456",
-      birthPlace: "Jakarta",
-      birthDate: "1998-05-10",
-      activeEmail: "rani@example.com",
-      activePhone: "081234567890",
-      address: "Jl. Sudirman No. 1",
-      education: "s1",
-      schoolName: "Universitas Indonesia",
-      schoolCity: "Jakarta",
-      graduationYear: "2020",
-      pengundangUnit: "Budi Santoso",
-      ktpPhotoUrl: null,
-      selfiePhotoUrl: null,
-      familyCardPhotoUrl: null,
-      savingsPhotoUrl: null,
-      spousePhotoUrl: null,
-    });
+    getMemberIntake.mockResolvedValue(savedIntake);
 
     render(await IsiDataPage());
 
     expect(getAcceptedApplicantByEmail).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Ubah data" })).toBeInTheDocument();
+  });
+});
+
+// Plan 07c: someone who filled out the public /join form under an email
+// that already belongs to a member is sent here to log in, with their typed
+// answers handed over through sessionStorage.
+describe("isi-data page — /join draft handoff", () => {
+  test("prefills the form from a draft under this member's own email", async () => {
+    saveJoinDraft(draft);
+
+    render(await IsiDataPage());
+
+    expect(screen.getByRole("textbox", { name: /Nama Lengkap/ })).toHaveValue(
+      "Rani Dari Join",
+    );
+    expect(screen.getByRole("textbox", { name: /No KTP/ })).toHaveValue(
+      "9999999999999999",
+    );
+    expect(screen.getByRole("radio", { name: "Robert / Lini" })).toBeChecked();
+    // The signed-in identity wins over whatever was typed on the public form.
+    expect(screen.getByRole("textbox", { name: /Email Aktif/ })).toHaveValue(
+      "rani@example.com",
+    );
+    expect(screen.getByText(/upload ulang dokumennya/)).toBeInTheDocument();
+  });
+
+  test("consumes the draft on first read so a later visit is blank again", async () => {
+    saveJoinDraft(draft);
+
+    render(await IsiDataPage());
+    expect(screen.getByRole("textbox", { name: /Nama Lengkap/ })).toHaveValue(
+      "Rani Dari Join",
+    );
+
+    cleanup();
+    render(await IsiDataPage());
+    expect(screen.getByRole("textbox", { name: /Nama Lengkap/ })).toHaveValue("");
+  });
+
+  test("ignores a draft left behind under somebody else's email", async () => {
+    saveJoinDraft({ ...draft, activeEmail: "orang.lain@example.com" });
+
+    render(await IsiDataPage());
+
+    expect(screen.getByRole("textbox", { name: /Nama Lengkap/ })).toHaveValue("");
+    expect(screen.queryByText(/upload ulang dokumennya/)).not.toBeInTheDocument();
+  });
+
+  test("an existing MemberIntake always wins over a draft", async () => {
+    getMemberIntake.mockResolvedValue(savedIntake);
+    saveJoinDraft(draft);
+
+    render(await IsiDataPage());
+
+    expect(screen.getByRole("button", { name: "Ubah data" })).toBeInTheDocument();
+    expect(screen.queryByText("Rani Dari Join")).not.toBeInTheDocument();
+  });
+
+  test("takes priority over the read-only accepted-application view", async () => {
+    getAcceptedApplicantByEmail.mockResolvedValue({
+      ...savedIntake,
+      ktpPhotoUrl: "https://signed.example/ktp",
+    });
+    saveJoinDraft(draft);
+
+    render(await IsiDataPage());
+
+    // The editable form, not the read-only summary — the files still have
+    // to be re-picked, so a summary couldn't finish the job.
+    expect(screen.getByRole("textbox", { name: /Nama Lengkap/ })).toHaveValue(
+      "Rani Dari Join",
+    );
   });
 });

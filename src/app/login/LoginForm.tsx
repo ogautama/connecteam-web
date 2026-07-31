@@ -5,11 +5,11 @@ import { signInWithGoogle } from "@/lib/auth-browser";
 // A no-profile sign-in (valid Google session, no leader invite) is handled by
 // redirecting to the standalone /not-invited page (proxy.ts / requireRole), so
 // this form is just the sign-in button — no inline "not invited" state.
-export default function LoginForm() {
+export default function LoginForm({ next }: { next?: string }) {
   return (
     <button
       type="button"
-      onClick={() => signInWithGoogle()}
+      onClick={() => signInWithGoogle(next)}
       className="flex items-center gap-3 rounded-full border border-ink-100 bg-white px-6 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
     >
       <GoogleIcon />

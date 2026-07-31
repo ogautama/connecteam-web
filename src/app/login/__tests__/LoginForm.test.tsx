@@ -26,4 +26,12 @@ describe("LoginForm", () => {
     );
     expect(signInWithGoogle).toHaveBeenCalledOnce();
   });
+
+  it("forwards a `next` destination through to sign-in", () => {
+    render(<LoginForm next="/member/isi-data" />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Sign in with Google/i }),
+    );
+    expect(signInWithGoogle).toHaveBeenCalledWith("/member/isi-data");
+  });
 });

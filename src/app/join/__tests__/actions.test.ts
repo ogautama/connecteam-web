@@ -1,16 +1,22 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { createApplicant, resolvePengundangUnitLeaderId, revalidatePath } = vi.hoisted(() => ({
-  createApplicant: vi.fn(),
-  resolvePengundangUnitLeaderId: vi.fn(),
-  revalidatePath: vi.fn(),
-}));
+const { createApplicant, resolvePengundangUnitLeaderId, revalidatePath, userExistsForEmail } =
+  vi.hoisted(() => ({
+    createApplicant: vi.fn(),
+    resolvePengundangUnitLeaderId: vi.fn(),
+    revalidatePath: vi.fn(),
+    userExistsForEmail: vi.fn(),
+  }));
 
 vi.mock("next/cache", () => ({ revalidatePath }));
 vi.mock("@/lib/applicant", () => ({ createApplicant }));
 vi.mock("@/lib/memberIntake", () => ({ resolvePengundangUnitLeaderId }));
+vi.mock("@/lib/invites", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/invites")>("@/lib/invites");
+  return { ...actual, userExistsForEmail };
+});
 
-import { submitApplication } from "../actions";
+import { checkExistingMember, submitApplication } from "../actions";
 
 const validInput = {
   fullName: "Rani Putri",
@@ -130,4 +136,27 @@ describe("submitApplication", () => {
     ).rejects.toThrow("Foto KTP Pasangan belum berhasil diupload.");
     expect(createApplicant).not.toHaveBeenCalled();
   });
+});
+
+describe("checkExistingMember", () => {
+  test("delegates to userExistsForEmail with the trimmed address", async () => {
+    userExistsForEmail.mockResolvedValue(true);
+
+    expect(await checkExistingMember("  rani@example.com ")).toBe(true);
+    expect(userExistsForEmail).toHaveBeenCalledWith("rani@example.com");
+  });
+
+  test("is false when the email belongs to nobody", async () => {
+    userExistsForEmail.mockResolvedValue(false);
+
+    expect(await checkExistingMember("rani@example.com")).toBe(false);
+  });
+
+  test.each(["", "   ", "not-an-email"])(
+    "answers false for %j without hitting the database",
+    async (value) => {
+      expect(await checkExistingMember(value)).toBe(false);
+      expect(userExistsForEmail).not.toHaveBeenCalled();
+    },
+  );
 });

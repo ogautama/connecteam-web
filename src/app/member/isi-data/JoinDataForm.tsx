@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { EducationLevel } from "@prisma/client";
 import {
   FileField,
@@ -10,6 +10,7 @@ import {
   TextField,
 } from "@/components/forms/IntakeFormFields";
 import type { ApplicantAsIntake } from "@/lib/applicant";
+import { clearJoinDraft, readJoinDraft, type JoinDraft } from "@/lib/joinDraft";
 import type { MemberIntakeInput, MemberIntakeRecord } from "@/lib/memberIntake";
 import {
   MEMBER_INTAKE_BUCKET,
@@ -64,6 +65,12 @@ function emptyForm(defaultEmail: string): FormState {
   };
 }
 
+/** Same normalization the server uses (lib/invites.ts's normalizeEmail),
+ * inlined because that module is server-only — it pulls in Prisma. */
+function sameEmail(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
 function formFromSaved(saved: MemberIntakeRecord): FormState {
   return {
     fullName: saved.fullName,
@@ -81,23 +88,7 @@ function formFromSaved(saved: MemberIntakeRecord): FormState {
   };
 }
 
-/**
- * "Isi Data" — the personal-data intake form (Plan 07), fields copied from
- * the real Google Form this replaces (that form is gated behind sign-in, so
- * these were transcribed from a screenshot the user provided, not
- * fabricated). "Pengundang / Unit" is the one field that isn't a fixed
- * copy — it's the live leader list, passed down from the page rather than a
- * hardcoded picklist. Photo fields upload straight to Supabase Storage from
- * the browser, same pattern as TestResultUpload.tsx — the server action
- * only ever sees the resulting storage path.
- */
-export default function JoinDataForm({
-  userId,
-  defaultEmail,
-  initial,
-  pengundangUnitOptions,
-  linkedApplication,
-}: {
+type JoinDataFormProps = {
   userId: string;
   defaultEmail: string;
   initial: MemberIntakeRecord | null;
@@ -110,11 +101,89 @@ export default function JoinDataForm({
    * when there's no MemberIntake yet. Shown read-only: editing that data
    * is future work, not built this round. */
   linkedApplication: ApplicantAsIntake | null;
-}) {
+};
+
+/**
+ * "Isi Data" — the personal-data intake form (Plan 07), fields copied from
+ * the real Google Form this replaces (that form is gated behind sign-in, so
+ * these were transcribed from a screenshot the user provided, not
+ * fabricated). "Pengundang / Unit" is the one field that isn't a fixed
+ * copy — it's the live leader list, passed down from the page rather than a
+ * hardcoded picklist. Photo fields upload straight to Supabase Storage from
+ * the browser, same pattern as TestResultUpload.tsx — the server action
+ * only ever sees the resulting storage path.
+ *
+ * This outer half only sorts out the Plan 07c draft handoff, which can't be
+ * read until the browser is running; IntakeForm below is the actual form.
+ */
+export default function JoinDataForm(props: JoinDataFormProps) {
+  const draft = useJoinDraft(props);
+
+  // Consuming it is a one-shot write to an external store, so it belongs in
+  // an effect — useJoinDraft caches the value it already read, so clearing
+  // the key doesn't pull the prefill back out from under the form.
+  useEffect(() => {
+    if (draft) clearJoinDraft();
+  }, [draft]);
+
+  // Handing the draft down as a seed and remounting on it keeps every
+  // field's starting value in one place — IntakeForm's own useState
+  // initializers — instead of a second, later pass that overwrites them.
+  return <IntakeForm {...props} draft={draft} key={draft ? "from-draft" : "blank"} />;
+}
+
+/**
+ * The /join draft, or null: someone who filled out the public form under an
+ * email that's already a member is sent here to log in with what they typed
+ * stashed in sessionStorage (src/lib/joinDraft.ts).
+ *
+ * Read through useSyncExternalStore rather than during render, because
+ * sessionStorage doesn't exist on the server — the server snapshot is
+ * always null, so the markup matches on hydration and the draft lands on
+ * the pass right after. The draft carries the person's own KTP number and
+ * address, so it's only ever applied when the email on it is theirs.
+ */
+function useJoinDraft({ initial, defaultEmail }: JoinDataFormProps): JoinDraft | null {
+  // Cached in a ref because useSyncExternalStore re-reads on every render
+  // and demands a stable value — and because the effect above deletes the
+  // key as soon as it's been read.
+  const cached = useRef<{ value: JoinDraft | null } | null>(null);
+
+  return useSyncExternalStore(
+    () => () => {},
+    () => {
+      if (!cached.current) {
+        // A saved MemberIntake always wins, so don't even look.
+        const draft = initial ? null : readJoinDraft();
+        cached.current = {
+          value: draft && sameEmail(draft.activeEmail, defaultEmail) ? draft : null,
+        };
+      }
+      return cached.current.value;
+    },
+    () => null,
+  );
+}
+
+function IntakeForm({
+  userId,
+  defaultEmail,
+  initial,
+  pengundangUnitOptions,
+  linkedApplication,
+  draft,
+}: JoinDataFormProps & { draft: JoinDraft | null }) {
   const [saved, setSaved] = useState<MemberIntakeRecord | null>(initial);
-  const [editing, setEditing] = useState(!initial && !linkedApplication);
+  const [editing, setEditing] = useState(!initial && (!linkedApplication || Boolean(draft)));
   const [form, setForm] = useState<FormState>(
-    initial ? formFromSaved(initial) : emptyForm(defaultEmail),
+    initial
+      ? formFromSaved(initial)
+      : draft
+        ? // The signed-in identity wins over whatever they typed into the
+          // public form's Email Aktif — they're the same address modulo
+          // case, and this is the one they actually sign in with.
+          { ...draft, activeEmail: defaultEmail }
+        : emptyForm(defaultEmail),
   );
   const [files, setFiles] = useState<FileFields>(EMPTY_FILES);
   const [status, setStatus] = useState<"idle" | "uploading" | "saving" | "error">("idle");
@@ -225,7 +294,11 @@ export default function JoinDataForm({
     );
   }
 
-  if (!saved && linkedApplication) {
+  // A fresh /join draft outranks the read-only accepted-application view:
+  // they just typed this data minutes ago, and the files still have to be
+  // re-picked, so the editable form is the only thing that can finish the
+  // job.
+  if (!saved && linkedApplication && !draft) {
     return (
       <IntakeSummary
         data={{ ...linkedApplication, pengundangUnitLabel: linkedApplication.pengundangUnit }}
@@ -236,6 +309,12 @@ export default function JoinDataForm({
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      {draft && (
+        <p className="rounded-xl border border-ink-100 bg-white px-4 py-3 text-sm text-ink-500 shadow-sm">
+          Jawaban yang tadi kamu isi di form Join Us udah kekopi ke sini. Cek lagi ya,
+          terus upload ulang dokumennya — file nggak bisa ikut kebawa.
+        </p>
+      )}
       <TextField
         label="Nama Lengkap (sesuai KTP)"
         required

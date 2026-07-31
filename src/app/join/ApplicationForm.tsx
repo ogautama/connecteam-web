@@ -14,9 +14,10 @@ import {
   applicantStoragePath,
   type ApplicantFileField,
 } from "@/lib/applicantFiles";
+import { saveJoinDraft } from "@/lib/joinDraft";
 import { EDUCATION_OPTIONS } from "@/lib/memberIntakeOptions";
 import { createSupabaseBrowserClient } from "@/lib/supabase";
-import { submitApplication } from "./actions";
+import { checkExistingMember, submitApplication } from "./actions";
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024; // matches the source form's "Max 100MB"
 
@@ -82,9 +83,9 @@ export default function ApplicationForm({
 }) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [files, setFiles] = useState<FileFields>(EMPTY_FILES);
-  const [status, setStatus] = useState<"idle" | "uploading" | "saving" | "error" | "done">(
-    "idle",
-  );
+  const [status, setStatus] = useState<
+    "idle" | "checking" | "uploading" | "saving" | "error" | "done" | "existing-member"
+  >("idle");
   const [error, setError] = useState<string | null>(null);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -116,9 +117,21 @@ export default function ApplicationForm({
       }
     }
 
-    setStatus("uploading");
+    setStatus("checking");
 
     try {
+      // Before a single byte is uploaded: is this email already a member?
+      // Folding the question into submitApplication (which runs after the
+      // uploads) would burn 4-5 real Storage uploads only to throw them
+      // away. If it is, nothing is uploaded and no Applicant is created —
+      // we stash the typed answers and send them to log in instead.
+      if (await checkExistingMember(form.activeEmail)) {
+        saveJoinDraft(form);
+        setStatus("existing-member");
+        return;
+      }
+
+      setStatus("uploading");
       const supabase = createSupabaseBrowserClient();
       const submissionId = crypto.randomUUID();
 
@@ -171,6 +184,28 @@ export default function ApplicationForm({
       setStatus("error");
       setError(err instanceof Error ? err.message : "Gagal mengirim. Coba lagi sebentar lagi.");
     }
+  }
+
+  if (status === "existing-member") {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-ink-100 bg-white p-8 text-center shadow-sm">
+        <p className="text-lg font-semibold text-ink-900">
+          Email kamu udah kedaftar sebagai member!
+        </p>
+        <p className="text-ink-500">
+          Nggak perlu daftar lagi lewat form ini. Login pakai akun Google{" "}
+          <span className="font-medium text-ink-700">{form.activeEmail}</span>, terus
+          data yang barusan kamu isi bakal langsung kekopi ke halaman Isi Data — tinggal
+          upload ulang dokumennya aja.
+        </p>
+        <a
+          href="/login?next=%2Fmember%2Fisi-data"
+          className="mt-1 rounded-full bg-brand-navy-700 px-6 py-2.5 font-semibold text-white hover:bg-brand-navy-800"
+        >
+          Login &amp; lanjut isi data
+        </a>
+      </div>
+    );
   }
 
   if (status === "done") {
@@ -309,10 +344,16 @@ export default function ApplicationForm({
       <div className="flex items-center gap-4 px-1">
         <button
           type="submit"
-          disabled={status === "uploading" || status === "saving"}
+          disabled={status === "checking" || status === "uploading" || status === "saving"}
           className="rounded-full bg-brand-navy-700 px-6 py-2.5 font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
         >
-          {status === "uploading" ? "Mengupload…" : status === "saving" ? "Mengirim…" : "Kirim"}
+          {status === "uploading"
+            ? "Mengupload…"
+            : status === "saving"
+              ? "Mengirim…"
+              : status === "checking"
+                ? "Mengecek…"
+                : "Kirim"}
         </button>
       </div>
     </form>

@@ -2,7 +2,15 @@
 
 ## Status
 
-Not started. Amends [Plan 07](07-member-onboarding.md)'s "Isi Data"
+**Built** in [PR #26](https://github.com/ogautama/connecteam-web/pull/26)
+(open), 2026-07-31, as described below. Verified in the browser against the
+dev DB up to the Google sign-in itself: submitting /join as an existing
+member's email shows the "already a member" screen, uploads nothing, and
+creates no Applicant row, and `/auth/callback?next=` redirects correctly.
+The signed-in landing on `/member/isi-data` is unit-tested but not yet
+manually confirmed — that step needs a real Google login.
+
+Amends [Plan 07](07-member-onboarding.md)'s "Isi Data"
 (`/member/isi-data`, `JoinDataForm.tsx`) and the public "Join Us" form
 (`/join`, `ApplicationForm.tsx`) — sits alongside the existing accepted-
 Applicant→Isi-Data read-only link (built 2026-07-30) as a second linking

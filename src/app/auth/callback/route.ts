@@ -13,5 +13,18 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  return NextResponse.redirect(`${origin}/member`);
+  return NextResponse.redirect(`${origin}${safeNext(searchParams.get("next"))}`);
+}
+
+/**
+ * Where to land after sign-in. `next` is a generic mechanism (any caller can
+ * pass one through /login) rather than something special-cased to one flow,
+ * so it's attacker-reachable: only same-origin *paths* are honoured, and
+ * anything else falls back to /member. "//evil.com" and "/\evil.com" are
+ * rejected too — both are protocol-relative URLs despite the leading slash.
+ */
+function safeNext(next: string | null): string {
+  if (!next || !next.startsWith("/")) return "/member";
+  if (next.startsWith("//") || next.startsWith("/\\")) return "/member";
+  return next;
 }
