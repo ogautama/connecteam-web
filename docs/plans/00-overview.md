@@ -107,6 +107,7 @@ are captured inline in those docs so each can be picked up independently.
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
 | 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12); nav reworked 2026-07-26§ |
 | 07 | Member: Quest Hub (`/member/onboarding`, all member sections) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | Shell built — [PR #18](https://github.com/ogautama/connecteam-web/pull/18) (open); supersedes [PR #17](https://github.com/ogautama/connecteam-web/pull/17)§ |
+| 07c | Join Us → Isi Data: link an existing member's email (no auto-invite) | 07, 02b | [07c-join-existing-member-linking.md](07c-join-existing-member-linking.md) | Not started — planned 2026-07-31 |
 | 08 | Member: Grow (Recruiting section content) | 07 | [08-member-grow.md](08-member-grow.md) | Revised§ — content only, no own route |
 | 09 | Member: Sell (Selling section content) | 07 | [09-member-sell.md](09-member-sell.md) | Revised§ — content only, no own route |
 | 10 | Member: Reference Data (References section category) | 07 | [10-member-reference.md](10-member-reference.md) | Revised§ — content only, no own route |
