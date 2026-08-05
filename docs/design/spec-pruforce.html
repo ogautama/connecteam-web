@@ -133,13 +133,6 @@
   .cta .cta-sub { display: block; font-weight: 500; font-size: 0.6875rem; color: rgba(255,255,255,0.78); font-family: var(--mono); }
   .cta .cta-arrow { margin-left: auto; }
 
-  .meta-row { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip {
-    font-size: 0.6875rem; font-weight: 600; color: #3c4453; background: #f3f4f6;
-    border: 1px solid var(--page-border); border-radius: 999px; padding: 3px 9px;
-  }
-  .chip.live { background: var(--brand-navy-50); color: var(--brand-navy); border-color: var(--brand-navy-200); }
-
   .os-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .os-card { border: 1px solid var(--page-border); border-radius: 10px; padding: 11px 12px; background: #fff; }
   .os-card h5 { margin: 0 0 6px; font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 6px; }
@@ -149,14 +142,7 @@
   .callout { border-radius: 10px; padding: 10px 12px; font-size: 0.75rem; display: flex; gap: 8px; align-items: flex-start; }
   .callout.danger { background: var(--brand-red-50); border: 1px solid #fbd0db; }
   .callout.danger b { color: #ad3554; }
-  .callout.info { background: var(--brand-navy-50); border: 1px solid #dfe5ef; }
-  .callout.info b { color: var(--brand-navy); }
   .callout ul { margin: 4px 0 0; padding-left: 16px; }
-
-  .link-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-  .link-list li { display: flex; gap: 8px; align-items: baseline; font-size: 0.75rem; }
-  .link-list a { color: var(--brand-navy); font-weight: 600; text-decoration: none; }
-  .link-list .muted { color: var(--page-text-muted); }
 
   .sub-label { font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--page-text-faint); }
 
@@ -247,6 +233,39 @@
         with <code>project_member_content_source_gated</code>.
       </span>
     </div>
+
+    <div class="note-box">
+      <span>✂️</span>
+      <span>
+        <b>Cut on 2026-08-05, after the first draft of this mockup.</b> The step keeps
+        only what a new agent needs to get the app onto their phone:
+        <ul style="margin:6px 0 0;padding-left:18px">
+          <li>
+            <b>PRUForce Web Portal</b>
+            (<code>pruforce.prudential.co.id/pruforce-web</code>) and <b>PRUWorks</b>
+            (<code>portals.prudential.co.id/agent/application/view/682dad51152990ce5bc7615c</code>)
+            → <b>Yellow Pages</b>, not here. They're directory entries, not install steps.
+          </li>
+          <li>
+            <b>PRUDigitalfriend</b> — WhatsApp +62-811-1566-512 (ketik: DF),
+            prudigitalfriend@prudential.co.id, the helpdesk for PRUForce / PRUFast /
+            PULSE / PRUWorks → <b>Yellow Pages</b> too.
+          </li>
+          <li>
+            The <b>version/size chips</b> (v2.41.0, 01-08-2026, 111,70 MB / 206,05 MB) —
+            they go stale every release and the portal page already shows them.
+          </li>
+          <li>
+            The <b>bit.ly/PRUForce2 + "not in the app stores"</b> line. The store fact
+            still matters to whoever <i>builds</i> this (see the red note above); it just
+            isn't something the member needs told.
+          </li>
+        </ul>
+        Yellow Pages is <code>directory-yellow-pages</code>, still a "Segera hadir"
+        placeholder in <code>QuestHub.tsx</code> — these three are content waiting for it,
+        so don't let them evaporate.
+      </span>
+    </div>
   </section>
 
   <section>
@@ -291,8 +310,10 @@
       <p>
         Same <code style="font-family:var(--mono)">AccordionItem</code>, same checkbox and
         progress wiring; only <code style="font-family:var(--mono)">SectionDetail</code>'s
-        <code style="font-family:var(--mono)">case "download-pruforce"</code> changes. Six
-        blocks, in the order a brand-new agent needs them.
+        <code style="font-family:var(--mono)">case "download-pruforce"</code> changes. Three
+        blocks — get the app, install it, don't lose your drafts updating it — and
+        nothing else. Trimmed from six on 2026-08-05; see the note above for what
+        came out and where it went.
       </p>
     </div>
     <div class="browser">
@@ -343,28 +364,9 @@
                       </span>
                       <span class="cta-arrow">↗</span>
                     </a>
-                    <p style="margin:6px 0 0;font-size:0.75rem;color:var(--page-text-muted)">
-                      Link pendek yang biasa dibagikan Prudential:
-                      <code style="font-family:var(--mono)">bit.ly/PRUForce2</code> — sama, tujuannya halaman ini juga.
-                      <b>PRUForce nggak ada di Play Store / App Store</b>, jadi jangan cari di sana.
-                    </p>
                   </div>
 
-                  <!-- 2. version chips -->
-                  <div>
-                    <span class="sub-label">Versi terakhir yang kami cek</span>
-                    <div class="meta-row" style="margin-top:6px">
-                      <span class="chip live">PRUForce 2.0 · v2.41.0</span>
-                      <span class="chip">rilis 01-08-2026</span>
-                      <span class="chip">iOS 111,70 MB</span>
-                      <span class="chip">Android 206,05 MB</span>
-                    </div>
-                    <p style="margin:6px 0 0;font-size:0.6875rem;color:var(--page-text-faint)">
-                      Versi di portal bisa berubah tiap rilis — yang di portal selalu yang benar.
-                    </p>
-                  </div>
-
-                  <!-- 3. per-OS steps -->
+                  <!-- 2. per-OS steps -->
                   <div>
                     <span class="sub-label">Cara install <span class="verify">perlu konfirmasi</span></span>
                     <div class="os-grid" style="margin-top:6px">
@@ -387,7 +389,7 @@
                     </div>
                   </div>
 
-                  <!-- 4. update warning, verbatim in substance from the portal notice -->
+                  <!-- 3. update warning, verbatim in substance from the portal notice -->
                   <div class="callout danger">
                     <span>⚠️</span>
                     <span>
@@ -397,26 +399,6 @@
                         <li>Draft yang dibuat di versi sebelumnya <b>nggak bisa dilanjutin</b> setelah update.</li>
                         <li>Versi lama dinonaktifkan begitu versi baru rilis — nggak bisa nunda.</li>
                       </ul>
-                    </span>
-                  </div>
-
-                  <!-- 5. sibling links -->
-                  <div>
-                    <span class="sub-label">Sekalian</span>
-                    <ul class="link-list" style="margin-top:6px">
-                      <li><span>🖥️</span><span><a href="https://pruforce.prudential.co.id/pruforce-web">PRUForce Web Portal</a> <span class="muted">— laporan produksi lewat browser, login pakai PRUForce ID</span></span></li>
-                      <li><span>🏥</span><span><a href="https://portals.prudential.co.id/agent/application/view/682dad51152990ce5bc7615c">PRUWorks</a> <span class="muted">— aplikasi employee benefit, di portal yang sama</span></span></li>
-                    </ul>
-                  </div>
-
-                  <!-- 6. who to call -->
-                  <div class="callout info">
-                    <span>🆘</span>
-                    <span>
-                      <b>Nggak bisa install / login?</b> Hubungi <b>PRUDigitalfriend</b> —
-                      WhatsApp <b>+62-811-1566-512</b> (ketik: <b>DF</b>) atau
-                      <b>prudigitalfriend@prudential.co.id</b>. Mereka yang pegang kendala
-                      PRUForce, PRUFast, PULSE, dan PRUWorks.
                     </span>
                   </div>
 
@@ -483,10 +465,6 @@
           <td>Redirect resolved to the view URL above. The short link is printed in Prudential Digital Services' own in-page release notice ("🔗 Link Update PRUForce: 📱 Android dan IOS").</td>
         </tr>
         <tr>
-          <td>v2.41.0 · 01-08-2026 · iOS 111,70 MB / Android 206,05 MB</td>
-          <td>Portal page metadata.</td>
-        </tr>
-        <tr>
           <td>Sync/submit-before-update warning</td>
           <td>Paraphrased from the portal's own "⚠️ DIGITAL UPDATE⚠️" notice dated 29 Juli 2026, which spells out the sync, the submit deadline, the dead drafts, and the deactivation of v2.40.0.</td>
         </tr>
@@ -503,12 +481,12 @@
           <td>Play Store ID search for "pruforce" returns PRUFast, PRUonline (Vietnam), and unrelated apps — no PRUForce. iTunes search (country=id) likewise. The Play listing <code>vn.com.prudential.pruforce.dev</code> is Prudential Vietnam. <code>apps.apple.com/id/app/pruforce-mobile/id1082618139</code> returns 404.</td>
         </tr>
         <tr>
-          <td>PRUDigitalfriend contact</td>
-          <td>Footer of <a href="https://pruforce.prudential.co.id/pruforce-web">pruforce.prudential.co.id/pruforce-web</a>, under "Kendala Aplikasi Digital (PRUForce, PRUFast, PULSE, PRUWorks)".</td>
+          <td>PRUDigitalfriend contact <span class="verify">Yellow Pages</span></td>
+          <td>Footer of <a href="https://pruforce.prudential.co.id/pruforce-web">pruforce.prudential.co.id/pruforce-web</a>, under "Kendala Aplikasi Digital (PRUForce, PRUFast, PULSE, PRUWorks)". Kept here as provenance — the fact itself belongs to Yellow Pages, not this step.</td>
         </tr>
         <tr>
-          <td>PRUWorks portal link</td>
-          <td>Recorded in Plan 11; re-checked 2026-08-05, returns 200.</td>
+          <td>PRUWorks portal link <span class="verify">Yellow Pages</span></td>
+          <td>Recorded in Plan 11; re-checked 2026-08-05, returns 200. Same — provenance only, the entry goes in Yellow Pages.</td>
         </tr>
       </tbody>
     </table>
@@ -525,10 +503,13 @@
         <code>KNOW_YOURSELF</code> already is in
         <code>src/content/onboarding.ts</code> — Plan 11 anticipated
         <code>src/content/systems.ts</code> splitting into an Onboarding half and a
-        References half, and this is the Onboarding half's first entry. The version
-        chips are the only part that goes stale; either keep them as plain data a human
-        bumps, or drop them and let the portal page speak for itself. The checkbox,
+        References half, and this is the Onboarding half's first entry. After the trim
+        there's nothing version-dependent left to go stale — the portal page carries the
+        version, sizes, and release notes itself, which is the point. The checkbox,
         progress row, and <code>download-pruforce</code> id all stay exactly as they are.
+        Plan 11's line about this step carrying "links to the official Prudential agent
+        portals" no longer holds: PRUWorks moved to Yellow Pages, so PRUForce's own
+        download page is the only link here.
       </span>
     </div>
   </section>
