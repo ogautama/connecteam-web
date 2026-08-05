@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { KNOW_YOURSELF, ONBOARDING_SECTIONS } from "../onboarding";
+import {
+  KNOW_YOURSELF,
+  ONBOARDING_SECTIONS,
+  PRUFORCE_DOWNLOAD,
+  PRUFORCE_INSTALL,
+  PRUFORCE_UPDATE_WARNING,
+} from "../onboarding";
 
 function isValidHref(href: string): boolean {
   if (href.startsWith("/")) return href.length > 1;
@@ -55,9 +61,48 @@ describe("onboarding content", () => {
   test("keeps the placeholders that were deliberately NOT hidden", () => {
     // Guards the scope of the 2026-08-05 call: it was a specific decision
     // about licensing/class content, not a rule that every "Segera hadir"
-    // placeholder gets hidden. These two are just as empty and stay.
+    // placeholder gets hidden. Both were just as empty and stayed —
+    // download-pruforce has since been filled in.
     const ids = ONBOARDING_SECTIONS.map((section) => section.id);
     expect(ids).toContain("download-pruforce");
     expect(ids).toContain("setup-wa-ig");
+  });
+});
+
+describe("PRUForce content", () => {
+  test("the download link is the agent-portal page, over https", () => {
+    expect(PRUFORCE_DOWNLOAD.label).toBeTruthy();
+    expect(isValidHref(PRUFORCE_DOWNLOAD.href)).toBe(true);
+    expect(new URL(PRUFORCE_DOWNLOAD.href).hostname).toBe("portals.prudential.co.id");
+  });
+
+  test("never links a store or a download file directly", () => {
+    // PRUForce is on neither store in Indonesia, the portal's Android URL is
+    // a 7-day signed GCS link, and its iOS one is an itms-services://
+    // manifest. Any of the three here would be wrong or would rot.
+    expect(PRUFORCE_DOWNLOAD.href).not.toMatch(
+      /play\.google\.com|apps\.apple\.com|storage\.googleapis\.com|itms-services|\.apk/i,
+    );
+  });
+
+  test("covers both platforms, each with steps", () => {
+    expect(PRUFORCE_INSTALL.map((guide) => guide.platform)).toEqual(["android", "ios"]);
+    for (const guide of PRUFORCE_INSTALL) {
+      expect(guide.label, guide.platform).toBeTruthy();
+      expect(guide.icon, guide.platform).toBeTruthy();
+      expect(guide.steps.length, guide.platform).toBeGreaterThan(0);
+      for (const step of guide.steps) expect(step, guide.platform).toBeTruthy();
+    }
+  });
+
+  test("iOS steps say Safari — the enterprise install works nowhere else", () => {
+    const ios = PRUFORCE_INSTALL.find((guide) => guide.platform === "ios");
+    expect(ios?.steps.join(" ")).toMatch(/Safari/);
+  });
+
+  test("the update warning leads with syncing, so nobody loses a draft", () => {
+    expect(PRUFORCE_UPDATE_WARNING.title).toBeTruthy();
+    expect(PRUFORCE_UPDATE_WARNING.points.length).toBeGreaterThan(0);
+    expect(PRUFORCE_UPDATE_WARNING.points[0]).toMatch(/SYNC DATA/);
   });
 });

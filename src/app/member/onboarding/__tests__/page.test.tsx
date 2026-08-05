@@ -114,9 +114,36 @@ describe("member hub page", () => {
   test("expanding a placeholder onboarding item shows its Segera hadir / Di luar scope tag", async () => {
     render(await renderAt());
 
-    fireEvent.click(screen.getByRole("button", { name: /Download PruForce/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Setup WA, IG/ }));
 
     expect(screen.getByText("Segera hadir")).toBeInTheDocument();
+  });
+
+  test("expanding Download PruForce shows the portal link, not a placeholder", async () => {
+    render(await renderAt());
+
+    fireEvent.click(screen.getByRole("button", { name: /Download PruForce/ }));
+
+    expect(
+      screen.getByRole("link", { name: /Buka Halaman Download PRUForce/ }),
+    ).toHaveAttribute(
+      "href",
+      "https://portals.prudential.co.id/agent/application/view/68105c1e152990ce5bc2e7a6",
+    );
+    expect(screen.queryByText("Segera hadir")).not.toBeInTheDocument();
+  });
+
+  test("Download PruForce carries install steps for both platforms and the sync warning", async () => {
+    render(await renderAt());
+
+    fireEvent.click(screen.getByRole("button", { name: /Download PruForce/ }));
+
+    expect(screen.getByText(/Install dari sumber ini/)).toBeInTheDocument();
+    expect(screen.getByText(/VPN & Manajemen Perangkat/)).toBeInTheDocument();
+    expect(screen.getByText(/SYNC DATA/)).toBeInTheDocument();
+    // The steps shipped caveated while they were inferred; the content owner
+    // confirmed them on 2026-08-05, so no hedge renders anymore.
+    expect(screen.queryByText(/Perlu konfirmasi/i)).not.toBeInTheDocument();
   });
 
   test("renders a top-level parent as a landing page linking to its children", async () => {

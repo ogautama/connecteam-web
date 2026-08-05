@@ -48,6 +48,24 @@ Independent of Plans 08–10, 12–14.
 (`portals.prudential.co.id/agent/application/view/68105c1e152990ce5bc2e7a6`)
 and PruWorks
 (`portals.prudential.co.id/agent/application/view/682dad51152990ce5bc7615c`).
+
+> **Amended 2026-08-05** — both URLs verified live and, unlike the rest of
+> this plan's sources, **publicly reachable without a login**. Two changes
+> from the above, both settled while reviewing
+> [spec-pruforce.html](../design/spec-pruforce.html):
+>
+> - **PruWorks moves to Yellow Pages** ([Plan 14](14-member-directory.md)),
+>   along with the PRUForce Web Portal and the PRUDigitalfriend helpdesk. The
+>   Onboarding step is only "get PRUForce onto your phone", so PRUForce's own
+>   download page is the single link it carries.
+> - **There is no app-store link, and the download files can't be linked
+>   directly.** PRUForce is on neither Google Play nor the App Store in
+>   Indonesia (the `vn.com.prudential.pruforce.dev` Play listing is Prudential
+>   *Vietnam's*; `apps.apple.com/id/app/pruforce-mobile/id1082618139` 404s).
+>   On the portal page itself, the Android button is a signed GCS URL that
+>   expires in 7 days and the iOS button is an `itms-services://` enterprise
+>   OTA manifest that only mobile Safari acts on — hence the iOS-popup
+>   troubleshooting below, and hence: link the portal page, never the files.
 Also a large how-to section (~29K chars of accessibility tree, only
 partially captured): iOS popup troubleshooting steps, "Cara Mengikuti Kelas
 My First Case (MFC)" step-by-step guide (log into PruForce → Training menu

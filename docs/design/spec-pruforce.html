@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONNECTeam — Download PruForce content (Plan 07 ↳ from Plan 11)</title>
+<style>
+  :root {
+    --page-bg: #f9fafb;
+    --page-surface: #ffffff;
+    --page-border: #edeff2;
+    --page-text: #1b212d;
+    --page-text-muted: #6c7689;
+    --page-text-faint: #aeb5c2;
+    --accent: #183f87;
+    --accent-soft: #f3f5f9;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    /* brand tokens, lifted from src/app/globals.css */
+    --brand-navy: #183f87;
+    --brand-navy-50: #f3f5f9;
+    --brand-navy-200: #c3cde0;
+    --brand-red: #f04975;
+    --brand-red-50: #fef6f8;
+    --brand-gold: #f5ba01;
+    --brand-gold-50: #fffcf2;
+    --quest-gradient: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-red) 55%, var(--brand-gold) 100%);
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #1b212d; --page-surface: #232a38; --page-border: #3c4453;
+    --page-text: #f5f6f8; --page-text-muted: #b7bdc9; --page-text-faint: #6c7689;
+    --accent: #7088b5; --accent-soft: #232c42;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #1b212d; --page-surface: #232a38; --page-border: #3c4453;
+      --page-text: #f5f6f8; --page-text-muted: #b7bdc9; --page-text-faint: #6c7689;
+      --accent: #7088b5; --accent-soft: #232c42;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page-bg); color: var(--page-text); font-family: var(--sans); line-height: 1.5; }
+  .page { max-width: 1040px; margin: 0 auto; padding: 48px 24px 96px; display: flex; flex-direction: column; gap: 40px; }
+
+  .masthead { display: flex; flex-direction: column; gap: 10px; padding-bottom: 32px; border-bottom: 1px solid var(--page-border); }
+  .eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .masthead h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
+  .masthead p { margin: 0; max-width: 68ch; color: var(--page-text-muted); font-size: 1rem; }
+  .masthead a { color: var(--accent); }
+
+  .note-box {
+    display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px;
+    background: var(--brand-gold-50); border: 1px solid #fceab3; font-size: 0.875rem; color: #1b212d;
+  }
+  .note-box + .note-box { margin-top: 12px; }
+  .note-box code, .note-box a { font-family: var(--mono); font-size: 0.8125rem; word-break: break-all; }
+  .note-box code { color: #14346f; }
+  .note-box a { color: #183f87; }
+  .note-box b { color: #8e6c01; }
+  .note-box.warn { background: var(--brand-red-50); border-color: #fbd0db; }
+  .note-box.warn b { color: #ad3554; }
+  .note-box.ok { background: #eef7f0; border-color: #c3e3cd; }
+  .note-box.ok b { color: #1e6b39; }
+
+  .section-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .section-head h2 { margin: 0; font-size: 1.125rem; font-weight: 700; }
+  .section-head p { margin: 0; font-size: 0.875rem; color: var(--page-text-muted); max-width: 72ch; }
+
+  /* ---- browser chrome frame ---- */
+  /* The mock always renders the app's light theme, whatever theme this spec
+     page itself is being read in — so pin the text tokens inside the frame. */
+  .browser {
+    border-radius: 14px; overflow: hidden; border: 1px solid var(--page-border);
+    box-shadow: 0 24px 48px -24px rgba(27, 33, 45, 0.35); background: #fff;
+    --page-bg: #f9fafb; --page-border: #edeff2;
+    --page-text: #1b212d; --page-text-muted: #6c7689; --page-text-faint: #aeb5c2;
+    color: var(--page-text);
+  }
+  .browser-bar {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    background: #ececef; border-bottom: 1px solid #ddd;
+  }
+  .browser-dots { display: flex; gap: 6px; }
+  .browser-dots span { width: 10px; height: 10px; border-radius: 999px; background: #d3d3d8; }
+  .browser-url {
+    flex: 1; background: #fff; border-radius: 999px; padding: 5px 12px; font-family: var(--mono);
+    font-size: 0.75rem; color: #6c7689; border: 1px solid #ddd;
+  }
+
+  /* ---- member shell (content column only — sidebar omitted, unchanged here) ---- */
+  .m-content { background: var(--page-bg); padding: 20px; }
+  .m-content-inner { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+  .quest-header { background: var(--quest-gradient); color: #fff; padding: 20px 20px 22px; border-radius: 14px; text-align: center; }
+  .quest-header h3 { margin: 0; font-size: 1.0625rem; font-weight: 800; letter-spacing: -0.01em; }
+  .quest-header p { margin: 4px 0 0; font-size: 0.75rem; color: rgba(255,255,255,0.85); }
+  .quest-progress { margin-top: 12px; background: rgba(255,255,255,0.2); border-radius: 999px; overflow: hidden; height: 7px; }
+  .quest-progress-fill { height: 100%; background: #fff; border-radius: 999px; width: 25%; }
+  .quest-progress-label { margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.6875rem; font-weight: 600; color: rgba(255,255,255,0.9); }
+
+  .level-panel { background: var(--brand-navy-50); border-radius: 14px; padding: 14px; }
+  .level-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .level-badge { width: 28px; height: 28px; border-radius: 999px; background: var(--brand-navy); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8125rem; flex-shrink: 0; }
+  .level-head-text { flex: 1; }
+  .level-head-text h4 { margin: 0; font-size: 0.875rem; font-weight: 700; }
+  .level-head-text p { margin: 0; font-size: 0.75rem; color: var(--page-text-muted); }
+  .level-count { font-family: var(--mono); font-size: 0.75rem; color: var(--page-text-faint); font-weight: 600; }
+
+  .accordion { display: flex; flex-direction: column; gap: 8px; }
+  .a-item { background: #fff; border: 1px solid var(--page-border); border-radius: 12px; }
+  .a-item.open { border-color: var(--brand-navy-200); }
+  .a-row { padding: 12px 14px; display: flex; align-items: center; gap: 10px; cursor: default; }
+  .a-check { width: 19px; height: 19px; border-radius: 6px; border: 1.5px solid #c3cde0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 800; color: #fff; }
+  .a-item.done .a-check { background: var(--brand-navy); border-color: var(--brand-navy); }
+  .a-icon { font-size: 1rem; flex-shrink: 0; }
+  .a-title { font-weight: 700; font-size: 0.8125rem; display: block; }
+  .a-desc { font-size: 0.75rem; color: var(--page-text-muted); }
+  .a-chev { color: var(--page-text-faint); font-size: 0.9rem; }
+  .a-item.open .a-chev { transform: rotate(90deg); }
+  .a-body { padding: 0 14px 14px 43px; font-size: 0.8125rem; color: #3c4453; display: flex; flex-direction: column; gap: 14px; }
+
+  .placeholder-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef0f3;
+    color: var(--page-text-muted); font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  /* ---- the proposed detail content ---- */
+  .cta {
+    display: flex; align-items: center; gap: 10px; text-decoration: none;
+    background: var(--brand-navy); color: #fff; border-radius: 10px; padding: 11px 14px; font-weight: 700; font-size: 0.8125rem;
+  }
+  .cta .cta-sub { display: block; font-weight: 500; font-size: 0.6875rem; color: rgba(255,255,255,0.78); font-family: var(--mono); }
+  .cta .cta-arrow { margin-left: auto; }
+
+  .os-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .os-card { border: 1px solid var(--page-border); border-radius: 10px; padding: 11px 12px; background: #fff; }
+  .os-card h5 { margin: 0 0 6px; font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+  .os-card ol { margin: 0; padding-left: 16px; font-size: 0.75rem; color: var(--page-text-muted); display: flex; flex-direction: column; gap: 4px; }
+  .os-card ol b { color: #3c4453; }
+
+  .callout { border-radius: 10px; padding: 10px 12px; font-size: 0.75rem; display: flex; gap: 8px; align-items: flex-start; }
+  .callout.danger { background: var(--brand-red-50); border: 1px solid #fbd0db; }
+  .callout.danger b { color: #ad3554; }
+  .callout ul { margin: 4px 0 0; padding-left: 16px; }
+
+  .sub-label { font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--page-text-faint); }
+
+  .verify {
+    display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+    background: var(--brand-gold-50); border: 1px solid #fceab3; color: #8e6c01;
+    font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+
+  table.src { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+  table.src th, table.src td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--page-border); vertical-align: top; }
+  table.src th { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--page-text-faint); }
+  table.src td code, table.src td a { font-family: var(--mono); font-size: 0.75rem; word-break: break-all; color: var(--accent); }
+
+  @media (max-width: 640px) { .os-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <span class="eyebrow">Design reference — Onboarding ↳ Download PruForce</span>
+    <h1>Filling the <code style="font-family:var(--mono);font-size:0.8em">download-pruforce</code> placeholder: one official download link, two very different install paths</h1>
+    <p>
+      Content proposal for the first item of the Onboarding checklist in
+      <a href="../plans/07-member-onboarding.md">Plan 07</a>'s quest hub, sourced
+      per <a href="../plans/11-member-systems.md">Plan 11</a> (which moved PRUForce
+      out of Official Systems and into Onboarding). Today the item renders
+      <code style="font-family:var(--mono)">&lt;PlaceholderDetail tag="Segera hadir" note="Dipindah dari Plan 11." /&gt;</code>
+      — see <code style="font-family:var(--mono)">src/app/member/onboarding/QuestHub.tsx</code>.
+      Mockup only, nothing built yet.
+    </p>
+  </header>
+
+  <section>
+    <div class="note-box ok">
+      <span>🔗</span>
+      <span>
+        <b>The download link, verified 2026-08-05 and publicly reachable without login:</b>
+        <a href="https://portals.prudential.co.id/agent/application/view/68105c1e152990ce5bc2e7a6">https://portals.prudential.co.id/agent/application/view/68105c1e152990ce5bc2e7a6</a>
+        — Prudential Indonesia's own agent portal page for <b>PRUForce 2.0</b>, carrying
+        both "Unduh untuk iOS" and "Unduh untuk Android". This is the same URL Plan 11
+        recorded, now confirmed live. Prudential's own Digital Services broadcast shortens
+        it to <code>http://bit.ly/PRUForce2</code>, which currently 302s to exactly that page.
+        The full app list lives one level up at
+        <a href="https://portals.prudential.co.id/agent/application/download">/agent/application/download</a>.
+      </span>
+    </div>
+
+    <div class="note-box warn">
+      <span>🚫</span>
+      <span>
+        <b>There is no app-store link to give. Don't add one.</b> Checked 2026-08-05:
+        the Indonesian App Store has no PRUForce — PT Prudential Life Assurance's
+        developer page lists only PRUFast Mobile and PRUWorks, and the old
+        <code>apps.apple.com/id/app/pruforce-mobile/id1082618139</code> now 404s.
+        Google Play Indonesia has no PRUForce either; the
+        <code>vn.com.prudential.pruforce.dev</code> listing that search engines surface
+        is <b>Prudential Vietnam's</b> app, not ours. Indonesian PRUForce ships
+        exclusively through the agent portal, side-loaded.
+      </span>
+    </div>
+
+    <div class="note-box warn">
+      <span>⏳</span>
+      <span>
+        <b>Never hardcode the Android APK URL.</b> The "Unduh untuk Android" button
+        points at a signed Google Cloud Storage object with
+        <code>X-Goog-Expires=604800</code> — it dies after 7 days, and the path is
+        regenerated per upload (it even embeds the uploading Prudential staffer's email).
+        The iOS button is an enterprise OTA manifest,
+        <code>itms-services://?action=download-manifest&amp;url=…/app.plist</code>, which
+        no browser other than mobile Safari will act on. Both are reasons the content
+        module should link the <b>portal page</b> and let Prudential's own buttons do
+        the work.
+      </span>
+    </div>
+
+    <div class="note-box">
+      <span>❓</span>
+      <span>
+        <b>Two things this mockup deliberately does not invent.</b> (1) The per-OS install
+        steps below were drafted as inferences from the link types above (APK sideload;
+        Safari + trust profile) and shipped with a visible
+        <span class="verify">perlu konfirmasi</span> caveat. <b>The content owner confirmed
+        them on 2026-08-05</b> ("sudah betul caranya") and the caveat came off — they're
+        checked now, not guesses. Plan 11 still records more iOS-popup troubleshooting copy
+        on the gated Google Sites page; that would extend these, not correct them.
+        (2) "Cara Mengikuti Kelas My First
+        Case (MFC)" also belongs to Onboarding per Plan 11, but it is <b>its own step</b>,
+        not part of this one, and its content is still behind the same gate — consistent
+        with <code>project_member_content_source_gated</code>.
+      </span>
+    </div>
+
+    <div class="note-box">
+      <span>✂️</span>
+      <span>
+        <b>Cut on 2026-08-05, after the first draft of this mockup.</b> The step keeps
+        only what a new agent needs to get the app onto their phone:
+        <ul style="margin:6px 0 0;padding-left:18px">
+          <li>
+            <b>PRUForce Web Portal</b>
+            (<code>pruforce.prudential.co.id/pruforce-web</code>) and <b>PRUWorks</b>
+            (<code>portals.prudential.co.id/agent/application/view/682dad51152990ce5bc7615c</code>)
+            → <b>Yellow Pages</b>, not here. They're directory entries, not install steps.
+          </li>
+          <li>
+            <b>PRUDigitalfriend</b> — WhatsApp +62-811-1566-512 (ketik: DF),
+            prudigitalfriend@prudential.co.id, the helpdesk for PRUForce / PRUFast /
+            PULSE / PRUWorks → <b>Yellow Pages</b> too.
+          </li>
+          <li>
+            The <b>version/size chips</b> (v2.41.0, 01-08-2026, 111,70 MB / 206,05 MB) —
+            they go stale every release and the portal page already shows them.
+          </li>
+          <li>
+            The <b>bit.ly/PRUForce2 + "not in the app stores"</b> line. The store fact
+            still matters to whoever <i>builds</i> this (see the red note above); it just
+            isn't something the member needs told.
+          </li>
+        </ul>
+        Yellow Pages is <code>directory-yellow-pages</code>, still a "Segera hadir"
+        placeholder in <code>QuestHub.tsx</code> — these three are content waiting for it,
+        so don't let them evaporate.
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Sekarang — the item expands to a tag and one sentence</h2>
+      <p>Shipped behavior, for contrast.</p>
+    </div>
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">connecteam-web.vercel.app/member/onboarding</div>
+      </div>
+      <div class="m-content">
+        <div class="m-content-inner">
+          <div class="accordion">
+            <div class="a-item open">
+              <div class="a-row">
+                <span class="a-check"></span>
+                <span class="a-icon">📲</span>
+                <span style="flex:1">
+                  <span class="a-title">Download PruForce</span>
+                  <span class="a-desc">Unduh &amp; install aplikasi PRUForce</span>
+                </span>
+                <span class="a-chev">›</span>
+              </div>
+              <div class="a-body">
+                <div>
+                  <span class="placeholder-tag">Segera hadir</span>
+                  <p style="margin:6px 0 0;color:var(--page-text-muted)">Dipindah dari Plan 11.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Usulan — the same accordion item, with content</h2>
+      <p>
+        Same <code style="font-family:var(--mono)">AccordionItem</code>, same checkbox and
+        progress wiring; only <code style="font-family:var(--mono)">SectionDetail</code>'s
+        <code style="font-family:var(--mono)">case "download-pruforce"</code> changes. Three
+        blocks — get the app, install it, don't lose your drafts updating it — and
+        nothing else. Trimmed from six on 2026-08-05; see the note above for what
+        came out and where it went.
+      </p>
+    </div>
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="browser-dots"><span></span><span></span><span></span></div>
+        <div class="browser-url">connecteam-web.vercel.app/member/onboarding</div>
+      </div>
+      <div class="m-content">
+        <div class="m-content-inner">
+
+          <div class="quest-header">
+            <h3>🔥 CONNECTeam Quest</h3>
+            <p>Jalur step-by-step buat agen baru — cari klien, jual, gaspol.</p>
+            <div class="quest-progress"><div class="quest-progress-fill"></div></div>
+            <div class="quest-progress-label"><span>Progress Onboarding</span><span>25%</span></div>
+          </div>
+
+          <div class="level-panel">
+            <div class="level-head">
+              <div class="level-badge">1</div>
+              <div class="level-head-text">
+                <h4>Onboarding</h4>
+                <p>Langkah pertama kamu sebagai agent baru</p>
+              </div>
+              <span class="level-count">1/4</span>
+            </div>
+
+            <div class="accordion">
+              <div class="a-item done open">
+                <div class="a-row">
+                  <span class="a-check">✓</span>
+                  <span class="a-icon">📲</span>
+                  <span style="flex:1">
+                    <span class="a-title">Download PruForce</span>
+                    <span class="a-desc">Unduh &amp; install aplikasi PRUForce</span>
+                  </span>
+                  <span class="a-chev">›</span>
+                </div>
+                <div class="a-body">
+
+                  <!-- 1. one primary link -->
+                  <div>
+                    <a class="cta" href="https://portals.prudential.co.id/agent/application/view/68105c1e152990ce5bc2e7a6">
+                      <span>📲</span>
+                      <span>
+                        Buka Halaman Download PRUForce
+                        <span class="cta-sub">portals.prudential.co.id — portal resmi Prudential</span>
+                      </span>
+                      <span class="cta-arrow">↗</span>
+                    </a>
+                  </div>
+
+                  <!-- 2. per-OS steps -->
+                  <div>
+                    <span class="sub-label">Cara install</span>
+                    <div class="os-grid" style="margin-top:6px">
+                      <div class="os-card">
+                        <h5>🤖 Android</h5>
+                        <ol>
+                          <li>Buka halaman download, tap <b>Unduh untuk Android</b>.</li>
+                          <li>File <b>.apk</b> — bukan dari Play Store, jadi HP bakal nanya izin.</li>
+                          <li>Izinkan <b>"Install dari sumber ini"</b> buat browser kamu, lalu install.</li>
+                        </ol>
+                      </div>
+                      <div class="os-card">
+                        <h5>🍎 iPhone / iPad</h5>
+                        <ol>
+                          <li>Buka halaman download <b>di Safari</b> — di Chrome tombolnya nggak jalan.</li>
+                          <li>Tap <b>Unduh untuk iOS</b>, lalu <b>Install</b> di popup yang muncul.</li>
+                          <li>Setelan → Umum → <b>VPN &amp; Manajemen Perangkat</b> → pilih Prudential → <b>Percayai</b>.</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 3. update warning, verbatim in substance from the portal notice -->
+                  <div class="callout danger">
+                    <span>⚠️</span>
+                    <span>
+                      <b>Kalau kamu update dari versi lama:</b>
+                      <ul>
+                        <li><b>SYNC DATA</b> dan <b>submit semua pengajuan</b> dulu di versi lama.</li>
+                        <li>Draft yang dibuat di versi sebelumnya <b>nggak bisa dilanjutin</b> setelah update.</li>
+                        <li>Versi lama dinonaktifkan begitu versi baru rilis — nggak bisa nunda.</li>
+                      </ul>
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="a-item">
+                <div class="a-row">
+                  <span class="a-check"></span>
+                  <span class="a-icon">🧭</span>
+                  <span style="flex:1">
+                    <span class="a-title">Kenali Dirimu</span>
+                    <span class="a-desc">Tes DISC, MBTI, Self Motivation</span>
+                  </span>
+                  <span class="a-chev">›</span>
+                </div>
+              </div>
+              <div class="a-item">
+                <div class="a-row">
+                  <span class="a-check"></span>
+                  <span class="a-icon">🎯</span>
+                  <span style="flex:1">
+                    <span class="a-title">Bikin Goals Pribadi / Susun Targetmu</span>
+                    <span class="a-desc">Susun target jangka pendek, menengah, panjang</span>
+                  </span>
+                  <span class="a-chev">›</span>
+                </div>
+              </div>
+              <div class="a-item">
+                <div class="a-row">
+                  <span class="a-check"></span>
+                  <span class="a-icon">📱</span>
+                  <span style="flex:1">
+                    <span class="a-title">Setup WA, IG</span>
+                    <span class="a-desc">Siapin WhatsApp &amp; Instagram buat kerja</span>
+                  </span>
+                  <span class="a-chev">›</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Where each fact came from</h2>
+      <p>So the implementer can re-check anything before it ships. Everything below was read on 2026-08-05.</p>
+    </div>
+    <table class="src">
+      <thead>
+        <tr><th>Fact in the mockup</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Download page URL for PRUForce 2.0</td>
+          <td><a href="https://portals.prudential.co.id/agent/application/view/68105c1e152990ce5bc2e7a6">portals.prudential.co.id/agent/application/view/68105c1e152990ce5bc2e7a6</a> — public, no login. Also listed on <a href="https://portals.prudential.co.id/agent/application/download">/agent/application/download</a> alongside PRUFast and PRUWorks.</td>
+        </tr>
+        <tr>
+          <td><code>bit.ly/PRUForce2</code> is the same page</td>
+          <td>Redirect resolved to the view URL above. The short link is printed in Prudential Digital Services' own in-page release notice ("🔗 Link Update PRUForce: 📱 Android dan IOS").</td>
+        </tr>
+        <tr>
+          <td>Sync/submit-before-update warning</td>
+          <td>Paraphrased from the portal's own "⚠️ DIGITAL UPDATE⚠️" notice dated 29 Juli 2026, which spells out the sync, the submit deadline, the dead drafts, and the deactivation of v2.40.0.</td>
+        </tr>
+        <tr>
+          <td>Android is a side-loaded APK on a 7-day signed URL</td>
+          <td>Button <code>href</code> is a <code>storage.googleapis.com</code> object with <code>X-Goog-Expires=604800</code>.</td>
+        </tr>
+        <tr>
+          <td>iOS is an enterprise OTA install (Safari-only)</td>
+          <td>Button <code>href</code> is <code>itms-services://?action=download-manifest&amp;url=https://pru-api-prod.prudential.co.id/pruforce/public/v1/application/68105c1e152990ce5bc2e7a6/app.plist</code>. The trust-profile wording is not Prudential's — it was inferred from that scheme, then confirmed by the content owner on 2026-08-05.</td>
+        </tr>
+        <tr>
+          <td>Not on Play Store / App Store</td>
+          <td>Play Store ID search for "pruforce" returns PRUFast, PRUonline (Vietnam), and unrelated apps — no PRUForce. iTunes search (country=id) likewise. The Play listing <code>vn.com.prudential.pruforce.dev</code> is Prudential Vietnam. <code>apps.apple.com/id/app/pruforce-mobile/id1082618139</code> returns 404.</td>
+        </tr>
+        <tr>
+          <td>PRUDigitalfriend contact <span class="verify">Yellow Pages</span></td>
+          <td>Footer of <a href="https://pruforce.prudential.co.id/pruforce-web">pruforce.prudential.co.id/pruforce-web</a>, under "Kendala Aplikasi Digital (PRUForce, PRUFast, PULSE, PRUWorks)". Kept here as provenance — the fact itself belongs to Yellow Pages, not this step.</td>
+        </tr>
+        <tr>
+          <td>PRUWorks portal link <span class="verify">Yellow Pages</span></td>
+          <td>Recorded in Plan 11; re-checked 2026-08-05, returns 200. Same — provenance only, the entry goes in Yellow Pages.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>If this gets built</h2>
+    </div>
+    <div class="note-box">
+      <span>🛠️</span>
+      <span>
+        Shape it as a typed content module the way
+        <code>KNOW_YOURSELF</code> already is in
+        <code>src/content/onboarding.ts</code> — Plan 11 anticipated
+        <code>src/content/systems.ts</code> splitting into an Onboarding half and a
+        References half, and this is the Onboarding half's first entry. After the trim
+        there's nothing version-dependent left to go stale — the portal page carries the
+        version, sizes, and release notes itself, which is the point. The checkbox,
+        progress row, and <code>download-pruforce</code> id all stay exactly as they are.
+        Plan 11's line about this step carrying "links to the official Prudential agent
+        portals" no longer holds: PRUWorks moved to Yellow Pages, so PRUForce's own
+        download page is the only link here.
+      </span>
+    </div>
+  </section>
+</div>
+</body>
+</html>

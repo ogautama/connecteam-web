@@ -52,6 +52,24 @@ leader-only entries. Independent of Plans 08–13.
   captured) — **re-visit this page while logged in to capture the rest of
   the contact list** before implementing.
 
+**Routed here from the PRUForce step, 2026-08-05** (user's call while
+reviewing [spec-pruforce.html](../design/spec-pruforce.html) — the Onboarding
+step keeps only "how do I get the app installed", everything directory-shaped
+comes here):
+
+- **PRU Digital Friends** — same entry as above, now with the rest of its
+  details confirmed from the PRUForce web portal footer: WhatsApp
+  +62-811-1566-512 (**ketik: DF**), `prudigitalfriend@prudential.co.id`, and
+  its actual remit is *"Kendala Aplikasi Digital"* — PRUForce, PRUFast, PULSE,
+  and PRUWorks. The same footer also names two siblings worth capturing when
+  the gated page is re-visited: **Agency Admin Helpdesk** (+62-811-1566-512,
+  ketik: DA, `agencyadmin.helpdesk@prudential.co.id`) and **Agency License
+  Helpdesk** (`agencylicense.helpdesk@prudential.co.id`).
+- **PRUForce Web Portal** — `https://pruforce.prudential.co.id/pruforce-web`,
+  production reports in a browser, login with a PRUForce ID.
+- **PRUWorks** — `https://portals.prudential.co.id/agent/application/view/682dad51152990ce5bc7615c`
+  (verified 2026-08-05). Moved out of Plan 11's PRUForce scope.
+
 **CONNECT with Leaders** (`/connect-with-leaders`), **MRT Group**
 (`/mrt-group`), **Prudential Indonesia** (`/prudential-indonesia`): not
 captured during exploration — **this plan's implementer must visit all three
