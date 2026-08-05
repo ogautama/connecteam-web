@@ -209,6 +209,20 @@ Plan 06's nav.)*
   "Segera hadir" placeholder rather than linking to a 404. When Plan 05
   ships, decide whether that section embeds the tool or links out — and
   whether the member-area entry point changes Plan 05's public-page scope.
+- **"Isi Data" should move out of Onboarding into a "Profile" account-menu
+  item** — decided 2026-08-05, mocked up in
+  [spec-profile-menu.html](../design/spec-profile-menu.html), not built. It's
+  personal data a member revisits, not a one-time onboarding step, so it
+  belongs with the account rather than in a checklist that's meant to empty
+  out. The entry point lands in the account dropdown (`AccountMenu.tsx`)
+  labeled "Profile", above "Member Space"; no new sidebar item. The `Isi
+  Data` row leaves `ONBOARDING_SECTIONS` entirely, taking the checklist from
+  7 items to 6. Two things to settle when scoping it: the progress
+  denominator shifts for everyone (members who'd already checked it off lose
+  the visible credit, though their `OnboardingProgress` row survives —
+  decide whether to delete those rows or leave them orphaned), and the page
+  itself still says "Isi Data" while the menu says "Profile", which is worth
+  reconciling or deliberately keeping.
 - **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
   The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
   crowd the logo below ~400px wide — surfaced building Plan 03, left as-is

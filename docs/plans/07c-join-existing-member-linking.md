@@ -17,6 +17,13 @@ Applicant→Isi-Data read-only link (built 2026-07-30) as a second linking
 path, for someone who submits /join under an email that's already a real
 member.
 
+**Follow-on decided 2026-08-05, not built:** where a member *finds* Isi
+Data changes — out of the Onboarding checklist, into the account dropdown
+as "Profile". See
+[spec-profile-menu.html](../design/spec-profile-menu.html) and the entry in
+[Plan 00's open items](00-overview.md). Nothing in this plan's own linking
+flow changes; `/login?next=/member/isi-data` still lands on the same page.
+
 ## Depends on
 
 - [Plan 07](07-member-onboarding.md) — owns `/member/isi-data` and the
