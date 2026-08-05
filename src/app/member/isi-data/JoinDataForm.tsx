@@ -460,7 +460,6 @@ function IntakeForm({
             Batal
           </button>
         )}
-        <span className="text-sm text-ink-500">Otomatis kecentang di checklist Onboarding</span>
       </div>
     </form>
   );

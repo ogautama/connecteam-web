@@ -43,10 +43,7 @@ export default async function IsiDataPage() {
         <div className="h-2.5 bg-gradient-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400" />
         <div className="p-6">
           <h1 className="text-2xl font-bold tracking-tight text-ink-900">Isi Data</h1>
-          <p className="mt-2 text-ink-500">
-            Lengkapi data pribadi buat proses join. Bagian ini otomatis kecentang di
-            checklist Onboarding begitu tersimpan.
-          </p>
+          <p className="mt-2 text-ink-500">Lengkapi data pribadi buat proses join.</p>
           <p className="mt-4 border-t border-ink-100 pt-3 text-sm text-ink-500">
             Kolom bertanda <span className="text-brand-red-500">*</span> wajib diisi.
           </p>
