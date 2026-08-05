@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 const { requireMember, getCompletedItemIds, getTestResultState } = vi.hoisted(() => ({
   requireMember: vi.fn(),
@@ -45,48 +45,92 @@ describe("member hub page", () => {
     expect(getCompletedItemIds).not.toHaveBeenCalled();
   });
 
-  test("defaults to Onboarding, listing its 5 items as checkboxes", async () => {
+  test("defaults to Onboarding, listing its 7 items as checkboxes", async () => {
     render(await renderAt());
 
     expect(screen.getByRole("heading", { level: 1, name: "Onboarding" })).toBeInTheDocument();
     for (const title of [
+      "Isi Data",
+      "Download PruForce",
+      "Lisensi AAJI & AASI",
+      "Kelas MFC & Sertifikasi Produk",
       "Kenali Dirimu",
-      "Susun Targetmu",
-      "Pelajari Sesuatu yang Baru",
-      "Langsung Aksi",
-      "Starter Kit",
+      "Bikin Goals Pribadi / Susun Targetmu",
+      "Setup WA, IG",
     ]) {
       expect(screen.getByRole("checkbox", { name: title })).toBeInTheDocument();
     }
   });
 
   test("previously completed items render checked", async () => {
-    render(await renderAt(undefined, ["know-yourself", "just-do-it"]));
+    render(await renderAt(undefined, ["know-yourself", "setup-wa-ig"]));
 
     expect(screen.getByRole("checkbox", { name: "Kenali Dirimu" })).toHaveAttribute(
       "aria-checked",
       "true",
     );
-    expect(screen.getByRole("checkbox", { name: "Susun Targetmu" })).toHaveAttribute(
+    expect(screen.getByRole("checkbox", { name: "Isi Data" })).toHaveAttribute(
       "aria-checked",
       "false",
     );
   });
 
-  test("renders the section named in the query string", async () => {
+  test("expanding Kenali Dirimu shows its real DISC/MBTI content, not a placeholder", async () => {
+    render(await renderAt());
+
+    fireEvent.click(screen.getByRole("button", { name: /Kenali Dirimu/ }));
+
+    expect(screen.getByRole("link", { name: "Tes DISC" })).toHaveAttribute(
+      "href",
+      "/tools/disc",
+    );
+  });
+
+  test("expanding a placeholder onboarding item shows its Segera hadir / Di luar scope tag", async () => {
+    render(await renderAt());
+
+    fireEvent.click(screen.getByRole("button", { name: /Download PruForce/ }));
+
+    expect(screen.getByText("Segera hadir")).toBeInTheDocument();
+  });
+
+  test("Isi Data opens its own page in a new tab instead of expanding inline", async () => {
+    render(await renderAt());
+
+    const link = screen.getByRole("link", { name: /Isi Data/ });
+    expect(link).toHaveAttribute("href", "/member/isi-data");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    // No expand toggle for this item — the checkbox (role="checkbox") is
+    // still there, but there's no separate expand button like the others.
+    expect(screen.queryByRole("button", { name: /Isi Data/ })).not.toBeInTheDocument();
+  });
+
+  test("renders a top-level parent as a landing page linking to its children", async () => {
     render(await renderAt("recruiting"));
 
     expect(screen.getByRole("heading", { level: 1, name: "Recruiting" })).toBeInTheDocument();
-    expect(screen.getAllByText("Segera hadir").length).toBeGreaterThan(0);
-    // The deferred CRM feature is tagged apart from merely-unsourced content.
-    expect(screen.getByText("Di luar scope")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Kenapa recruit dlu\?/ }),
+    ).toHaveAttribute("href", "/member/onboarding?section=recruiting-why");
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
   });
 
-  test("renders a nested section the same way as a top-level one", async () => {
-    render(await renderAt("events"));
+  test("renders a nested leaf section with its placeholder content", async () => {
+    render(await renderAt("recruiting-bank-fast"));
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Bank nama rekrut + FAST" }),
+    ).toBeInTheDocument();
+    // The deferred CRM feature is tagged apart from merely-unsourced content.
+    expect(screen.getByText("Di luar scope")).toBeInTheDocument();
+  });
+
+  test("renders a deeply-nested section the same way as any other leaf", async () => {
+    render(await renderAt("references-events"));
 
     expect(screen.getByRole("heading", { level: 1, name: "Events" })).toBeInTheDocument();
+    expect(screen.getAllByText("Segera hadir").length).toBeGreaterThan(0);
   });
 
   test("falls back to Onboarding on a junk section rather than crashing", async () => {
@@ -98,6 +142,6 @@ describe("member hub page", () => {
   test("shows overall onboarding progress regardless of active section", async () => {
     render(await renderAt("selling", ["know-yourself"]));
 
-    expect(screen.getByText("20%")).toBeInTheDocument();
+    expect(screen.getByText("14%")).toBeInTheDocument();
   });
 });

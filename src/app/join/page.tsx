@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
 import { getCurrentUser } from "@/lib/auth";
+import { getPengundangUnitOptions } from "@/lib/memberIntake";
+import ApplicationForm from "./ApplicationForm";
 
 export const metadata: Metadata = {
   title: "Gabung — CONNECTeam",
@@ -8,37 +10,41 @@ export const metadata: Metadata = {
     "Daftar jadi bagian dari CONNECTeam. Isi form pendaftaran dan tim kami akan menghubungi kamu.",
 };
 
-// The existing Google Form, embedded as-is. Rebuilding the form itself is
-// out of scope for Plan 03 — this page just wraps it in the marketing shell.
-const FORM_EMBED_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSdogN_R3VKMZgt4ifQMOH3oNu2nYMiwrGWPuYZH5yTKqzUJkA/viewform?embedded=true";
-
+/**
+ * Replaces Plan 03's Google Form embed (2026-07-30) — the real Plan 15
+ * follow-on: a public application form, no account needed. Same
+ * card-per-question look and the same 16 questions as the member "Isi
+ * Data" form (@/components/forms/IntakeFormFields, ApplicationForm.tsx),
+ * just without the member sidebar (MarketingLayout instead of MemberShell)
+ * and with no auth gate — submitApplication (./actions.ts) is reachable by
+ * anyone. Submissions land in a leader's review queue
+ * (/member/admin/add-member) rather than auto-creating an account.
+ */
 export default async function JoinPage() {
-  const user = await getCurrentUser();
+  const [user, pengundangUnitOptions] = await Promise.all([
+    getCurrentUser(),
+    getPengundangUnitOptions(),
+  ]);
 
   return (
     <MarketingLayout user={user}>
-      <section className="mx-auto flex w-full max-w-content flex-col items-center gap-4 px-6 py-16 text-center">
-        <h1 className="text-display-sm font-bold tracking-tight text-ink-900">
-          Gabung CONNECTeam
-        </h1>
-        <p className="max-w-xl text-lg text-ink-500">
-          Isi form di bawah ini. Butuh sekitar 5 menit — setelah itu tim kami
-          bakal menghubungi kamu buat ngobrol soal langkah selanjutnya.
-        </p>
-      </section>
-
-      <section className="mx-auto w-full max-w-3xl px-6 pb-24">
-        <iframe
-          title="Form pendaftaran CONNECTeam"
-          src={FORM_EMBED_URL}
-          className="h-[80vh] w-full rounded-2xl border border-ink-100"
-        >
-          Memuat form…{" "}
-          <a href={FORM_EMBED_URL} target="_blank" rel="noopener noreferrer">
-            Buka form pendaftaran
-          </a>
-        </iframe>
+      <section className="mx-auto w-full max-w-[640px] px-6 pt-12 pb-24">
+        <div className="mb-4 overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-sm">
+          <div className="h-2.5 bg-gradient-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400" />
+          <div className="p-6">
+            <h1 className="text-2xl font-bold tracking-tight text-ink-900">
+              Gabung CONNECTeam
+            </h1>
+            <p className="mt-2 text-ink-500">
+              Isi form di bawah ini. Butuh sekitar 5 menit — tim kami bakal ngecek
+              dan menghubungi kamu buat langkah selanjutnya.
+            </p>
+            <p className="mt-4 border-t border-ink-100 pt-3 text-sm text-ink-500">
+              Kolom bertanda <span className="text-brand-red-500">*</span> wajib diisi.
+            </p>
+          </div>
+        </div>
+        <ApplicationForm pengundangUnitOptions={pengundangUnitOptions} />
       </section>
     </MarketingLayout>
   );

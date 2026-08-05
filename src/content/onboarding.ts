@@ -10,26 +10,6 @@ export type OnboardingLink = {
   testSource?: "mbti" | "selfMotivation";
 };
 
-export type OnboardingChecklist = {
-  title: string;
-  items: string[];
-};
-
-// Videos and downloads carried over from the old site whose actual
-// file/URL wasn't captured in the content inventory this plan was written
-// from (the source pages sit behind a Google-account gate). `href` stays
-// undefined until a real one is supplied — the page shows a "segera hadir"
-// state instead of a dead or fabricated link.
-export type OnboardingVideo = {
-  title: string;
-  href?: string;
-};
-
-export type OnboardingDownload = {
-  label: string;
-  href?: string;
-};
-
 export const KNOW_YOURSELF: OnboardingLink[] = [
   {
     label: "Tes DISC",
@@ -50,59 +30,20 @@ export const KNOW_YOURSELF: OnboardingLink[] = [
   },
 ];
 
-export const PLAN_YOUR_GOALS: OnboardingChecklist = {
-  title: "Susun Targetmu",
-  items: [
-    "Tulis 20 nama calon partner bisnis",
-    "Tulis 20 nama orang yang bakal mau dengerin ide-idemu",
-    "Tulis target pribadi buat 3 bulan ke depan",
-  ],
-};
-
-export const LEARN_VIDEOS: OnboardingVideo[] = [
-  { title: "Cara Kerja Asuransi di Kehidupan Nyata" },
-  { title: "Dasar-Dasar: Health Cover" },
-  { title: "Dasar-Dasar: Critical Illness Cover" },
-  { title: "Dasar-Dasar: Life Cover" },
-];
-
-export const LEARN_LINKS: OnboardingLink[] = [
-  {
-    label: "Recruitment Kit",
-    href: "/member/onboarding?section=recruiting",
-    note: "Materi buat ngajak partner baru",
-  },
-];
-
-export const LEARN_NOTE =
-  "Mau tau jadwal webinar Welcoming New Agent? Tanya leadermu di grup Telegram tim.";
-
-export const JUST_DO_IT: OnboardingChecklist = {
-  title: "Langsung Aksi",
-  items: [
-    "Ajak 2 partner terbaikmu ngobrol",
-    "Share satu produk yang beneran kamu percaya",
-    'Bilang ke orang-orang: "Saya PRU"',
-  ],
-};
-
-export const STARTER_KIT: OnboardingDownload[] = [
-  { label: "Schedule Book" },
-  { label: "Project 100" },
-  { label: "Score Card" },
-  { label: "Review Polis" },
-];
-
-// Plan 07 (quest hub redesign) — the same five sections above, addressed as
-// accordion items. `id` is the opaque key OnboardingProgress rows key off
+// The onboarding checklist (rebuilt 2026-07-29 from the content-inventory
+// sheet, Plan 07) — its 7 items are also Onboarding's sidebar children in
+// spirit, but rendered inline here as accordion items rather than separate
+// `?section=` pages. `id` is the opaque key OnboardingProgress rows key off
 // of (prisma/schema.prisma) — stable once shipped, since renaming one loses
 // members' existing checked-off state.
 export type OnboardingSectionId =
+  | "join-isi-data"
+  | "download-pruforce"
+  | "lisensi-aaji-aasi"
+  | "kelas-mfc-sertifikasi"
   | "know-yourself"
-  | "plan-your-goals"
-  | "learn"
-  | "just-do-it"
-  | "starter-kit";
+  | "goals-pribadi"
+  | "setup-wa-ig";
 
 export type OnboardingSection = {
   id: OnboardingSectionId;
@@ -113,33 +54,45 @@ export type OnboardingSection = {
 
 export const ONBOARDING_SECTIONS: OnboardingSection[] = [
   {
+    id: "join-isi-data",
+    title: "Isi Data",
+    description: "Lengkapi data pribadi buat proses join",
+    icon: "📝",
+  },
+  {
+    id: "download-pruforce",
+    title: "Download PruForce",
+    description: "Unduh & install aplikasi PRUForce",
+    icon: "📲",
+  },
+  {
+    id: "lisensi-aaji-aasi",
+    title: "Lisensi AAJI & AASI",
+    description: "Ambil lisensi wajib buat mulai jualan",
+    icon: "🪪",
+  },
+  {
+    id: "kelas-mfc-sertifikasi",
+    title: "Kelas MFC & Sertifikasi Produk",
+    description: "Kelas dan sertifikasi produk yang dibutuhin",
+    icon: "🎓",
+  },
+  {
     id: "know-yourself",
     title: "Kenali Dirimu",
     description: "Tes DISC, MBTI, Self Motivation",
     icon: "🧭",
   },
   {
-    id: "plan-your-goals",
-    title: PLAN_YOUR_GOALS.title,
-    description: "3 hal buat dipikirin sebelum mulai",
+    id: "goals-pribadi",
+    title: "Bikin Goals Pribadi / Susun Targetmu",
+    description: "Susun target jangka pendek, menengah, panjang",
     icon: "🎯",
   },
   {
-    id: "learn",
-    title: "Pelajari Sesuatu yang Baru",
-    description: "4 video dasar + Recruitment Kit",
-    icon: "📚",
-  },
-  {
-    id: "just-do-it",
-    title: JUST_DO_IT.title,
-    description: "3 langkah kecil, mulai sekarang",
-    icon: "⚡",
-  },
-  {
-    id: "starter-kit",
-    title: "Starter Kit",
-    description: "Schedule Book, Project 100, Score Card, Review Polis",
-    icon: "🎒",
+    id: "setup-wa-ig",
+    title: "Setup WA, IG",
+    description: "Siapin WhatsApp & Instagram buat kerja",
+    icon: "📱",
   },
 ];

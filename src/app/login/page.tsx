@@ -7,7 +7,18 @@ export const metadata: Metadata = {
   description: "Masuk ke member space CONNECTeam dengan akun Google kamu.",
 };
 
-export default function LoginPage() {
+/**
+ * `?next=` is a generic post-login destination, forwarded to
+ * /auth/callback (which validates it). /join uses it to send someone who
+ * turns out to already be a member straight to /member/isi-data.
+ */
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+
   return (
     <MarketingLayout>
       <section className="mx-auto flex w-full max-w-content flex-1 flex-col items-center justify-center gap-6 px-6 py-24 text-center">
@@ -18,7 +29,7 @@ export default function LoginPage() {
           Gunakan akun Google yang sudah didaftarkan leader kamu.
         </p>
 
-        <LoginForm />
+        <LoginForm next={next} />
       </section>
     </MarketingLayout>
   );

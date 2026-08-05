@@ -40,7 +40,7 @@ describe("MemberDashboard", () => {
     expect(screen.getByText(/Belum ada acara yang dijadwalin/i)).toBeInTheDocument();
   });
 
-  test("quick-links to every section, nested ones included", () => {
+  test("quick-links to the top-level sections only — no Calculator, no children", () => {
     render(<MemberDashboard user={agent} />);
 
     const sections = screen
@@ -52,15 +52,12 @@ describe("MemberDashboard", () => {
       "/member/onboarding",
       "/member/onboarding?section=recruiting",
       "/member/onboarding?section=selling",
-      "/member/onboarding?section=calculator",
       "/member/onboarding?section=references",
-      "/member/onboarding?section=contests",
-      "/member/onboarding?section=events",
       "/member/onboarding?section=directory",
     ]);
   });
 
-  test("gives a leader the Add Member card too", () => {
+  test("excludes Add Member from the dashboard even for a leader", () => {
     render(<MemberDashboard user={{ ...agent, role: "leader" }} />);
 
     const sections = screen
@@ -68,7 +65,7 @@ describe("MemberDashboard", () => {
       .parentElement!;
 
     expect(
-      within(sections).getByRole("link", { name: /Add Member/ }),
-    ).toHaveAttribute("href", "/member/admin/add-member");
+      within(sections).queryByRole("link", { name: /Add Member/ }),
+    ).not.toBeInTheDocument();
   });
 });

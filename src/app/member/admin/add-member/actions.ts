@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { Role } from "@prisma/client";
+import type { ApplicantStatus, Role } from "@prisma/client";
 import { requireRole } from "@/lib/auth";
+import { setApplicantStatus as setApplicantStatusInDb } from "@/lib/applicant";
 import {
   createPendingInvite,
   isValidEmail,
@@ -72,4 +73,20 @@ export async function addMember(
   revalidatePath("/member/admin/add-member");
 
   return { status: "success", email: normalizeEmail(email) };
+}
+
+/**
+ * Accept/reject on a public /join application — branch-scoped, same as
+ * every other recruiter-tree permission check. This is just a record of the
+ * leader's decision: accepting doesn't create a PendingInvite (unlike
+ * MemberIntake's submitJoinData), so an accepted applicant still needs the
+ * leader to add them via addMember above, same as any other new member.
+ */
+export async function setApplicantStatus(
+  applicantId: string,
+  status: Exclude<ApplicantStatus, "submitted">
+): Promise<void> {
+  const leader = await requireRole("leader");
+  const ok = await setApplicantStatusInDb(leader.id, applicantId, status);
+  if (ok) revalidatePath("/member/admin/add-member");
 }

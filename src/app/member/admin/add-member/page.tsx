@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { requireRole } from "@/lib/auth";
+import { listApplicantsFor } from "@/lib/applicant";
 import { listPendingInvitesFor, listRecruiterOptionsFor } from "@/lib/invites";
 import AddMemberForm from "./AddMemberForm";
+import ApplicantQueue from "./ApplicantQueue";
 import PendingInvites from "./PendingInvites";
 
 export const metadata: Metadata = {
@@ -13,12 +15,18 @@ export const metadata: Metadata = {
  * pre-authorizes an email, and that person becomes a real User the moment
  * they sign in with Google. Leader-only — requireRole sends agents back to
  * /member before anything renders.
+ *
+ * Also where the public /join application queue (Plan 15's follow-on,
+ * built 2026-07-30) surfaces — reviewing an application doesn't create an
+ * invite by itself, so "Terima" here and adding the member above are two
+ * separate, deliberate steps.
  */
 export default async function AddMemberPage() {
   const leader = await requireRole("leader");
-  const [recruiters, pendingInvites] = await Promise.all([
+  const [recruiters, pendingInvites, applicants] = await Promise.all([
     listRecruiterOptionsFor(leader.id),
     listPendingInvitesFor(leader.id),
+    listApplicantsFor(leader.id),
   ]);
 
   return (
@@ -36,6 +44,8 @@ export default async function AddMemberPage() {
       <AddMemberForm recruiters={recruiters} defaultRecruiterId={leader.id} />
 
       <PendingInvites invites={pendingInvites} />
+
+      <ApplicantQueue applicants={applicants} />
     </div>
   );
 }

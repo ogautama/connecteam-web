@@ -107,6 +107,7 @@ are captured inline in those docs so each can be picked up independently.
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
 | 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12); nav reworked 2026-07-26§ |
 | 07 | Member: Quest Hub (`/member/onboarding`, all member sections) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | Shell built — [PR #18](https://github.com/ogautama/connecteam-web/pull/18) (open); supersedes [PR #17](https://github.com/ogautama/connecteam-web/pull/17)§ |
+| 07c | Join Us → Isi Data: link an existing member's email (no auto-invite) | 07, 02b | [07c-join-existing-member-linking.md](07c-join-existing-member-linking.md) | Not started — planned 2026-07-31 |
 | 08 | Member: Grow (Recruiting section content) | 07 | [08-member-grow.md](08-member-grow.md) | Revised§ — content only, no own route |
 | 09 | Member: Sell (Selling section content) | 07 | [09-member-sell.md](09-member-sell.md) | Revised§ — content only, no own route |
 | 10 | Member: Reference Data (References section category) | 07 | [10-member-reference.md](10-member-reference.md) | Revised§ — content only, no own route |
@@ -208,6 +209,28 @@ Plan 06's nav.)*
   "Segera hadir" placeholder rather than linking to a 404. When Plan 05
   ships, decide whether that section embeds the tool or links out — and
   whether the member-area entry point changes Plan 05's public-page scope.
+- **Onboarding checklist should shrink from 7 items to 4** — two calls made
+  2026-08-05, both mocked up in
+  [spec-profile-menu.html](../design/spec-profile-menu.html), neither built.
+  (1) **"Isi Data" moves out into a "Profile" account-menu item.** It's
+  personal data a member revisits, not a one-time onboarding step, so it
+  belongs with the account rather than in a checklist that's meant to empty
+  out. The entry point lands in the account dropdown (`AccountMenu.tsx`)
+  labeled "Profile", above "Member Space"; no new sidebar item, and
+  `/member/isi-data` itself is untouched. (2) **`lisensi-aaji-aasi` and
+  `kelas-mfc-sertifikasi` get hidden** — both are `"Segera hadir"`
+  placeholders with no content behind them. Checked 2026-08-05: no
+  `OnboardingProgress` row exists for either id, so hiding them costs nobody
+  progress. Confirmed 2026-08-05 this is deliberately **not** "hide every
+  placeholder": `download-pruforce` and `setup-wa-ig` are equally empty
+  placeholders and stay, so it's a specific call about licensing/class
+  content, not a rule. **Settled 2026-08-05:** the existing
+  `join-isi-data` `OnboardingProgress` rows get **deleted** as part of the
+  build rather than left orphaned — change (1) removes the only row that
+  could ever display them, so keeping them would just be dead state.
+  (There is exactly one such row today.) Still unresolved: the page itself
+  says "Isi Data" while the menu would say "Profile", worth reconciling or
+  deliberately keeping.
 - **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
   The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
   crowd the logo below ~400px wide — surfaced building Plan 03, left as-is

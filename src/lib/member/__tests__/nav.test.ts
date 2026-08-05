@@ -7,14 +7,20 @@ import {
   isValidSection,
   memberSections,
   navItemHref,
+  sectionWithinItem,
   showsLeaderBadge,
   visibleNavItems,
 } from "@/lib/member/nav";
 
 const references = MEMBER_NAV.find((item) => item.label === "References")!;
 const events = references.children!.find((item) => item.label === "Events")!;
+const onboarding = MEMBER_NAV.find((item) => item.label === "Onboarding")!;
+const recruiting = MEMBER_NAV.find((item) => item.label === "Recruiting")!;
 const selling = MEMBER_NAV.find((item) => item.label === "Selling")!;
+const calculator = MEMBER_NAV.find((item) => item.label === "Calculator")!;
+const directory = MEMBER_NAV.find((item) => item.label === "Directory")!;
 const dashboard = MEMBER_NAV[0];
+const addMember = MEMBER_NAV.find((item) => item.label === "Add Member")!;
 
 describe("visibleNavItems", () => {
   it("shows an agent the dashboard plus every top-level section", () => {
@@ -40,12 +46,37 @@ describe("visibleNavItems", () => {
     );
   });
 
-  it("keeps References' children nested rather than flattening them", () => {
-    const refs = visibleNavItems("agent").find((i) => i.label === "References")!;
-
-    expect(refs.children!.map((child) => child.label)).toEqual([
+  it("keeps every top-level item's children nested rather than flattening them", () => {
+    // Onboarding has no sidebar children — its checklist renders inline on
+    // its own page instead (ONBOARDING_SECTIONS in @/content/onboarding).
+    expect(onboarding.children).toBeUndefined();
+    expect(recruiting.children!.map((child) => child.label)).toEqual([
+      "Kenapa recruit dlu?",
+      "Bank nama rekrut + FAST",
+      "Presentasi bisnis ke calon rekrut",
+      "Handling Obj calon rekrut",
+    ]);
+    expect(selling.children!.map((child) => child.label)).toEqual([
+      "Learning Center",
+      "Bank nama rekrut + FORM",
+      "Sales Tools",
+    ]);
+    expect(calculator.children).toBeUndefined();
+    expect(references.children!.map((child) => child.label)).toEqual([
+      "Recording",
+      "Commission",
+      "Prestige",
+      "Schedule Book (PDF Download)",
+      "Prupay Link",
+      "Claim",
       "Contests & Campaigns",
       "Events",
+    ]);
+    expect(directory.children!.map((child) => child.label)).toEqual([
+      "Yellow Pages",
+      "Who is Prudential",
+      "Who is MRT Group",
+      "Who is Connecteam",
     ]);
   });
 });
@@ -57,8 +88,8 @@ describe("filterForRole", () => {
         label: "Parent",
         section: "references" as const,
         children: [
-          { label: "Open", section: "contests" as const },
-          { label: "Secret", section: "events" as const, leaderOnly: true },
+          { label: "Open", section: "references-contests" as const },
+          { label: "Secret", section: "references-events" as const, leaderOnly: true },
         ],
       },
     ];
@@ -72,12 +103,16 @@ describe("filterForRole", () => {
 
 describe("navItemHref", () => {
   it("gives the default section a bare path, not a redundant query", () => {
-    const onboarding = MEMBER_NAV.find((i) => i.section === DEFAULT_SECTION)!;
-    expect(navItemHref(onboarding)).toBe("/member/onboarding");
+    const defaultItem = MEMBER_NAV.find((i) => i.section === DEFAULT_SECTION)!;
+    expect(navItemHref(defaultItem)).toBe("/member/onboarding");
   });
 
   it("puts every other section behind ?section=", () => {
     expect(navItemHref(selling)).toBe("/member/onboarding?section=selling");
+  });
+
+  it("puts a nested child's own section behind ?section=", () => {
+    expect(navItemHref(events)).toBe("/member/onboarding?section=references-events");
   });
 
   it("leaves real routes alone", () => {
@@ -88,48 +123,66 @@ describe("navItemHref", () => {
 describe("isValidSection", () => {
   it("accepts a real section, including a nested one", () => {
     expect(isValidSection("selling")).toBe(true);
-    expect(isValidSection("events")).toBe(true);
+    expect(isValidSection("references-events")).toBe(true);
   });
 
-  it("rejects junk and undefined, so a hand-edited URL can fall back", () => {
+  it("rejects junk, undefined, and the old pre-restructure ids", () => {
     expect(isValidSection("nope")).toBe(false);
     expect(isValidSection(undefined)).toBe(false);
+    expect(isValidSection("events")).toBe(false);
+    expect(isValidSection("directory")).toBe(true); // still a valid top-level id
   });
 });
 
 describe("showsLeaderBadge", () => {
-  it("badges a section holding leader-only items, for leaders", () => {
-    expect(showsLeaderBadge(events, "leader")).toBe(true);
+  it("badges Add Member, the only role-gated item left, for leaders", () => {
+    expect(showsLeaderBadge(addMember, "leader")).toBe(true);
   });
 
   it("does not advertise it to agents", () => {
-    expect(showsLeaderBadge(events, "agent")).toBe(false);
+    expect(showsLeaderBadge(addMember, "agent")).toBe(false);
   });
 
-  it("leaves sections with no leader-only content unbadged", () => {
-    expect(showsLeaderBadge(selling, "leader")).toBe(false);
+  it("leaves Events and Directory unbadged now that they've lost leader-only filtering", () => {
+    expect(showsLeaderBadge(events, "leader")).toBe(false);
+    expect(showsLeaderBadge(directory, "leader")).toBe(false);
+  });
+});
+
+describe("sectionWithinItem", () => {
+  it("matches a top-level item's own section", () => {
+    expect(sectionWithinItem(selling, "selling")).toBe(true);
+  });
+
+  it("matches one of its children's sections", () => {
+    expect(sectionWithinItem(references, "references-events")).toBe(true);
+  });
+
+  it("does not match an unrelated section", () => {
+    expect(sectionWithinItem(references, "selling")).toBe(false);
   });
 });
 
 describe("memberSections", () => {
-  it("drops the dashboard and flattens children in, all described", () => {
+  it("shows only the top-level hub sections, no children flattened in", () => {
     const sections = memberSections("agent");
 
     expect(sections.map((item) => item.label)).toEqual([
       "Onboarding",
       "Recruiting",
       "Selling",
-      "Calculator",
       "References",
-      "Contests & Campaigns",
-      "Events",
       "Directory",
     ]);
     expect(sections.every((item) => item.description)).toBe(true);
   });
 
-  it("gives a leader an Add Member card too", () => {
-    expect(memberSections("leader").map((i) => i.label)).toContain("Add Member");
+  it("excludes Calculator — not a real destination yet (Plan 05)", () => {
+    expect(memberSections("agent").map((i) => i.label)).not.toContain("Calculator");
+  });
+
+  it("excludes Add Member even for a leader", () => {
+    expect(memberSections("leader").map((i) => i.label)).not.toContain("Add Member");
   });
 });
 
@@ -153,14 +206,15 @@ describe("isActiveNavItem", () => {
   });
 
   it("does not light a parent up for its child's section", () => {
-    expect(isActiveNavItem(references, "/member/onboarding", "events")).toBe(
-      false,
+    expect(
+      isActiveNavItem(references, "/member/onboarding", "references-events"),
+    ).toBe(false);
+    expect(isActiveNavItem(events, "/member/onboarding", "references-events")).toBe(
+      true,
     );
-    expect(isActiveNavItem(events, "/member/onboarding", "events")).toBe(true);
   });
 
   it("matches a real route on its own path and sub-routes", () => {
-    const addMember = MEMBER_NAV.find((i) => i.label === "Add Member")!;
     expect(
       isActiveNavItem(addMember, "/member/admin/add-member", "onboarding"),
     ).toBe(true);
