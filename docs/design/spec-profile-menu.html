@@ -171,12 +171,12 @@
 <div class="page">
   <header class="masthead">
     <span class="eyebrow">Design reference — navigation, amends Plan 07c</span>
-    <h1>"Isi Data" moves out of Onboarding, reachable as "Profile" from the account menu</h1>
+    <h1>Onboarding checklist drops to 4: "Isi Data" becomes a "Profile" menu item, two license/class steps hidden</h1>
     <p>
-      Decided 2026-08-05, following
-      <a href="../plans/07c-join-existing-member-linking.md">Plan 07c</a>
-      (which built the /join → Isi Data linking this doesn't touch). The
-      Isi Data page itself, its form, and its data are unchanged — only
+      Two separate calls made 2026-08-05, both landing on the same checklist,
+      following <a href="../plans/07c-join-existing-member-linking.md">Plan 07c</a>
+      (which built the /join → Isi Data linking neither of these touches).
+      The Isi Data page itself, its form, and its data are unchanged — only
       where a member finds it changes. Static comparison, same convention as
       <a href="spec-quest-hub.html">spec-quest-hub.html</a>: click the toggle
       below to switch, click the account button to open the dropdown.
@@ -187,13 +187,33 @@
     <div class="note-box">
       <span>💡</span>
       <span>
-        <b>What's decided:</b> the entry point moves into the account
-        dropdown (top-right — same spot as "Member Space" and "Log out"),
-        not a new sidebar item. It's labeled <b>"Profile"</b> there, even
-        though the page it opens still reads "Isi Data" (the page/heading
-        itself is out of scope for this change). The "Isi Data" row is
-        <b>removed</b> from the Onboarding checklist entirely — it no longer
-        counts toward Onboarding's total.
+        <b>Change 1 — Isi Data moves to the account menu.</b> The entry point
+        goes into the account dropdown (top-right — same spot as "Member
+        Space" and "Log out"), not a new sidebar item. It's labeled
+        <b>"Profile"</b> there, even though the page it opens still reads
+        "Isi Data" (the page/heading itself is out of scope). The row is
+        <b>removed</b> from the checklist entirely — it no longer counts
+        toward Onboarding's total.
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <div class="note-box">
+      <span>🙈</span>
+      <span>
+        <b>Change 2 — two steps hidden.</b>
+        <b>Lisensi AAJI &amp; AASI</b> and <b>Kelas MFC &amp; Sertifikasi
+        Produk</b> come off the checklist too. Both are
+        <code style="font-family: var(--mono);">"Segera hadir"</code>
+        placeholders today with no real content behind them, and as of
+        2026-08-05 <b>no member has ever checked either one off</b> — there
+        are no <code style="font-family: var(--mono);">OnboardingProgress</code>
+        rows for <code style="font-family: var(--mono);">lisensi-aaji-aasi</code>
+        or <code style="font-family: var(--mono);">kelas-mfc-sertifikasi</code>
+        — so hiding them costs nobody any progress. Note this isn't "hide
+        every placeholder": <b>Download PruForce</b> and <b>Setup WA, IG</b>
+        are placeholders too and stay.
       </span>
     </div>
   </section>
@@ -202,13 +222,16 @@
     <div class="note-box warn">
       <span>⚠️</span>
       <span>
-        <b>Side effect worth knowing about:</b> removing the row shrinks the
-        Onboarding checklist from 7 items to 6, so the progress percentage's
-        denominator changes for everyone. A member who'd already checked off
-        Isi Data stops getting visible credit for it — the checklist just
-        won't have that row to show a checkmark on anymore, even though
-        their underlying <code style="font-family: var(--mono);">OnboardingProgress</code>
-        row is untouched in the database.
+        <b>Side effect worth knowing about:</b> together the two changes take
+        the checklist from 7 items to 4, so the progress percentage's
+        denominator changes for everyone. Only Change 1 costs anyone visible
+        credit: a member who'd already checked off Isi Data loses it, since
+        the checklist won't have that row to show a checkmark on anymore,
+        even though their underlying
+        <code style="font-family: var(--mono);">OnboardingProgress</code>
+        row is untouched in the database. Worth deciding whether those
+        <code style="font-family: var(--mono);">join-isi-data</code> rows get
+        deleted or left orphaned.
       </span>
     </div>
   </section>
@@ -220,8 +243,8 @@
     </div>
 
     <div class="state-toggle" id="toggle">
-      <button class="state-btn active" data-state="before">Sekarang</button>
-      <button class="state-btn" data-state="after">Usulan — Profile di menu akun</button>
+      <button class="state-btn active" data-state="before">Sekarang — 7 langkah</button>
+      <button class="state-btn" data-state="after">Usulan — 4 langkah</button>
     </div>
 
     <div class="browser">
@@ -339,27 +362,19 @@
                 <div class="quest-header">
                   <h3>🔥 CONNECTeam Quest</h3>
                   <p>Jalur step-by-step buat agen baru — cari klien, jual, gaspol.</p>
-                  <div class="quest-progress"><div class="quest-progress-fill" style="width:17%"></div></div>
-                  <div class="quest-progress-label"><span>Progress Onboarding</span><span>17%</span></div>
+                  <div class="quest-progress"><div class="quest-progress-fill" style="width:25%"></div></div>
+                  <div class="quest-progress-label"><span>Progress Onboarding</span><span>25%</span></div>
                 </div>
                 <div class="level-panel">
                   <div class="level-head">
                     <div class="level-badge">1</div>
                     <div class="level-head-text"><h4>Onboarding</h4><p>Langkah pertama kamu sebagai agent baru</p></div>
-                    <div class="level-count">1/6</div>
+                    <div class="level-count">1/4</div>
                   </div>
                   <div class="accordion">
                     <div class="a-item">
                       <span class="a-check"></span><span class="a-icon">📲</span>
                       <span style="flex:1"><span class="a-title">Download PruForce</span><span class="a-desc">Unduh &amp; install aplikasi PRUForce</span></span>
-                    </div>
-                    <div class="a-item">
-                      <span class="a-check"></span><span class="a-icon">🪪</span>
-                      <span style="flex:1"><span class="a-title">Lisensi AAJI &amp; AASI</span><span class="a-desc">Ambil lisensi wajib buat mulai jualan</span></span>
-                    </div>
-                    <div class="a-item">
-                      <span class="a-check"></span><span class="a-icon">🎓</span>
-                      <span style="flex:1"><span class="a-title">Kelas MFC &amp; Sertifikasi Produk</span><span class="a-desc">Kelas dan sertifikasi produk yang dibutuhin</span></span>
                     </div>
                     <div class="a-item done">
                       <span class="a-check">✓</span><span class="a-icon">🧭</span>

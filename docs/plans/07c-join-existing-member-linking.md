@@ -3,12 +3,23 @@
 ## Status
 
 **Built** in [PR #26](https://github.com/ogautama/connecteam-web/pull/26)
-(open), 2026-07-31, as described below. Verified in the browser against the
-dev DB up to the Google sign-in itself: submitting /join as an existing
-member's email shows the "already a member" screen, uploads nothing, and
-creates no Applicant row, and `/auth/callback?next=` redirects correctly.
-The signed-in landing on `/member/isi-data` is unit-tested but not yet
-manually confirmed — that step needs a real Google login.
+(open), 2026-07-31, as described below. **Verified end to end** against the
+dev DB: submitting /join as an existing member's email shows the "already a
+member" screen, uploads nothing and creates no Applicant row;
+`/auth/callback?next=` redirects correctly; and on 2026-08-05 @ogautama
+completed the full round trip by hand — signed in, landed on
+`/member/isi-data` prefilled from the draft, re-picked the four documents,
+and saved, producing the `MemberIntake` row and its `join-isi-data`
+progress marker.
+
+That last leg took one extra fix outside this plan: the *applicant*-intake
+leader policy queried the `User` table directly in its `USING` clause,
+which Postgres privilege-checks on every `SELECT` against
+`storage.objects` — including the existence check `upsert: true` performs
+on the unrelated member-intake bucket. So every member save failed with
+`permission denied for table User` until the policy was rewritten against a
+`SECURITY DEFINER` helper, in
+`prisma/migrations/20260731120123_fix_applicant_intake_leader_policy_security_definer`.
 
 Amends [Plan 07](07-member-onboarding.md)'s "Isi Data"
 (`/member/isi-data`, `JoinDataForm.tsx`) and the public "Join Us" form
