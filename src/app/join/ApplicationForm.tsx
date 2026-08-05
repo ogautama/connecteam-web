@@ -195,7 +195,7 @@ export default function ApplicationForm({
         <p className="text-ink-500">
           Nggak perlu daftar lagi lewat form ini. Login pakai akun Google{" "}
           <span className="font-medium text-ink-700">{form.activeEmail}</span>, terus
-          data yang barusan kamu isi bakal langsung kekopi ke halaman Isi Data — tinggal
+          data yang barusan kamu isi bakal langsung kekopi ke halaman Profile — tinggal
           upload ulang dokumennya aja.
         </p>
         <a

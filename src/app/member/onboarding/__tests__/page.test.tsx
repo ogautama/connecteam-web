@@ -45,20 +45,33 @@ describe("member hub page", () => {
     expect(getCompletedItemIds).not.toHaveBeenCalled();
   });
 
-  test("defaults to Onboarding, listing its 7 items as checkboxes", async () => {
+  test("defaults to Onboarding, listing its 4 items as checkboxes", async () => {
     render(await renderAt());
 
     expect(screen.getByRole("heading", { level: 1, name: "Onboarding" })).toBeInTheDocument();
     for (const title of [
-      "Isi Data",
       "Download PruForce",
-      "Lisensi AAJI & AASI",
-      "Kelas MFC & Sertifikasi Produk",
       "Kenali Dirimu",
       "Bikin Goals Pribadi / Susun Targetmu",
       "Setup WA, IG",
     ]) {
       expect(screen.getByRole("checkbox", { name: title })).toBeInTheDocument();
+    }
+    expect(screen.getAllByRole("checkbox")).toHaveLength(4);
+  });
+
+  test("the three items dropped on 2026-08-05 are gone from the checklist", async () => {
+    render(await renderAt());
+
+    // Isi Data moved to AccountMenu's "Profile"; the two license/class steps
+    // were hidden as empty placeholders.
+    for (const title of [
+      "Isi Data",
+      "Lisensi AAJI & AASI",
+      "Kelas MFC & Sertifikasi Produk",
+    ]) {
+      expect(screen.queryByRole("checkbox", { name: title })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: title })).not.toBeInTheDocument();
     }
   });
 
@@ -69,10 +82,22 @@ describe("member hub page", () => {
       "aria-checked",
       "true",
     );
-    expect(screen.getByRole("checkbox", { name: "Isi Data" })).toHaveAttribute(
+    expect(screen.getByRole("checkbox", { name: "Download PruForce" })).toHaveAttribute(
       "aria-checked",
       "false",
     );
+  });
+
+  test("a leftover join-isi-data progress row can't resurrect the removed item", async () => {
+    // The accompanying migration deletes these rows, but the page must not
+    // depend on that having run — an unknown itemId is simply not rendered.
+    render(await renderAt(undefined, ["join-isi-data", "know-yourself"]));
+
+    expect(screen.queryByRole("checkbox", { name: "Isi Data" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(4);
+    // ...and it doesn't inflate the count either: 1 of 4, not 2 of 4.
+    expect(screen.getByText("1/4")).toBeInTheDocument();
+    expect(screen.getByText("25%")).toBeInTheDocument();
   });
 
   test("expanding Kenali Dirimu shows its real DISC/MBTI content, not a placeholder", async () => {
@@ -92,18 +117,6 @@ describe("member hub page", () => {
     fireEvent.click(screen.getByRole("button", { name: /Download PruForce/ }));
 
     expect(screen.getByText("Segera hadir")).toBeInTheDocument();
-  });
-
-  test("Isi Data opens its own page in a new tab instead of expanding inline", async () => {
-    render(await renderAt());
-
-    const link = screen.getByRole("link", { name: /Isi Data/ });
-    expect(link).toHaveAttribute("href", "/member/isi-data");
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"));
-    // No expand toggle for this item — the checkbox (role="checkbox") is
-    // still there, but there's no separate expand button like the others.
-    expect(screen.queryByRole("button", { name: /Isi Data/ })).not.toBeInTheDocument();
   });
 
   test("renders a top-level parent as a landing page linking to its children", async () => {
@@ -142,6 +155,6 @@ describe("member hub page", () => {
   test("shows overall onboarding progress regardless of active section", async () => {
     render(await renderAt("selling", ["know-yourself"]));
 
-    expect(screen.getByText("14%")).toBeInTheDocument();
+    expect(screen.getByText("25%")).toBeInTheDocument();
   });
 });

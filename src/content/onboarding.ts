@@ -31,16 +31,24 @@ export const KNOW_YOURSELF: OnboardingLink[] = [
 ];
 
 // The onboarding checklist (rebuilt 2026-07-29 from the content-inventory
-// sheet, Plan 07) — its 7 items are also Onboarding's sidebar children in
+// sheet, Plan 07) — its 4 items are also Onboarding's sidebar children in
 // spirit, but rendered inline here as accordion items rather than separate
 // `?section=` pages. `id` is the opaque key OnboardingProgress rows key off
 // of (prisma/schema.prisma) — stable once shipped, since renaming one loses
 // members' existing checked-off state.
+//
+// Shrunk from 7 to 4 on 2026-08-05 (two separate calls, both recorded in
+// 00-overview.md and mocked in design/spec-profile-menu.html):
+// - "join-isi-data" left the checklist entirely — /member/isi-data is
+//   personal data a member revisits, not a one-time step, so its entry
+//   point moved to the "Profile" item in AccountMenu. The page itself is
+//   unchanged; only where you find it moved.
+// - "lisensi-aaji-aasi" and "kelas-mfc-sertifikasi" are hidden. Both were
+//   empty "Segera hadir" placeholders. Note this is a specific call about
+//   licensing/class content, NOT "hide every placeholder" —
+//   "download-pruforce" and "setup-wa-ig" are just as empty and stay.
 export type OnboardingSectionId =
-  | "join-isi-data"
   | "download-pruforce"
-  | "lisensi-aaji-aasi"
-  | "kelas-mfc-sertifikasi"
   | "know-yourself"
   | "goals-pribadi"
   | "setup-wa-ig";
@@ -54,28 +62,10 @@ export type OnboardingSection = {
 
 export const ONBOARDING_SECTIONS: OnboardingSection[] = [
   {
-    id: "join-isi-data",
-    title: "Isi Data",
-    description: "Lengkapi data pribadi buat proses join",
-    icon: "📝",
-  },
-  {
     id: "download-pruforce",
     title: "Download PruForce",
     description: "Unduh & install aplikasi PRUForce",
     icon: "📲",
-  },
-  {
-    id: "lisensi-aaji-aasi",
-    title: "Lisensi AAJI & AASI",
-    description: "Ambil lisensi wajib buat mulai jualan",
-    icon: "🪪",
-  },
-  {
-    id: "kelas-mfc-sertifikasi",
-    title: "Kelas MFC & Sertifikasi Produk",
-    description: "Kelas dan sertifikasi produk yang dibutuhin",
-    icon: "🎓",
   },
   {
     id: "know-yourself",

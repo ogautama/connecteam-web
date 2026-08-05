@@ -341,6 +341,8 @@ function IntakeForm({
         type="email"
         value={form.activeEmail}
         onChange={(v) => update("activeEmail", v)}
+        readOnly
+        note="Ini email akun Google yang kamu pakai buat login, jadi dikunci di sini — ganti email berarti ganti akun. Kalau memang perlu pindah email, hubungi leader kamu."
       />
       <TextField
         label="No HP aktif (Whatsapp)"
@@ -460,7 +462,6 @@ function IntakeForm({
             Batal
           </button>
         )}
-        <span className="text-sm text-ink-500">Otomatis kecentang di checklist Onboarding</span>
       </div>
     </form>
   );

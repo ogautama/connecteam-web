@@ -5,14 +5,18 @@ import { getMemberIntake, getPengundangUnitOptions } from "@/lib/memberIntake";
 import JoinDataForm from "./JoinDataForm";
 
 export const metadata: Metadata = {
-  title: "Isi Data — CONNECTeam",
+  title: "Profile — CONNECTeam",
 };
 
 /**
- * Its own full page rather than an Onboarding accordion item — opened in a
- * new tab from the checklist so filling it out doesn't lose the member's
- * place in the hub. Submitting it marks "join-isi-data" done back there
- * (src/app/member/isi-data/actions.ts).
+ * Its own full page rather than an Onboarding accordion item — the form has
+ * 16 fields including 5 photo uploads, far too much for an accordion detail.
+ * Reached from "Profile" in the account dropdown (AccountMenu.tsx) since
+ * 2026-08-05, when it left the Onboarding checklist for good: this is
+ * personal data a member comes back to, not a one-time onboarding step.
+ * Renamed "Isi Data" → "Profile" to match that menu item; the route stays
+ * /member/isi-data so existing links, `?next=` redirects and Plan 07c's
+ * draft handoff keep working.
  *
  * Capped at 640px and one question per card (JoinDataForm) rather than the
  * app's usual max-w-content — a Google-Forms-style layout the user asked
@@ -38,15 +42,13 @@ export default async function IsiDataPage() {
     <div className="mx-auto flex w-full max-w-[640px] flex-col gap-4">
       <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-sm">
         <div className="h-2.5 bg-gradient-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400" />
+        {/* Heading only. The "lengkapi data pribadi" blurb and the
+            required-field legend both went 2026-08-05: this is a page
+            members revisit, not a form they're being walked through, and
+            the * convention needs no explaining. /join keeps its legend —
+            that one is someone's first encounter with the form. */}
         <div className="p-6">
-          <h1 className="text-2xl font-bold tracking-tight text-ink-900">Isi Data</h1>
-          <p className="mt-2 text-ink-500">
-            Lengkapi data pribadi buat proses join. Bagian ini otomatis kecentang di
-            checklist Onboarding begitu tersimpan.
-          </p>
-          <p className="mt-4 border-t border-ink-100 pt-3 text-sm text-ink-500">
-            Kolom bertanda <span className="text-brand-red-500">*</span> wajib diisi.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-ink-900">Profile</h1>
         </div>
       </div>
       <JoinDataForm

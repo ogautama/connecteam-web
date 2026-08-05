@@ -68,6 +68,17 @@ beforeEach(() => {
 });
 
 describe("ApplicationForm — existing-member check", () => {
+  test("Email Aktif stays editable here, unlike the member Profile form", () => {
+    // The Profile form locks this field to the signed-in Google account.
+    // A public applicant has no account to pin it to, so the shared field
+    // kit takes readOnly per-field rather than globally.
+    renderForm();
+
+    expect(screen.getByRole("textbox", { name: /Email Aktif/ })).not.toHaveAttribute(
+      "readonly",
+    );
+  });
+
   test("uploads nothing and creates no Applicant when the email is already a member", async () => {
     checkExistingMember.mockResolvedValue(true);
     const { container } = renderForm();

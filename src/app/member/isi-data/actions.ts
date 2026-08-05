@@ -11,24 +11,33 @@ import {
   resolvePengundangUnitLeaderId,
   upsertMemberIntake,
 } from "@/lib/memberIntake";
-import { setItemCompletion } from "@/lib/onboardingProgress";
 
 /**
- * "Isi Data" — the personal-data intake form (Plan 07), fields copied from
- * the real Google Form it replaces. Submitting it also:
+ * The Profile page's intake form (Plan 07, route still /member/isi-data),
+ * fields copied from the real Google Form it replaces.
  *
- * - marks the "join-isi-data" checklist item done on the Onboarding hub, so
- *   there's no separate manual checkbox step once the real data is saved.
- * - pre-authorizes "Email Aktif" as an agent (a PendingInvite, same
- *   mechanism as the leader-driven "Add Member" flow, Plan 02c), recruited
- *   by whichever leader was picked as "Pengundang / Unit" — but only if
- *   that email isn't already a real User. In practice this is almost always
- *   a no-op, since Email Aktif defaults to (and is usually left as) the
- *   signed-in member's own address, and they're a User already; it only
- *   does something the rare time someone declares a different active email
- *   here. createPendingInvite already treats "existing-user" as a normal,
- *   silent outcome rather than an error, so this never blocks the intake
- *   save over it.
+ * **"Email Aktif" is not editable, by design.** It's the address on the
+ * Google account the member signs in with, so changing it here would mean
+ * changing who they are — and it used to mean more than that: this action
+ * hands `activeEmail` to `createPendingInvite`, and PendingInvite *is* the
+ * login allowlist. A member who typed an unfamiliar address into a contact
+ * field would silently pre-authorize a brand-new agent account under their
+ * "Pengundang / Unit" leader, i.e. a duplicate of themselves in the tree.
+ * Tolerable when this was a one-time onboarding step; not when the same
+ * form became a Profile page people revisit and edit.
+ *
+ * So the value is re-derived from the session below rather than trusted
+ * from `input`. The form renders the field read-only too, but that's the
+ * courtesy — this is the guard, since server actions take direct POSTs.
+ * A consequence worth knowing: *this* `createPendingInvite` call can now
+ * only ever see an address that already belongs to a User, so it always
+ * returns "existing-user" and does nothing. That's this call site only —
+ * `createPendingInvite` itself is alive and well, and is how members
+ * actually get invited (the leader-driven Add Member form,
+ * src/app/member/admin/add-member/actions.ts, Plan 02c). Don't read this
+ * as permission to delete the function. The call is left here rather than
+ * removed because whether this form should invite at all is its own
+ * decision, tracked in docs/plans/00-overview.md.
  *
  * Photo fields carry storage keys the client already uploaded to the
  * member-intake bucket (mirrors saveTestResultLead in
@@ -45,7 +54,10 @@ export async function submitJoinData(
     ktpNumber: input.ktpNumber.trim(),
     birthPlace: input.birthPlace.trim(),
     birthDate: input.birthDate.trim(),
-    activeEmail: input.activeEmail.trim(),
+    // Taken from the session, NOT from input — the field is display-only in
+    // the form, and a server action is reachable by direct POST, so the UI
+    // lock is a courtesy and this is the actual guard. See the note above.
+    activeEmail: user.email,
     activePhone: input.activePhone.trim(),
     address: input.address.trim(),
     education: input.education,
@@ -95,8 +107,11 @@ export async function submitJoinData(
     throw new Error("Foto KTP Pasangan belum berhasil diupload.");
   }
 
+  // No checklist write here any more: "join-isi-data" left
+  // ONBOARDING_SECTIONS on 2026-08-05, so a progress row for it can never be
+  // rendered again. Writing one would just re-create the dead state the
+  // accompanying migration deletes.
   await upsertMemberIntake(user.id, trimmed);
-  await setItemCompletion(user.id, "join-isi-data", true);
 
   const leaderId = await resolvePengundangUnitLeaderId(trimmed.pengundangUnit);
   if (leaderId) {
@@ -108,7 +123,6 @@ export async function submitJoinData(
     });
   }
 
-  revalidatePath("/member/onboarding");
   revalidatePath("/member/isi-data");
 
   // Re-read rather than assemble in place: photo fields need freshly signed

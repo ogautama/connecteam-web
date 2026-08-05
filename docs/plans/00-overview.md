@@ -209,9 +209,17 @@ Plan 06's nav.)*
   "Segera hadir" placeholder rather than linking to a 404. When Plan 05
   ships, decide whether that section embeds the tool or links out — and
   whether the member-area entry point changes Plan 05's public-page scope.
-- **Onboarding checklist should shrink from 7 items to 4** — two calls made
-  2026-08-05, both mocked up in
-  [spec-profile-menu.html](../design/spec-profile-menu.html), neither built.
+- ~~**Onboarding checklist should shrink from 7 items to 4**~~ — **built
+  2026-08-05.** Two calls made 2026-08-05, both mocked up in
+  [spec-profile-menu.html](../design/spec-profile-menu.html), both now
+  shipped on the Plan 07 branch; the mockup carries a banner saying it
+  reflects shipped behavior. `ONBOARDING_SECTIONS` is down to Download
+  PruForce, Kenali Dirimu, Bikin Goals Pribadi and Setup WA/IG, and the
+  migration `20260805110000_drop_join_isi_data_progress` deleted the one
+  dead `join-isi-data` row (verified: the member's `MemberIntake` row and
+  uploads were untouched). `submitJoinData` also stopped writing that
+  progress row — left in place it would have re-created exactly the dead
+  state the migration deletes. The original decision, kept for the record:
   (1) **"Isi Data" moves out into a "Profile" account-menu item.** It's
   personal data a member revisits, not a one-time onboarding step, so it
   belongs with the account rather than in a checklist that's meant to empty
@@ -228,9 +236,52 @@ Plan 06's nav.)*
   `join-isi-data` `OnboardingProgress` rows get **deleted** as part of the
   build rather than left orphaned — change (1) removes the only row that
   could ever display them, so keeping them would just be dead state.
-  (There is exactly one such row today.) Still unresolved: the page itself
-  says "Isi Data" while the menu would say "Profile", worth reconciling or
-  deliberately keeping.
+  (There is exactly one such row today.) **Resolved during the build:** the
+  "Isi Data" page heading, its `<title>`, and the `/join` success copy that
+  pointed at it were all renamed to **"Profile"**, so nothing user-facing
+  says "Isi Data" any more. The route stays `/member/isi-data` on purpose —
+  moving it would break `?next=` redirects, existing links and Plan 07c's
+  draft handoff for no user-visible gain.
+- ~~**Editing "Email Aktif" on the Profile page silently pre-authorizes a
+  new login**~~ — **closed 2026-08-05 by locking the field.** "Email Aktif"
+  is now display-only in the form, with a note saying why, and
+  `submitJoinData` re-derives it from the session instead of trusting
+  `input` — the server side being the actual fix, since the action takes
+  direct POSTs. Consequence: **this form's** `createPendingInvite` call can
+  now only ever see an address that already belongs to a `User`, so it
+  always returns `existing-user` and does nothing. That is this call site
+  only — `createPendingInvite` itself remains the live path by which members
+  get invited, from the leader-driven **Add Member** form
+  (`src/app/member/admin/add-member/actions.ts`, Plan 02c). The public
+  `/join` form has never called it: it creates an `Applicant` row and
+  nothing else, deliberately. **Still open:** whether the Profile form
+  should pre-authorize anything at all. That one call is dead as written —
+  worth either deleting or giving a real purpose, but it's a decision about
+  invite semantics, not something to settle in a checklist restructure. The
+  original problem, for the record: `submitJoinData`
+  (`src/app/member/isi-data/actions.ts`) calls `createPendingInvite` with
+  whatever `activeEmail` the member typed, recruited by the chosen
+  "Pengundang / Unit" leader. `PendingInvite` **is** the allowlist, so if
+  that address isn't already a `User`, saving the form pre-authorizes it —
+  and whoever next signs into Google with it gets a **brand-new, separate
+  agent account** under that leader. It does not move the member's own
+  login: `User.email` is written once by the `on_auth_user_created` trigger
+  from the Google identity and nothing in this path touches it. Nor does it
+  move them in the tree — the only writes to `User.recruiterId` are
+  `reassignRecruiter` in `src/lib/recruitTree.ts`. So the outcome is a
+  duplicate person, not a hijacked account.
+
+  It never fired in practice — `activeEmail` defaulted to the signed-in
+  member's own address, so `createPendingInvite` returned `existing-user`
+  and no-oped (verified 2026-08-05: the one real member's `activeEmail` and
+  auth email matched). The behaviour predated the checklist restructure
+  too. What made it worth closing was the reframing: it sat fine when this
+  was a one-time onboarding step, but not once the same form became a
+  **Profile page members revisit and edit**, where an edit to a contact
+  field quietly minting an agent account is a surprising thing for it to
+  do. Note the field stays editable on the public `/join` form — an
+  applicant has no account to pin it to — so `TextField`'s `readOnly` is
+  opt-in per field rather than global.
 - **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
   The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
   crowd the logo below ~400px wide — surfaced building Plan 03, left as-is

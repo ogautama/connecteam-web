@@ -80,11 +80,11 @@ scratch.
 | Sidebar item | `?section=` | Owner | Content |
 |---|---|---|---|
 | Dashboard | — (`/member`) | Plan 06 | real |
-| **Onboarding** | `onboarding` *(default)* | Plan 07 | **real** — existing 5 accordion items, kept |
-| ↳ Join & Isi Data | `onboarding-join` | Plan 07 | deferred — PII intake form, see "Explicitly deferred" below |
+| **Onboarding** | `onboarding` *(default)* | Plan 07 | **real** — 4 accordion items after the 2026-08-05 shrink (see below) |
+| ~~↳ Join & Isi Data~~ | — | Plan 07 | **off the checklist 2026-08-05** — the page shipped at `/member/isi-data`; its entry point is now "Profile" in `AccountMenu`, not a checklist row |
 | ↳ Download PruForce | `onboarding-pruforce` | Plan 07 | placeholder — moved from Plan 11 |
-| ↳ Lisensi AAJI & AASI | `onboarding-lisensi` | Plan 07 | placeholder — moved from Plan 11 |
-| ↳ Kelas MFC & Sertifikasi Produk | `onboarding-mfc` | Plan 07 | placeholder — moved from Plan 11 |
+| ~~↳ Lisensi AAJI & AASI~~ | — | Plan 07 | **hidden 2026-08-05** — empty placeholder, no content behind it |
+| ~~↳ Kelas MFC & Sertifikasi Produk~~ | — | Plan 07 | **hidden 2026-08-05** — empty placeholder, no content behind it |
 | ↳ Kenali Dirimu | `onboarding-kenali-dirimu` | Plan 07 | real — DISC/MBTI/Self Motivation upload, [Plan 17](17-mbti-self-motivation-result-upload.md) |
 | ↳ Bikin Goals Pribadi / Susun Targetmu | `onboarding-goals` | Plan 07 | placeholder — goals mini-form still deferred, see below |
 | ↳ Setup WA, IG | `onboarding-setup-wa-ig` | Plan 07 | placeholder |
@@ -133,6 +133,32 @@ or links — until its own plan lands content. `HubSectionId` in
 `src/lib/member/nav.ts` grows from 8 values to one per row above (~30) —
 mechanically the same one-level-of-children shape it already has, just far
 more leaves.
+
+### The checklist shrank from 7 items to 4 (built 2026-08-05)
+
+Two separate calls, both landing on `ONBOARDING_SECTIONS` in
+`src/content/onboarding.ts`. Decision record and the settled questions live
+in [00-overview.md](00-overview.md#known-deferred-issues); the before/after
+is [spec-profile-menu.html](../design/spec-profile-menu.html).
+
+1. **"Isi Data" left the checklist for the account menu.** `/member/isi-data`
+   is personal data a member comes back to, not a one-time step, so it
+   doesn't belong in a list meant to empty out. Its entry point is now a
+   "Profile" item in `AccountMenu.tsx`, above "Member Space". The page, its
+   form, its data, and Plan 07c's `/join` → Isi Data draft handoff are all
+   unchanged — only where you reach it moved. `submitJoinData` no longer
+   writes a `join-isi-data` progress row (nothing could render it), and a
+   migration deleted the one row that existed.
+2. **`lisensi-aaji-aasi` and `kelas-mfc-sertifikasi` are hidden** — empty
+   "Segera hadir" placeholders with nothing behind them, and no member had
+   ever checked either off. Deliberately **not** a rule about placeholders:
+   `download-pruforce` and `setup-wa-ig` are just as empty and stay. This is
+   a specific call about licensing/class content.
+
+The page was renamed "Isi Data" → **"Profile"** to match the menu item
+(heading, `<title>`, and the `/join` success copy that points at it). Its
+route stays `/member/isi-data`: moving it would break `?next=` redirects,
+existing links and Plan 07c's draft handoff for no user-visible gain.
 
 ## Depends on
 

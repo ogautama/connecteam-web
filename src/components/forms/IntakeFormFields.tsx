@@ -38,12 +38,23 @@ export function TextField({
   value,
   onChange,
   type = "text",
+  readOnly,
+  note,
 }: {
   label: string;
   required?: boolean;
   value: string;
   onChange: (value: string) => void;
   type?: string;
+  /** Display-only. Opt-in per field because this kit is shared with the
+   * public /join form, where every field must stay editable — an applicant
+   * has no account to pin a value to yet. Never the only guard: whatever
+   * locks a field here has to be re-derived server-side, since the action
+   * is reachable by direct POST. */
+  readOnly?: boolean;
+  /** Short "why" shown under the field — pairs with readOnly, so a locked
+   * field explains itself instead of just refusing to type. */
+  note?: string;
 }) {
   return (
     <QuestionCard>
@@ -53,9 +64,16 @@ export function TextField({
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          readOnly={readOnly}
+          aria-readonly={readOnly}
           placeholder="Jawaban kamu"
-          className="border-b border-ink-100 bg-transparent px-0.5 py-2 text-ink-900 placeholder:text-ink-300 focus:border-b-2 focus:border-brand-navy-700 focus:pb-[7px] focus:outline-none"
+          className={`border-b px-0.5 py-2 placeholder:text-ink-300 focus:outline-none ${
+            readOnly
+              ? "cursor-not-allowed border-ink-100 bg-ink-50 text-ink-500"
+              : "border-ink-100 bg-transparent text-ink-900 focus:border-b-2 focus:border-brand-navy-700 focus:pb-[7px]"
+          }`}
         />
+        {note && <span className="text-sm text-ink-500">{note}</span>}
       </label>
     </QuestionCard>
   );

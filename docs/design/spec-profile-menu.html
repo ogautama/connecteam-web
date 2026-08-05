@@ -184,14 +184,34 @@
   </header>
 
   <section>
+    <div class="note-box" style="background: #eef7f0; border-color: #c3e3cd;">
+      <span>✅</span>
+      <span>
+        <b style="color: #1e6b39;">Built 2026-08-05 — this now reflects shipped
+        behavior, not a proposal.</b> Both changes below landed on the Plan 07
+        branch: <code>ONBOARDING_SECTIONS</code> is down to the four items in
+        the "Usulan" panel, and "Profile" is live in the account dropdown
+        pointing at <code>/member/isi-data</code>. The one dead
+        <code>join-isi-data</code> progress row was deleted by migration
+        <code>20260805110000_drop_join_isi_data_progress</code>; the member's
+        intake data and uploads were untouched. The "Sekarang — 7 langkah"
+        panel is kept as a before-shot, not as current state. The page the
+        menu item opens was also renamed "Isi Data" → <b>"Profile"</b>, so
+        the mockup's note about that label mismatch no longer applies; its
+        route is still <code>/member/isi-data</code>.
+      </span>
+    </div>
+  </section>
+
+  <section>
     <div class="note-box">
       <span>💡</span>
       <span>
         <b>Change 1 — Isi Data moves to the account menu.</b> The entry point
         goes into the account dropdown (top-right — same spot as "Member
         Space" and "Log out"), not a new sidebar item. It's labeled
-        <b>"Profile"</b> there, even though the page it opens still reads
-        "Isi Data" (the page/heading itself is out of scope). The row is
+        <b>"Profile"</b> there — as the page it opens is now too, after the
+        rename that followed this mockup. The row is
         <b>removed</b> from the checklist entirely — it no longer counts
         toward Onboarding's total.
       </span>
