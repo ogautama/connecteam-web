@@ -2,15 +2,24 @@
 
 ## Status
 
-**Built** in [PR #26](https://github.com/ogautama/connecteam-web/pull/26)
-(open), 2026-07-31, as described below. **Verified end to end** against the
-dev DB: submitting /join as an existing member's email shows the "already a
-member" screen, uploads nothing and creates no Applicant row;
-`/auth/callback?next=` redirects correctly; and on 2026-08-05 @ogautama
-completed the full round trip by hand — signed in, landed on
+**Built** in [PR #26](https://github.com/ogautama/connecteam-web/pull/26),
+2026-07-31, merged into the Plan 07 branch — it reaches `main` with
+[PR #18](https://github.com/ogautama/connecteam-web/pull/18). **Verified end
+to end** against the dev DB: submitting /join as an existing member's email
+shows the "already a member" screen, uploads nothing and creates no
+Applicant row; `/auth/callback?next=` redirects correctly; and on 2026-08-05
+@ogautama completed the full round trip by hand — signed in, landed on
 `/member/isi-data` prefilled from the draft, re-picked the four documents,
 and saved, producing the `MemberIntake` row and its `join-isi-data`
 progress marker.
+
+Two things in that account no longer describe current behaviour, later the
+same day: the `join-isi-data` progress marker is gone (the checklist item
+moved to the account menu, so `submitJoinData` stopped writing it and a
+migration deleted the row), and the destination page is now titled
+**"Profile"** — its route is still `/member/isi-data`, so the handoff and
+its `?next=` redirect are untouched. See "The checklist shrank from 7 items
+to 4" in [07-member-onboarding.md](07-member-onboarding.md).
 
 That last leg took one extra fix outside this plan: the *applicant*-intake
 leader policy queried the `User` table directly in its `USING` clause,
@@ -149,6 +158,12 @@ creating a duplicate/orphaned Applicant record for an existing member.
 - Any change to the existing member-side Isi Data auto-invite behavior
   (`submitJoinData` pre-authorizing "Email Aktif") — unrelated,
   explicitly confirmed out of scope by the user 2026-07-30/31.
+  **Superseded 2026-08-05** (after this plan shipped, not by it): "Email
+  Aktif" is now locked to the signed-in account and re-derived server-side,
+  so that `createPendingInvite` call can no longer pre-authorize anything.
+  It was fine as a one-time onboarding step, but the same form became a
+  Profile page members revisit. Nothing about *this* plan's flow changed —
+  the draft handoff and `?next=` redirect work exactly as described.
 - Any change to the existing accepted-Applicant → Isi Data read-only link
   (Plan 07, 2026-07-30) — this plan adds a second, higher-precedence
   source (the draft), doesn't alter that one.
