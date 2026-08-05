@@ -42,12 +42,13 @@ export default async function IsiDataPage() {
     <div className="mx-auto flex w-full max-w-[640px] flex-col gap-4">
       <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-sm">
         <div className="h-2.5 bg-gradient-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400" />
+        {/* Heading only. The "lengkapi data pribadi" blurb and the
+            required-field legend both went 2026-08-05: this is a page
+            members revisit, not a form they're being walked through, and
+            the * convention needs no explaining. /join keeps its legend —
+            that one is someone's first encounter with the form. */}
         <div className="p-6">
           <h1 className="text-2xl font-bold tracking-tight text-ink-900">Profile</h1>
-          <p className="mt-2 text-ink-500">Lengkapi data pribadi buat proses join.</p>
-          <p className="mt-4 border-t border-ink-100 pt-3 text-sm text-ink-500">
-            Kolom bertanda <span className="text-brand-red-500">*</span> wajib diisi.
-          </p>
         </div>
       </div>
       <JoinDataForm
