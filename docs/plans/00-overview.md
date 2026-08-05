@@ -209,9 +209,17 @@ Plan 06's nav.)*
   "Segera hadir" placeholder rather than linking to a 404. When Plan 05
   ships, decide whether that section embeds the tool or links out — and
   whether the member-area entry point changes Plan 05's public-page scope.
-- **Onboarding checklist should shrink from 7 items to 4** — two calls made
-  2026-08-05, both mocked up in
-  [spec-profile-menu.html](../design/spec-profile-menu.html), neither built.
+- ~~**Onboarding checklist should shrink from 7 items to 4**~~ — **built
+  2026-08-05.** Two calls made 2026-08-05, both mocked up in
+  [spec-profile-menu.html](../design/spec-profile-menu.html), both now
+  shipped on the Plan 07 branch; the mockup carries a banner saying it
+  reflects shipped behavior. `ONBOARDING_SECTIONS` is down to Download
+  PruForce, Kenali Dirimu, Bikin Goals Pribadi and Setup WA/IG, and the
+  migration `20260805110000_drop_join_isi_data_progress` deleted the one
+  dead `join-isi-data` row (verified: the member's `MemberIntake` row and
+  uploads were untouched). `submitJoinData` also stopped writing that
+  progress row — left in place it would have re-created exactly the dead
+  state the migration deletes. The original decision, kept for the record:
   (1) **"Isi Data" moves out into a "Profile" account-menu item.** It's
   personal data a member revisits, not a one-time onboarding step, so it
   belongs with the account rather than in a checklist that's meant to empty
@@ -228,9 +236,11 @@ Plan 06's nav.)*
   `join-isi-data` `OnboardingProgress` rows get **deleted** as part of the
   build rather than left orphaned — change (1) removes the only row that
   could ever display them, so keeping them would just be dead state.
-  (There is exactly one such row today.) Still unresolved: the page itself
-  says "Isi Data" while the menu would say "Profile", worth reconciling or
-  deliberately keeping.
+  (There is exactly one such row today.) **Still open after the build:** the
+  page itself says "Isi Data" while the menu says "Profile". Shipped that
+  way deliberately — the label mismatch is real but wasn't worth widening
+  this change to fix. Worth reconciling in whatever plan next touches that
+  page's copy.
 - **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
   The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
   crowd the logo below ~400px wide — surfaced building Plan 03, left as-is

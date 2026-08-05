@@ -58,8 +58,8 @@ export type MemberNavItem = {
 
 export const MEMBER_NAV: MemberNavItem[] = [
   { label: "Dashboard", href: "/member" },
-  // No sidebar children — its 7-item checklist (Isi Data, Kenali Dirimu,
-  // etc.) renders inline as accordion items on the page itself
+  // No sidebar children — its 4-item checklist (Download PruForce, Kenali
+  // Dirimu, etc.) renders inline as accordion items on the page itself
   // (ONBOARDING_SECTIONS in @/content/onboarding), not as separate
   // `?section=` entries.
   {

@@ -11,14 +11,11 @@ import {
   resolvePengundangUnitLeaderId,
   upsertMemberIntake,
 } from "@/lib/memberIntake";
-import { setItemCompletion } from "@/lib/onboardingProgress";
 
 /**
  * "Isi Data" — the personal-data intake form (Plan 07), fields copied from
  * the real Google Form it replaces. Submitting it also:
  *
- * - marks the "join-isi-data" checklist item done on the Onboarding hub, so
- *   there's no separate manual checkbox step once the real data is saved.
  * - pre-authorizes "Email Aktif" as an agent (a PendingInvite, same
  *   mechanism as the leader-driven "Add Member" flow, Plan 02c), recruited
  *   by whichever leader was picked as "Pengundang / Unit" — but only if
@@ -95,8 +92,11 @@ export async function submitJoinData(
     throw new Error("Foto KTP Pasangan belum berhasil diupload.");
   }
 
+  // No checklist write here any more: "join-isi-data" left
+  // ONBOARDING_SECTIONS on 2026-08-05, so a progress row for it can never be
+  // rendered again. Writing one would just re-create the dead state the
+  // accompanying migration deletes.
   await upsertMemberIntake(user.id, trimmed);
-  await setItemCompletion(user.id, "join-isi-data", true);
 
   const leaderId = await resolvePengundangUnitLeaderId(trimmed.pengundangUnit);
   if (leaderId) {
@@ -108,7 +108,6 @@ export async function submitJoinData(
     });
   }
 
-  revalidatePath("/member/onboarding");
   revalidatePath("/member/isi-data");
 
   // Re-read rather than assemble in place: photo fields need freshly signed

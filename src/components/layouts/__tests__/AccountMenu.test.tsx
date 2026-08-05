@@ -49,6 +49,31 @@ describe("AccountMenu", () => {
     );
   });
 
+  test('"Profile" opens Isi Data — its entry point since it left the checklist', () => {
+    render(<AccountMenu name="Rani Putri" role="agent" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Rani Putri/ }));
+
+    // Labeled "Profile" even though the page still reads "Isi Data" — a
+    // known, accepted mismatch (docs/plans/00-overview.md), not a typo.
+    expect(screen.getByRole("menuitem", { name: "Profile" })).toHaveAttribute(
+      "href",
+      "/member/isi-data",
+    );
+  });
+
+  test("Profile sits above Member Space in the menu", () => {
+    render(<AccountMenu name="Rani Putri" role="agent" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Rani Putri/ }));
+
+    expect(screen.getAllByRole("menuitem").map((item) => item.textContent)).toEqual([
+      "Profile",
+      "Member Space",
+      "Log out",
+    ]);
+  });
+
   test("logging out clears the session and returns to the home page", async () => {
     render(<AccountMenu name="Rani Putri" role="leader" />);
 

@@ -9,10 +9,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * Its own full page rather than an Onboarding accordion item — opened in a
- * new tab from the checklist so filling it out doesn't lose the member's
- * place in the hub. Submitting it marks "join-isi-data" done back there
- * (src/app/member/isi-data/actions.ts).
+ * Its own full page rather than an Onboarding accordion item — the form has
+ * 16 fields including 5 photo uploads, far too much for an accordion detail.
+ * Reached from "Profile" in the account dropdown (AccountMenu.tsx) since
+ * 2026-08-05, when it left the Onboarding checklist for good: this is
+ * personal data a member comes back to, not a one-time onboarding step. The
+ * page's own heading still reads "Isi Data" while the menu says "Profile" —
+ * a known, accepted mismatch tracked in docs/plans/00-overview.md.
  *
  * Capped at 640px and one question per card (JoinDataForm) rather than the
  * app's usual max-w-content — a Google-Forms-style layout the user asked

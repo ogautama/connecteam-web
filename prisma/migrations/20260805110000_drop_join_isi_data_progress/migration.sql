@@ -1,0 +1,28 @@
+-- No schema change — data cleanup only.
+--
+-- "join-isi-data" left ONBOARDING_SECTIONS on 2026-08-05
+-- (src/content/onboarding.ts): /member/isi-data moved out of the Onboarding
+-- checklist and into the "Profile" item in the account dropdown. With the
+-- checklist row gone, nothing can ever render an OnboardingProgress row for
+-- that itemId again, so the surviving rows are dead state. Deleting them was
+-- explicitly settled with the user rather than left orphaned — see the
+-- "Onboarding checklist should shrink from 7 items to 4" entry in
+-- docs/plans/00-overview.md.
+--
+-- Deletes by itemId, not by a hardcoded row id: there was exactly one such
+-- row when this was written (userId a4c70690-ea04-4b43-8236-c984dd6a2e38,
+-- re-verified against the dev database on 2026-08-05), but this must also
+-- clear any row written between then and the migration running.
+--
+-- Only the checklist progress marker goes. The member's MemberIntake row and
+-- their uploaded documents in the member-intake bucket are untouched — the
+-- form and its data are unchanged by this whole change, only where you reach
+-- them moved.
+DELETE FROM "OnboardingProgress" WHERE "itemId" = 'join-isi-data';
+
+-- The other two ids hidden in the same change, "lisensi-aaji-aasi" and
+-- "kelas-mfc-sertifikasi", need no cleanup: both were empty "Segera hadir"
+-- placeholders nobody ever checked off, and a re-check on 2026-08-05
+-- confirmed zero OnboardingProgress rows exist for either. Deliberately not
+-- deleted here — there is nothing to delete, and a no-op DELETE would only
+-- imply otherwise to whoever reads this next.

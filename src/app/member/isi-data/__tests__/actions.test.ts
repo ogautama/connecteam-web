@@ -73,14 +73,22 @@ beforeEach(() => {
 });
 
 describe("submitJoinData", () => {
-  test("saves the intake data, marks the checklist item done, and returns the persisted record", async () => {
+  test("saves the intake data and returns the persisted record", async () => {
     const result = await submitJoinData(validInput);
 
     expect(upsertMemberIntake).toHaveBeenCalledWith("user_1", validInput);
-    expect(setItemCompletion).toHaveBeenCalledWith("user_1", "join-isi-data", true);
-    expect(revalidatePath).toHaveBeenCalledWith("/member/onboarding");
     expect(revalidatePath).toHaveBeenCalledWith("/member/isi-data");
     expect(result).toEqual(savedRecord);
+  });
+
+  test("writes no onboarding progress — the checklist item is gone (2026-08-05)", async () => {
+    // "join-isi-data" left ONBOARDING_SECTIONS, so a row for it can never be
+    // rendered again; writing one would re-create exactly the dead state the
+    // accompanying migration deletes.
+    await submitJoinData(validInput);
+
+    expect(setItemCompletion).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalledWith("/member/onboarding");
   });
 
   test("trims whitespace before saving", async () => {
