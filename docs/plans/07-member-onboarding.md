@@ -48,6 +48,13 @@ section of this hub.
      key multiple nav items can point at) alongside admin-only in-app
      editing for pages that need updating monthly.
 
+4. **2026-08-05** — the Onboarding checklist itself shrank from 7 items to
+   4: "Isi Data" left it to become a "Profile" item in the account dropdown
+   (and the page was renamed to match), and the two empty licensing/class
+   placeholders were hidden. Merged as
+   [PR #27](https://github.com/ogautama/connecteam-web/pull/27). Details in
+   "The checklist shrank from 7 items to 4" below.
+
 ### What carries over from the original PR #17 build
 
 - Content module stays `src/content/onboarding.ts`, restructured (not
@@ -291,11 +298,25 @@ items, reload, confirm state persisted server-side (not just in the
 browser). Click through every sidebar item, collapse/restore the sidebar,
 and check the mobile drawer. `npm run lint`, `npx tsc --noEmit`, `npm test`.
 
-**Done so far** (PR #18): lint, `tsc`, and 172 unit tests pass; the
-migration is applied to the shared dev Supabase project; sidebar contents
-and nesting, every section's href, section switching, desktop
-collapse/restore, and the mobile drawer + scrim were all verified in a
-browser against a throwaway unauthenticated route (deleted before commit).
-**Still unverified**: the signed-in checkbox round trip — it needs a real
-Google account on the dev project's invite list, which the building session
-didn't have.
+**Done so far** (PR #18): lint, `tsc`, and 289 unit tests pass; all 12 of
+this branch's migrations are applied to the shared dev Supabase project;
+sidebar contents and nesting, every section's href, section switching,
+desktop collapse/restore, and the mobile drawer + scrim were all verified in
+a browser against a throwaway unauthenticated route (deleted before commit).
+
+Added 2026-08-05, in a session that *did* have a signed-in member: the
+4-item checklist renders with a correct 1/4 count and 25% bar, "Profile" in
+the account menu opens `/member/isi-data` with the member's saved intake
+data intact, and "Email Aktif" renders locked with its explanation.
+
+**The checkbox round trip is now verified** — the last item this plan had
+outstanding. @ogautama ticked "Download PruForce" as a signed-in member and
+hard-reloaded: it stayed ticked and the count went to 2/4, so
+`setOnboardingItemCompletion` persists server-side rather than only in
+React's optimistic state. Tested against the branch tip (`260ad36`), which
+is what PR #18 merges.
+
+Nothing on this plan's verification list is open any more. Note the test
+left a real `download-pruforce` `OnboardingProgress` row in the shared dev
+database — harmless, and untickable from the UI if the "clean slate" look
+is wanted on staging.
