@@ -5,7 +5,7 @@ import { getMemberIntake, getPengundangUnitOptions } from "@/lib/memberIntake";
 import JoinDataForm from "./JoinDataForm";
 
 export const metadata: Metadata = {
-  title: "Isi Data — CONNECTeam",
+  title: "Profile — CONNECTeam",
 };
 
 /**
@@ -13,9 +13,10 @@ export const metadata: Metadata = {
  * 16 fields including 5 photo uploads, far too much for an accordion detail.
  * Reached from "Profile" in the account dropdown (AccountMenu.tsx) since
  * 2026-08-05, when it left the Onboarding checklist for good: this is
- * personal data a member comes back to, not a one-time onboarding step. The
- * page's own heading still reads "Isi Data" while the menu says "Profile" —
- * a known, accepted mismatch tracked in docs/plans/00-overview.md.
+ * personal data a member comes back to, not a one-time onboarding step.
+ * Renamed "Isi Data" → "Profile" to match that menu item; the route stays
+ * /member/isi-data so existing links, `?next=` redirects and Plan 07c's
+ * draft handoff keep working.
  *
  * Capped at 640px and one question per card (JoinDataForm) rather than the
  * app's usual max-w-content — a Google-Forms-style layout the user asked
@@ -42,7 +43,7 @@ export default async function IsiDataPage() {
       <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-sm">
         <div className="h-2.5 bg-gradient-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400" />
         <div className="p-6">
-          <h1 className="text-2xl font-bold tracking-tight text-ink-900">Isi Data</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-ink-900">Profile</h1>
           <p className="mt-2 text-ink-500">Lengkapi data pribadi buat proses join.</p>
           <p className="mt-4 border-t border-ink-100 pt-3 text-sm text-ink-500">
             Kolom bertanda <span className="text-brand-red-500">*</span> wajib diisi.

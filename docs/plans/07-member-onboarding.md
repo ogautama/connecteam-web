@@ -155,8 +155,10 @@ is [spec-profile-menu.html](../design/spec-profile-menu.html).
    `download-pruforce` and `setup-wa-ig` are just as empty and stay. This is
    a specific call about licensing/class content.
 
-Known accepted gap: the menu says "Profile" while the page heading still
-reads "Isi Data". Left as-is on purpose rather than reconciled in passing.
+The page was renamed "Isi Data" → **"Profile"** to match the menu item
+(heading, `<title>`, and the `/join` success copy that points at it). Its
+route stays `/member/isi-data`: moving it would break `?next=` redirects,
+existing links and Plan 07c's draft handoff for no user-visible gain.
 
 ## Depends on
 

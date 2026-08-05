@@ -104,7 +104,8 @@ describe("submitJoinData", () => {
     ["fullName", "Nama lengkap wajib diisi."],
     ["ktpNumber", "Nomor KTP wajib diisi."],
     ["birthPlace", "Tempat lahir wajib diisi."],
-    ["activeEmail", "Email aktif wajib diisi."],
+    // activeEmail isn't here: it's taken from the session, not from input,
+    // so an empty one in the payload is ignored rather than rejected.
     ["activePhone", "No HP aktif wajib diisi."],
     ["address", "Alamat domisili wajib diisi."],
     ["schoolName", "Nama sekolah/universitas wajib diisi."],
@@ -166,11 +167,37 @@ describe("submitJoinData", () => {
     expect(upsertMemberIntake).not.toHaveBeenCalled();
   });
 
-  test("rejects a malformed active email before touching the database", async () => {
+  test("takes activeEmail from the session, ignoring whatever was posted", async () => {
+    // The form renders this field read-only, but the action takes direct
+    // POSTs — so a hand-rolled payload must not be able to set it. Changing
+    // it would hand createPendingInvite an arbitrary address, and
+    // PendingInvite is the login allowlist.
+    await submitJoinData({ ...validInput, activeEmail: "attacker@example.com" });
+
+    expect(upsertMemberIntake).toHaveBeenCalledWith(
+      "user_1",
+      expect.objectContaining({ activeEmail: "rani@example.com" }),
+    );
+  });
+
+  test("a posted activeEmail can't pre-authorize a new login", async () => {
+    await submitJoinData({ ...validInput, activeEmail: "attacker@example.com" });
+
+    expect(createPendingInvite).not.toHaveBeenCalledWith(
+      expect.objectContaining({ email: "attacker@example.com" }),
+    );
+  });
+
+  test("a malformed posted email is ignored, not rejected", async () => {
+    // Nothing to validate any more — the value never comes from input.
     await expect(
       submitJoinData({ ...validInput, activeEmail: "not-an-email" }),
-    ).rejects.toThrow("Format email aktif belum bener.");
-    expect(upsertMemberIntake).not.toHaveBeenCalled();
+    ).resolves.toBeDefined();
+
+    expect(upsertMemberIntake).toHaveBeenCalledWith(
+      "user_1",
+      expect.objectContaining({ activeEmail: "rani@example.com" }),
+    );
   });
 
   test("pre-authorizes Email Aktif as an agent recruited by the chosen Pengundang / Unit leader", async () => {

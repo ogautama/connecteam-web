@@ -56,13 +56,12 @@ export default function AccountMenu({
           <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-ink-500">
             {ROLE_LABEL[role]}
           </p>
-          {/* Isi Data's entry point since 2026-08-05, when it left the
-              Onboarding checklist — it's personal data a member revisits,
+          {/* The Profile page's entry point since 2026-08-05, when it left
+              the Onboarding checklist — it's personal data a member revisits,
               not a one-time step (see ONBOARDING_SECTIONS in
-              @/content/onboarding). Labeled "Profile" here even though the
-              page it opens still reads "Isi Data": that mismatch is a known,
-              deliberately-accepted gap, tracked in docs/plans/00-overview.md,
-              not an oversight to fix in passing. */}
+              @/content/onboarding). The page was called "Isi Data" until the
+              rename that followed; its route still is, deliberately, so
+              existing links and `?next=` redirects keep working. */}
           <Link
             href="/member/isi-data"
             role="menuitem"
