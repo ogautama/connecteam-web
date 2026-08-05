@@ -229,9 +229,10 @@
         the checklist won't have that row to show a checkmark on anymore,
         even though their underlying
         <code style="font-family: var(--mono);">OnboardingProgress</code>
-        row is untouched in the database. Worth deciding whether those
+        row would otherwise survive. <b>Settled 2026-08-05:</b> those
         <code style="font-family: var(--mono);">join-isi-data</code> rows get
-        deleted or left orphaned.
+        <b>deleted</b> as part of the build — once the row that displays them
+        is gone they're dead state, so there's nothing to keep them for.
       </span>
     </div>
   </section>

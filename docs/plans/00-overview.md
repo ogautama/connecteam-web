@@ -221,14 +221,15 @@ Plan 06's nav.)*
   `kelas-mfc-sertifikasi` get hidden** — both are `"Segera hadir"`
   placeholders with no content behind them. Checked 2026-08-05: no
   `OnboardingProgress` row exists for either id, so hiding them costs nobody
-  progress. Note this isn't "hide every placeholder" — `download-pruforce`
-  and `setup-wa-ig` are placeholders too and stay, so it's a specific
-  product call, not a rule. Two things to settle when scoping the build: the
-  progress denominator shifts for everyone, and only change (1) costs
-  anyone visible credit — members who'd already checked off Isi Data lose
-  it, though their `join-isi-data` row survives, so decide whether to delete
-  those rows or leave them orphaned. Also unresolved: the page still says
-  "Isi Data" while the menu would say "Profile", worth reconciling or
+  progress. Confirmed 2026-08-05 this is deliberately **not** "hide every
+  placeholder": `download-pruforce` and `setup-wa-ig` are equally empty
+  placeholders and stay, so it's a specific call about licensing/class
+  content, not a rule. **Settled 2026-08-05:** the existing
+  `join-isi-data` `OnboardingProgress` rows get **deleted** as part of the
+  build rather than left orphaned — change (1) removes the only row that
+  could ever display them, so keeping them would just be dead state.
+  (There is exactly one such row today.) Still unresolved: the page itself
+  says "Isi Data" while the menu would say "Profile", worth reconciling or
   deliberately keeping.
 - **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
   The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
