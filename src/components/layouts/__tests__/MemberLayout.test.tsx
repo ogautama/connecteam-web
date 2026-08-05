@@ -4,10 +4,16 @@ import MemberLayout from "../MemberLayout";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/member",
+  useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
-const user = { id: "user_1", name: "Rani Putri", role: "agent" as const };
+const user = {
+  id: "user_1",
+  name: "Rani Putri",
+  email: "rani@example.com",
+  role: "agent" as const,
+};
 
 describe("MemberLayout", () => {
   test("renders children", () => {
@@ -31,10 +37,11 @@ describe("MemberLayout", () => {
     expect(
       screen.getByRole("navigation", { name: "Member" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Get Started" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Onboarding" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Directory" })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Rani Putri/ }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument();
   });
 });

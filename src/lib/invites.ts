@@ -66,6 +66,23 @@ export async function resolveInviteRecruiter(input: {
   return input.leaderId;
 }
 
+/**
+ * Whether this email already belongs to a real member — the same lookup
+ * createPendingInvite does before refusing an "existing-user" invite, split
+ * out so the public /join form can ask the question directly (Plan 07c).
+ *
+ * Only ever called from a server action at submit time, never live per
+ * keystroke: a per-keystroke check would turn this into an oracle for
+ * enumerating which addresses are members.
+ */
+export async function userExistsForEmail(email: string): Promise<boolean> {
+  const existing = await prisma.user.findUnique({
+    where: { email: normalizeEmail(email) },
+    select: { id: true },
+  });
+  return Boolean(existing);
+}
+
 export type CreateInviteResult =
   | { ok: true; invite: PendingInvite }
   | { ok: false; reason: "existing-user" | "existing-invite" };

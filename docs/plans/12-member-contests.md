@@ -1,14 +1,39 @@
-# Plan 12 — Member: Contests & Campaigns
+# Plan 12 — Member: Contests & Campaigns (quest hub section)
+
+## Status
+
+**Revised 2026-07-24, again 2026-07-26**: no longer its own route.
+`/member/contests` is deleted — this plan's content now fills the **Contests
+& Campaigns** section of the quest hub built by
+[Plan 07](07-member-onboarding.md), reached from the sidebar at
+`/member/onboarding?section=contests`, where it sits **nested under
+References**. (The 2026-07-24 revision made this a category *inside* the
+Referensi tab; the 2026-07-26 menu rework promoted it to its own section
+with References as its visual parent.) The dashboard-banner tie-in below is
+unaffected.
+
+**Revised again 2026-07-29**: position and scope unchanged — still
+`references-contests`, still one of References' children (now 8 siblings
+instead of 2, see
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet)).
+Flagged as a **living document** — content here needs updating at least
+monthly once real contests/campaigns exist, which is the motivating example
+for [Plan 18](18-content-admin.md)'s admin-editable content blocks. Build
+this plan's v1 as static content per the scope below; migrating it to
+Plan 18's DB-backed model is that plan's job, not this one's.
 
 ## Goal
 
-`/member/contests` — merges *Contest & Reward* and *Campaign* into one
-"what's happening now" hub. This also feeds the announcement banner on the
-Plan 06 dashboard (revisit that placeholder once this lands).
+Content for the Contests & Campaigns section: merges *Contest & Reward* and
+*Campaign* into one "what's happening now" view. This also feeds the
+announcement banner on the Plan 06 dashboard (revisit that placeholder once
+this lands).
 
 ## Depends on
 
-Plan 06 (member shell/nav). Independent of Plans 07–11, 13–14.
+[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills one of
+its sections rather than building its own page/route). Independent of Plans
+08–11, 13–14.
 
 ## Source content
 
@@ -22,19 +47,22 @@ implementing.
 - `src/content/contests.ts` — typed structure: `{ title, description,
   imageUrl?, startDate?, endDate?, ctaLabel?, ctaUrl? }[]`, distinguishing
   ongoing contests/rewards from campaigns.
-- `/member/contests` page: current/active items surfaced first, past items
-  collapsed or filtered out (based on `endDate` if the source content has
-  dates — confirm during content audit).
+- Contests & Campaigns section: current/active
+  items surfaced first, past items collapsed or filtered out (based on
+  `endDate` if the source content has dates — confirm during content
+  audit).
 - Wire the most relevant active item into the Plan 06 dashboard's
-  announcement banner (small follow-up edit to `MemberLayout`/dashboard).
+  announcement banner (small follow-up edit to `MemberLayout`/dashboard) —
+  unchanged by the route consolidation.
 
 ## Unit tests
 
 - Content module schema validation.
-- Page: only active (non-expired) items shown by default, matching a
-  reference "current date" in the test.
+- Only active (non-expired) items shown by default, matching a reference
+  "current date" in the test.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/contests` and `/member` (dashboard
-banner). `npm run lint`, `npx tsc --noEmit`, `npm test`.
+`npm run dev`, log in, open **Contests & Campaigns** from the sidebar, and
+check `/member` (dashboard banner). `npm run lint`, `npx tsc --noEmit`,
+`npm test`.

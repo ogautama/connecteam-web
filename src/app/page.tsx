@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
 import { CALCULATOR_LIVE, DISC_LIVE } from "@/lib/features";
+import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "CONNECTeam — Kerja Gak Harus Ribet",
@@ -52,13 +53,15 @@ const TESTIMONIALS = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+
   return (
-    <MarketingLayout>
+    <MarketingLayout user={user}>
       {/* Hero */}
       <section className="mx-auto flex w-full max-w-content flex-col items-center gap-6 px-6 py-24 text-center">
         <span className="rounded-full bg-brand-navy-50 px-4 py-1 text-sm font-medium text-brand-navy-700">
-          Youth agency &times; Prudential Indonesia
+          CONNECTeam &times; Prudential Indonesia
         </span>
         <h1 className="max-w-3xl text-display-sm font-bold tracking-tight text-ink-900 sm:text-display-lg">
           Kerja Gak Harus{" "}

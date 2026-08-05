@@ -6,6 +6,32 @@
 Shipped as described below. Notes on what the implementation settled that the
 plan left open:
 
+**Revised 2026-07-24, again 2026-07-26**: Plans 07–14 were consolidated into
+one "quest hub" page at `/member/onboarding` (see
+[Plan 07](07-member-onboarding.md)), and **the sidebar became that hub's
+section switcher**. The 7 standalone section routes below
+(`/member/grow`, `/member/sell`, `/member/reference`, `/member/systems`,
+`/member/contests`, `/member/events`, `/member/directory`) and the
+`SectionPlaceholder` component are **deleted** — sections live at
+`/member/onboarding?section=<id>`. Only `/member` (dashboard) and
+`/member/admin/add-member` remain as real routes.
+
+What that changed in this plan's shipped code:
+
+- **`src/lib/member/nav.ts`** — items now carry `section` *or* `href`
+  (`navItemHref()` resolves either), References nests two children, and
+  `isActiveNavItem()` takes the active section as a third argument since
+  every section shares one path. Role filtering
+  (`visibleNavItems`/`showsLeaderBadge`) is unchanged in spirit but now
+  recurses into children.
+- **Menu labels** were renamed to the hub's vocabulary — Get Started →
+  Onboarding, Grow → Recruiting, Sell → Selling, Reference Data →
+  References (Official Systems folded in), Kontak → Directory — plus a new
+  Calculator section. Full table in Plan 07.
+- **`MemberShell`** (new) took over the layout from `MemberLayout`, adding
+  the hide-able sidebar — which resolves this plan's "mobile nav is
+  unreachable" gap below.
+
 - **Role-aware nav** lives in `src/lib/member/nav.ts` as pure functions
   (`visibleNavItems`, `showsLeaderBadge`) so it's unit-testable away from the
   React tree. No section is `leaderOnly` today, as predicted; Events and
@@ -29,11 +55,12 @@ plan left open:
   register as the public site. The account menu keeps English: role labels
   (Agent/Leader) and "Log out", both by request — that's the vocabulary the
   network already uses.
-- **Mobile nav is still the deferred gap** — the sidebar is `hidden md:block`
-  (Plan 01), so on a phone the member nav is unreachable and only the
-  dashboard's section cards get you around. Tracked in
-  [00-overview.md](00-overview.md#known-deferred-issues); the design spec's
-  drawer/tab-bar alternatives are the intended fix.
+- ~~**Mobile nav is still the deferred gap**~~ — *(resolved 2026-07-26 by
+  Plan 07's `MemberShell`.)* The sidebar was `hidden md:block` (Plan 01), so
+  on a phone the member nav was unreachable and only the dashboard's section
+  cards got you around. It's now hide-able at both breakpoints: visible and
+  collapsible on desktop, an overlay drawer with a dismiss scrim on mobile —
+  the drawer option the design spec sketched.
 
 ## Goal
 
@@ -73,7 +100,9 @@ Credentials login — see [00-overview.md](00-overview.md#why-supabase--vercel-i
 
 Actual section content — Plans 07–14 each own their own page under
 `/member/<section>`, this plan only needs the nav links and placeholder/empty
-pages to exist so links don't 404.
+pages to exist so links don't 404. *(Historical: accurate as shipped. See the
+2026-07-24 revision note above — Plans 07–14 no longer describe separate
+pages.)*
 
 ## Independence notes
 

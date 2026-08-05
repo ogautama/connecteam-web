@@ -1,5 +1,7 @@
 import Link from "next/link";
 import HeaderLoginButton from "@/components/layouts/HeaderLoginButton";
+import AccountMenu from "@/components/layouts/AccountMenu";
+import type { CurrentUser } from "@/lib/auth";
 import { CALCULATOR_LIVE, DISC_LIVE } from "@/lib/features";
 
 // Tool links are hidden until their pages exist (Plans 04/05) — see
@@ -19,18 +21,22 @@ const SOCIAL_LINKS = [
 
 export default function MarketingLayout({
   children,
+  user = null,
 }: {
   children: React.ReactNode;
+  // Public marketing pages don't gate on session, but a signed-in member
+  // browsing one (e.g. via the /member/onboarding "Tes DISC" link) should
+  // still see themselves recognized instead of a generic "Login" button.
+  user?: CurrentUser | null;
 }) {
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-ink-100 bg-white">
         <div className="mx-auto flex h-header max-w-content items-center justify-between px-6">
-          <Link
-            href="/"
-            className="bg-linear-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400 bg-clip-text text-xl font-bold text-transparent"
-          >
-            CONNECTeam
+          <Link href="/" className="text-xl font-bold">
+            <span className="text-brand-navy-700">CONNECT</span>
+            {/* Matches the "eam" red in public/logo/connecteam-wordmark.png — outside the brand-red scale, which trends pinker than the logo's coral. */}
+            <span className="text-[#f2404e]">eam</span>
           </Link>
 
           <nav aria-label="Primary">
@@ -45,7 +51,11 @@ export default function MarketingLayout({
             </ul>
           </nav>
 
-          <HeaderLoginButton />
+          {user ? (
+            <AccountMenu name={user.name} role={user.role} />
+          ) : (
+            <HeaderLoginButton />
+          )}
         </div>
       </header>
 

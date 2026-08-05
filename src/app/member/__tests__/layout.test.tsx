@@ -8,6 +8,7 @@ vi.mock("@/lib/auth", () => ({ requireMember }));
 // Client-side hooks used by the shell's nav/account menu.
 vi.mock("next/navigation", () => ({
   usePathname: () => "/member",
+  useSearchParams: () => new URLSearchParams(),
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 

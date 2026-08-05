@@ -1,14 +1,45 @@
-# Plan 11 — Member: Official Systems
+# Plan 11 — Member: Official Systems (References section category)
+
+## Status
+
+**Revised 2026-07-24, again 2026-07-26**: no longer its own route, and no
+longer its own nav item. `/member/systems` is deleted and "Official Systems"
+was **folded into References** in the 2026-07-26 menu rework — it's now a
+category group inside the **References** section of the quest hub built by
+[Plan 07](07-member-onboarding.md), reached from the sidebar at
+`/member/onboarding?section=references`. That section is shared with Plan
+10's Reference Data content; exact grouping is left open until both have
+real content, see Plan 07.
+
+**Revised again 2026-07-29**: scope splits across two sections. See
+[Plan 07's menu table](07-member-onboarding.md#menu-rebuilt-2026-07-29-from-the-content-inventory-sheet).
+
+- **PRUForce, Lisensi AAJI/AASI, and the MFC how-to guide move to
+  Onboarding** (Plan 07 — `onboarding-pruforce`, `onboarding-lisensi`,
+  `onboarding-mfc`), not References. The source content below (portal links,
+  the MFC step-by-step, the iOS troubleshooting notes) is unchanged — only
+  which section it renders under.
+- **PRU PayLink and Claim/Bukti Claim stay under References**, but as flat
+  items rather than one "Official Systems" category: `references-prupay-link`
+  and `references-claim` (Claim's page now has 2 in-page sections — How to
+  Claim, Bukti Claim — instead of being 2 separate sidebar entries).
+- This plan's `src/content/systems.ts` module likely needs to split into an
+  Onboarding-facing piece and a References-facing piece rather than staying
+  one file — implementer's call based on how much the two halves end up
+  sharing.
 
 ## Goal
 
-`/member/systems` — merges *PRUForce*, *Lisensi AAJI/AASI*, *PRU PayLink*,
-*Claim*, and *Bukti Claim* into one hub for official Prudential systems and
-the processes around them.
+Content for two sections: PRUForce, Lisensi AAJI/AASI, and the MFC guide now
+live under Onboarding; PRU PayLink and Claim (with Bukti Claim as an
+in-page section) stay under References. Original goal, unchanged in
+substance: cover official Prudential systems and the processes around them.
 
 ## Depends on
 
-Plan 06 (member shell/nav). Independent of Plans 07–10, 12–14.
+[Plan 07](07-member-onboarding.md) (quest hub shell — this plan fills part
+of the References section rather than building its own page/route).
+Independent of Plans 08–10, 12–14.
 
 ## Source content (from sites.google.com/view/connecteam)
 
@@ -33,17 +64,19 @@ before implementing.
 
 - `src/content/systems.ts` — typed structure per sub-topic: external portal
   links, step-by-step how-to guides (ordered list), any PDFs/images.
-- `/member/systems` page: sectioned by sub-topic (Portals, Licensing,
-  PayLink, Claims Process, Claim Proof), each section collapsible.
+- References section, "Official Systems" category group: sectioned by sub-topic
+  (Portals, Licensing, PayLink, Claims Process, Claim Proof), each section
+  collapsible via Plan 07's shared accordion component.
 - Re-host any downloadable assets under `public/downloads/`.
 
 ## Unit tests
 
 - Content module schema validation.
-- Page renders all 5 sub-sections; external portal links point to the
-  correct Prudential URLs.
+- Renders all 5 sub-sections; external portal links point to the correct
+  Prudential URLs.
 
 ## Verification
 
-`npm run dev`, log in, visit `/member/systems`, confirm all sub-sections
-and links render. `npm run lint`, `npx tsc --noEmit`, `npm test`.
+`npm run dev`, log in, open **References** from the sidebar, confirm the
+Official Systems sub-sections and links render. `npm run lint`,
+`npx tsc --noEmit`, `npm test`.

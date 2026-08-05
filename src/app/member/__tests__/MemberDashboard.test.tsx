@@ -2,7 +2,12 @@ import { describe, expect, test } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import MemberDashboard, { firstNameOf } from "../MemberDashboard";
 
-const agent = { id: "user_1", name: "Rani Putri", role: "agent" as const };
+const agent = {
+  id: "user_1",
+  name: "Rani Putri",
+  email: "rani@example.com",
+  role: "agent" as const,
+};
 
 describe("firstNameOf", () => {
   test("greets people by first name only", () => {
@@ -35,7 +40,7 @@ describe("MemberDashboard", () => {
     expect(screen.getByText(/Belum ada acara yang dijadwalin/i)).toBeInTheDocument();
   });
 
-  test("quick-links to all 8 sections", () => {
+  test("quick-links to the top-level sections only — no Calculator, no children", () => {
     render(<MemberDashboard user={agent} />);
 
     const sections = screen
@@ -43,16 +48,24 @@ describe("MemberDashboard", () => {
       .parentElement!;
     const links = within(sections).getAllByRole("link");
 
-    expect(links).toHaveLength(8);
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
       "/member/onboarding",
-      "/member/grow",
-      "/member/sell",
-      "/member/reference",
-      "/member/systems",
-      "/member/contests",
-      "/member/events",
-      "/member/directory",
+      "/member/onboarding?section=recruiting",
+      "/member/onboarding?section=selling",
+      "/member/onboarding?section=references",
+      "/member/onboarding?section=directory",
     ]);
+  });
+
+  test("excludes Add Member from the dashboard even for a leader", () => {
+    render(<MemberDashboard user={{ ...agent, role: "leader" }} />);
+
+    const sections = screen
+      .getByRole("heading", { name: "Menu" })
+      .parentElement!;
+
+    expect(
+      within(sections).queryByRole("link", { name: /Add Member/ }),
+    ).not.toBeInTheDocument();
   });
 });

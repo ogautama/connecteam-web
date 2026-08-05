@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
 import { DISC_QUESTIONS } from "@/lib/disc/questions";
+import { getCurrentUser } from "@/lib/auth";
 import DiscTest from "./DiscTest";
 
 export const metadata: Metadata = {
@@ -9,9 +10,14 @@ export const metadata: Metadata = {
     "Tes kepribadian DISC gratis dari CONNECTeam. Kenali gaya kerjamu dalam 2 menit dan lihat gimana itu kepake di dunia penjualan dan rekrutmen.",
 };
 
-export default function DiscPage() {
+// Public page (also linked from /member/onboarding) — getCurrentUser() is a
+// no-redirect lookup, so a signed-in member is recognized here without
+// gating the page for anonymous visitors the way requireMember() would.
+export default async function DiscPage() {
+  const user = await getCurrentUser();
+
   return (
-    <MarketingLayout>
+    <MarketingLayout user={user}>
       <section className="mx-auto flex w-full max-w-content flex-col items-center gap-4 border-b border-ink-100 px-6 py-16 text-center">
         <span className="rounded-full bg-brand-yellow-100 px-4 py-1 text-sm font-medium text-brand-yellow-700">
           {`Gratis · ${DISC_QUESTIONS.length} pertanyaan · ~2 menit`}
@@ -26,7 +32,7 @@ export default function DiscPage() {
         </p>
       </section>
 
-      <DiscTest />
+      <DiscTest user={user ? { name: user.name, email: user.email } : null} />
     </MarketingLayout>
   );
 }
