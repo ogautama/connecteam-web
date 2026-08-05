@@ -2,7 +2,13 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
-import { KNOW_YOURSELF, ONBOARDING_SECTIONS } from "@/content/onboarding";
+import {
+  KNOW_YOURSELF,
+  ONBOARDING_SECTIONS,
+  PRUFORCE_DOWNLOAD,
+  PRUFORCE_INSTALL,
+  PRUFORCE_UPDATE_WARNING,
+} from "@/content/onboarding";
 import {
   MEMBER_NAV,
   navItemHref,
@@ -284,9 +290,71 @@ function KnowYourselfDetail({
   );
 }
 
+function PruForceDetail() {
+  return (
+    <div className="flex flex-col gap-4">
+      <a
+        href={PRUFORCE_DOWNLOAD.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-3 rounded-xl bg-brand-navy-700 px-4 py-3 text-white hover:bg-brand-navy-800"
+      >
+        <span aria-hidden className="text-lg">
+          📲
+        </span>
+        <span className="flex-1">
+          <span className="block font-bold">{PRUFORCE_DOWNLOAD.label}</span>
+          <span className="block font-mono text-xs text-white/75">
+            {PRUFORCE_DOWNLOAD.note}
+          </span>
+        </span>
+        <span aria-hidden>↗</span>
+      </a>
+
+      <div className="flex flex-col gap-2">
+        <h3 className="flex items-center gap-2 text-xs font-bold tracking-wide text-ink-300 uppercase">
+          Cara install
+          <span className="rounded-full bg-brand-yellow-50 px-2 py-0.5 text-[0.625rem] font-bold tracking-wide text-brand-yellow-700 normal-case ring-1 ring-brand-yellow-200">
+            Perlu konfirmasi
+          </span>
+        </h3>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {PRUFORCE_INSTALL.map((guide) => (
+            <div
+              key={guide.platform}
+              className="rounded-xl border border-ink-100 bg-white px-3 py-3"
+            >
+              <p className="mb-1.5 text-xs font-extrabold text-ink-900">
+                <span aria-hidden>{guide.icon}</span> {guide.label}
+              </p>
+              <ol className="flex list-decimal flex-col gap-1 pl-4 text-xs text-ink-500">
+                {guide.steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-brand-red-200 bg-brand-red-50 px-3 py-3 text-xs">
+        <p className="font-bold text-brand-red-700">
+          <span aria-hidden>⚠️</span> {PRUFORCE_UPDATE_WARNING.title}
+        </p>
+        <ul className="mt-1 flex list-disc flex-col gap-1 pl-4 text-ink-700">
+          {PRUFORCE_UPDATE_WARNING.points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 // Inline version of PlaceholderTag's tag treatment, for a checklist item's
-// expanded detail rather than its own card — used by every onboarding
-// checklist item except Kenali Dirimu, which has real content.
+// expanded detail rather than its own card — down to the two onboarding items
+// still without content, now that Kenali Dirimu and Download PruForce have
+// theirs.
 function PlaceholderDetail({
   tag,
   note,
@@ -315,7 +383,7 @@ function SectionDetail({
     case "know-yourself":
       return <KnowYourselfDetail user={user} testResults={testResults} />;
     case "download-pruforce":
-      return <PlaceholderDetail tag="Segera hadir" note="Dipindah dari Plan 11." />;
+      return <PruForceDetail />;
     case "goals-pribadi":
       return (
         <PlaceholderDetail

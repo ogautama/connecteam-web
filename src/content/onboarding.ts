@@ -30,6 +30,79 @@ export const KNOW_YOURSELF: OnboardingLink[] = [
   },
 ];
 
+// "Download PruForce" (Plan 11's PRUForce content, Onboarding half — Plan 11
+// anticipated `src/content/systems.ts` splitting into an Onboarding-facing
+// piece and a References-facing piece, and this is the Onboarding piece).
+// Mocked in design/spec-pruforce.html, which sources every value below.
+//
+// Deliberately just three things: where to get it, how to install it, and
+// what to do first if you're updating. The PRUForce Web Portal, PRUWorks and
+// the PRUDigitalfriend helpdesk are Yellow Pages entries (Plan 14), not
+// install steps.
+
+/**
+ * The one link. Not a store link and not the download files themselves:
+ * PRUForce ships only through Prudential's agent portal (it is on neither
+ * Google Play nor the App Store in Indonesia), and on that portal the Android
+ * button is a signed GCS URL that expires after 7 days while the iOS one is
+ * an `itms-services://` enterprise manifest. Both would rot; the portal page
+ * does not. It needs no login.
+ */
+export const PRUFORCE_DOWNLOAD = {
+  label: "Buka Halaman Download PRUForce",
+  href: "https://portals.prudential.co.id/agent/application/view/68105c1e152990ce5bc2e7a6",
+  note: "portals.prudential.co.id — portal resmi Prudential",
+} as const;
+
+export type PruForceInstallGuide = {
+  platform: "android" | "ios";
+  label: string;
+  icon: string;
+  steps: string[];
+};
+
+/**
+ * Marked "perlu konfirmasi" in the UI on purpose. The shape of these steps
+ * follows from what the portal's buttons actually are (an APK to side-load;
+ * an enterprise OTA install Safari has to handle), but Plan 11 records real
+ * iOS-popup troubleshooting copy on the old Google Sites page that nobody has
+ * been able to read yet — it needs a login. Same honesty as the "Segera
+ * hadir" tags: say what we don't know rather than sound sure.
+ */
+export const PRUFORCE_INSTALL: PruForceInstallGuide[] = [
+  {
+    platform: "android",
+    label: "Android",
+    icon: "🤖",
+    steps: [
+      "Buka halaman download, tap Unduh untuk Android.",
+      "File .apk — bukan dari Play Store, jadi HP bakal nanya izin.",
+      'Izinkan "Install dari sumber ini" buat browser kamu, lalu install.',
+    ],
+  },
+  {
+    platform: "ios",
+    label: "iPhone / iPad",
+    icon: "🍎",
+    steps: [
+      "Buka halaman download di Safari — di Chrome tombolnya nggak jalan.",
+      "Tap Unduh untuk iOS, lalu Install di popup yang muncul.",
+      "Setelan → Umum → VPN & Manajemen Perangkat → pilih Prudential → Percayai.",
+    ],
+  },
+];
+
+/** Paraphrased from Prudential's own "⚠️ DIGITAL UPDATE⚠️" notice on the
+ * portal page. Lands people's drafts, so it stays loud. */
+export const PRUFORCE_UPDATE_WARNING = {
+  title: "Kalau kamu update dari versi lama:",
+  points: [
+    "SYNC DATA dan submit semua pengajuan dulu di versi lama.",
+    "Draft yang dibuat di versi sebelumnya nggak bisa dilanjutin setelah update.",
+    "Versi lama dinonaktifkan begitu versi baru rilis — nggak bisa nunda.",
+  ],
+} as const;
+
 // The onboarding checklist (rebuilt 2026-07-29 from the content-inventory
 // sheet, Plan 07) — its 4 items are also Onboarding's sidebar children in
 // spirit, but rendered inline here as accordion items rather than separate
@@ -46,7 +119,9 @@ export const KNOW_YOURSELF: OnboardingLink[] = [
 // - "lisensi-aaji-aasi" and "kelas-mfc-sertifikasi" are hidden. Both were
 //   empty "Segera hadir" placeholders. Note this is a specific call about
 //   licensing/class content, NOT "hide every placeholder" —
-//   "download-pruforce" and "setup-wa-ig" are just as empty and stay.
+//   "download-pruforce" and "setup-wa-ig" were just as empty and stayed.
+//   (That call paid off for the first of the two: "download-pruforce" has
+//   had real content since 2026-08-05, see PRUFORCE_DOWNLOAD above.)
 export type OnboardingSectionId =
   | "download-pruforce"
   | "know-yourself"
