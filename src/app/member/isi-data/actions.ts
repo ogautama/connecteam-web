@@ -29,11 +29,15 @@ import {
  * So the value is re-derived from the session below rather than trusted
  * from `input`. The form renders the field read-only too, but that's the
  * courtesy — this is the guard, since server actions take direct POSTs.
- * A consequence worth knowing: `createPendingInvite` can now only ever see
- * an address that already belongs to a User, so it always returns
- * "existing-user" and does nothing. Left in place rather than deleted —
- * whether that whole path should exist is its own decision, tracked in
- * docs/plans/00-overview.md.
+ * A consequence worth knowing: *this* `createPendingInvite` call can now
+ * only ever see an address that already belongs to a User, so it always
+ * returns "existing-user" and does nothing. That's this call site only —
+ * `createPendingInvite` itself is alive and well, and is how members
+ * actually get invited (the leader-driven Add Member form,
+ * src/app/member/admin/add-member/actions.ts, Plan 02c). Don't read this
+ * as permission to delete the function. The call is left here rather than
+ * removed because whether this form should invite at all is its own
+ * decision, tracked in docs/plans/00-overview.md.
  *
  * Photo fields carry storage keys the client already uploaded to the
  * member-intake bucket (mirrors saveTestResultLead in

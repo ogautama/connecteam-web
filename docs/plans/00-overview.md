@@ -247,13 +247,18 @@ Plan 06's nav.)*
   is now display-only in the form, with a note saying why, and
   `submitJoinData` re-derives it from the session instead of trusting
   `input` — the server side being the actual fix, since the action takes
-  direct POSTs. Consequence: `createPendingInvite` can now only ever see an
-  address that already belongs to a `User`, so it always returns
-  `existing-user` and does nothing. **Still open:** whether that whole
-  pre-authorize path should exist on this form at all. It's dead as written
-  — worth either deleting or giving a real purpose, but that's a decision
-  about invite semantics, not something to settle in a checklist
-  restructure. The original problem, for the record: `submitJoinData`
+  direct POSTs. Consequence: **this form's** `createPendingInvite` call can
+  now only ever see an address that already belongs to a `User`, so it
+  always returns `existing-user` and does nothing. That is this call site
+  only — `createPendingInvite` itself remains the live path by which members
+  get invited, from the leader-driven **Add Member** form
+  (`src/app/member/admin/add-member/actions.ts`, Plan 02c). The public
+  `/join` form has never called it: it creates an `Applicant` row and
+  nothing else, deliberately. **Still open:** whether the Profile form
+  should pre-authorize anything at all. That one call is dead as written —
+  worth either deleting or giving a real purpose, but it's a decision about
+  invite semantics, not something to settle in a checklist restructure. The
+  original problem, for the record: `submitJoinData`
   (`src/app/member/isi-data/actions.ts`) calls `createPendingInvite` with
   whatever `activeEmail` the member typed, recruited by the chosen
   "Pengundang / Unit" leader. `PendingInvite` **is** the allowlist, so if
