@@ -312,11 +312,8 @@ function PruForceDetail() {
       </a>
 
       <div className="flex flex-col gap-2">
-        <h3 className="flex items-center gap-2 text-xs font-bold tracking-wide text-ink-300 uppercase">
+        <h3 className="text-xs font-bold tracking-wide text-ink-300 uppercase">
           Cara install
-          <span className="rounded-full bg-brand-yellow-50 px-2 py-0.5 text-[0.625rem] font-bold tracking-wide text-brand-yellow-700 normal-case ring-1 ring-brand-yellow-200">
-            Perlu konfirmasi
-          </span>
         </h3>
         <div className="grid gap-2 sm:grid-cols-2">
           {PRUFORCE_INSTALL.map((guide) => (

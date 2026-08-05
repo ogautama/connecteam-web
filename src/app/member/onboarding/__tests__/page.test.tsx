@@ -140,9 +140,10 @@ describe("member hub page", () => {
 
     expect(screen.getByText(/Install dari sumber ini/)).toBeInTheDocument();
     expect(screen.getByText(/VPN & Manajemen Perangkat/)).toBeInTheDocument();
-    // The steps are inferred, not sourced — the caveat ships with them.
-    expect(screen.getByText("Perlu konfirmasi")).toBeInTheDocument();
     expect(screen.getByText(/SYNC DATA/)).toBeInTheDocument();
+    // The steps shipped caveated while they were inferred; the content owner
+    // confirmed them on 2026-08-05, so no hedge renders anymore.
+    expect(screen.queryByText(/Perlu konfirmasi/i)).not.toBeInTheDocument();
   });
 
   test("renders a top-level parent as a landing page linking to its children", async () => {

@@ -224,10 +224,13 @@
       <span>❓</span>
       <span>
         <b>Two things this mockup deliberately does not invent.</b> (1) The per-OS install
-        steps below are marked <span class="verify">perlu konfirmasi</span> — the shape is
-        inferred from the link types above (APK sideload; Safari + trust profile), but Plan
-        11 says the original Google Sites page had real iOS-popup troubleshooting copy that
-        was never captured, and that page needs a login. (2) "Cara Mengikuti Kelas My First
+        steps below were drafted as inferences from the link types above (APK sideload;
+        Safari + trust profile) and shipped with a visible
+        <span class="verify">perlu konfirmasi</span> caveat. <b>The content owner confirmed
+        them on 2026-08-05</b> ("sudah betul caranya") and the caveat came off — they're
+        checked now, not guesses. Plan 11 still records more iOS-popup troubleshooting copy
+        on the gated Google Sites page; that would extend these, not correct them.
+        (2) "Cara Mengikuti Kelas My First
         Case (MFC)" also belongs to Onboarding per Plan 11, but it is <b>its own step</b>,
         not part of this one, and its content is still behind the same gate — consistent
         with <code>project_member_content_source_gated</code>.
@@ -368,7 +371,7 @@
 
                   <!-- 2. per-OS steps -->
                   <div>
-                    <span class="sub-label">Cara install <span class="verify">perlu konfirmasi</span></span>
+                    <span class="sub-label">Cara install</span>
                     <div class="os-grid" style="margin-top:6px">
                       <div class="os-card">
                         <h5>🤖 Android</h5>
@@ -474,7 +477,7 @@
         </tr>
         <tr>
           <td>iOS is an enterprise OTA install (Safari-only)</td>
-          <td>Button <code>href</code> is <code>itms-services://?action=download-manifest&amp;url=https://pru-api-prod.prudential.co.id/pruforce/public/v1/application/68105c1e152990ce5bc2e7a6/app.plist</code>. The exact wording of the trust-profile steps is <b>not</b> from Prudential — see the "perlu konfirmasi" note.</td>
+          <td>Button <code>href</code> is <code>itms-services://?action=download-manifest&amp;url=https://pru-api-prod.prudential.co.id/pruforce/public/v1/application/68105c1e152990ce5bc2e7a6/app.plist</code>. The trust-profile wording is not Prudential's — it was inferred from that scheme, then confirmed by the content owner on 2026-08-05.</td>
         </tr>
         <tr>
           <td>Not on Play Store / App Store</td>

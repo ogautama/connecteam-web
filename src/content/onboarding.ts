@@ -62,12 +62,13 @@ export type PruForceInstallGuide = {
 };
 
 /**
- * Marked "perlu konfirmasi" in the UI on purpose. The shape of these steps
- * follows from what the portal's buttons actually are (an APK to side-load;
- * an enterprise OTA install Safari has to handle), but Plan 11 records real
- * iOS-popup troubleshooting copy on the old Google Sites page that nobody has
- * been able to read yet — it needs a login. Same honesty as the "Segera
- * hadir" tags: say what we don't know rather than sound sure.
+ * Originally inferred from what the portal's buttons actually are (an APK to
+ * side-load; an enterprise OTA install only Safari handles) and shipped with a
+ * visible "perlu konfirmasi" caveat. The caveat came off on 2026-08-05 when
+ * the content owner confirmed the steps are right — so these are checked
+ * against how it really works, not reverse-engineered guesses. Plan 11 still
+ * has more iOS-popup troubleshooting copy on the gated Google Sites page; if
+ * that ever gets read, it extends these rather than correcting them.
  */
 export const PRUFORCE_INSTALL: PruForceInstallGuide[] = [
   {
