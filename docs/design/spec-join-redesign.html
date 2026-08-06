@@ -1,0 +1,1554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Join Us form, in the profile's clothes — CONNECTeam</title>
+
+<style>
+  /* Border-box everywhere — the mock inputs are width:100% inside a grid
+     cell, so without it every padded field overflows its column by 24px. */
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  /* ---- Page chrome tokens (theme-aware) ---------------------------- */
+  :root {
+    --page-bg: #ffffff;
+    --page-fg: #1b212d;
+    --page-muted: #6c7689;
+    --page-line: #e7eaf0;
+    --page-panel: #f7f8fb;
+    --page-accent: #183f87;
+    --page-badge-fg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page-bg: #10131a;
+      --page-fg: #e9ecf3;
+      --page-muted: #98a1b3;
+      --page-line: #262c39;
+      --page-panel: #171b25;
+      --page-accent: #9eaecd;
+      --page-badge-fg: #10131a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #10131a;
+    --page-fg: #e9ecf3;
+    --page-muted: #98a1b3;
+    --page-line: #262c39;
+    --page-panel: #171b25;
+    --page-accent: #9eaecd;
+    --page-badge-fg: #10131a;
+  }
+  :root[data-theme="light"] {
+    --page-bg: #ffffff;
+    --page-fg: #1b212d;
+    --page-muted: #6c7689;
+    --page-line: #e7eaf0;
+    --page-panel: #f7f8fb;
+    --page-accent: #183f87;
+    --page-badge-fg: #ffffff;
+  }
+
+  /* ---- App tokens (from src/app/globals.css — fixed, light-only) ---- */
+  :root {
+    --navy-50: #f3f5f9;
+    --navy-100: #e3e8f1;
+    --navy-200: #c3cde0;
+    --navy-300: #9eaecd;
+    --navy-700: #183f87;
+    --navy-800: #14346f;
+    --red-500: #f04975;
+    --yellow-400: #f5ba01;
+    --ink-50: #f9fafb;
+    --ink-100: #edeff2;
+    --ink-300: #aeb5c2;
+    --ink-500: #6c7689;
+    --ink-700: #3c4453;
+    --ink-900: #1b212d;
+    --green-600: #16a34a;
+    --green-50: #f0fdf4;
+    --green-200: #bbf7d0;
+    --danger: #ef4444;
+    --danger-50: #fef2f2;
+    --danger-200: #fecaca;
+
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  body {
+    background: var(--page-bg);
+    color: var(--page-fg);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  /* ---- Document typography ----------------------------------------- */
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--page-accent);
+    margin: 0;
+  }
+  h1 {
+    font-size: clamp(30px, 4.4vw, 42px);
+    line-height: 1.12;
+    letter-spacing: -0.024em;
+    font-weight: 700;
+    text-wrap: balance;
+    margin: 10px 0 0;
+  }
+  h2 {
+    font-size: 22px;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    font-weight: 680;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .lede {
+    font-size: 17px;
+    color: var(--page-muted);
+    max-width: 62ch;
+    margin: 14px 0 0;
+  }
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+  .section-head p {
+    margin: 0;
+    color: var(--page-muted);
+    max-width: 66ch;
+    font-size: 15px;
+  }
+
+  /* ---- Diagnosis list ---------------------------------------------- */
+  .problems {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--page-line);
+    border: 1px solid var(--page-line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .problem {
+    background: var(--page-bg);
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .problem b {
+    font-size: 14.5px;
+    font-weight: 640;
+    letter-spacing: -0.005em;
+  }
+  .problem span {
+    font-size: 14px;
+    color: var(--page-muted);
+    line-height: 1.5;
+  }
+
+  /* ---- Artboard (always light — the app itself is light-only) ------- */
+  .artboard {
+    background: var(--ink-50);
+    border: 1px solid var(--page-line);
+    border-radius: 16px;
+    padding: 30px 30px 34px 52px;
+    overflow-x: auto;
+    color: var(--ink-900);
+    font-size: 15px;
+    line-height: 1.55;
+    color-scheme: light;
+  }
+  .artboard.plain {
+    padding-left: 30px;
+  }
+  .artboard-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 650;
+    color: var(--page-muted);
+  }
+  .artboard-label em {
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    font-size: 13.5px;
+  }
+  .canvas {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 340px;
+  }
+  .canvas.narrow {
+    max-width: 380px;
+    min-width: 0;
+  }
+
+  /* ---- Shared card chrome ------------------------------------------ */
+  .card {
+    background: #fff;
+    border: 1px solid var(--ink-100);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(27, 33, 45, 0.05);
+    position: relative;
+  }
+  .brandbar {
+    height: 10px;
+    border-radius: 15px 15px 0 0;
+    background: linear-gradient(
+      90deg,
+      var(--navy-700),
+      var(--red-500) 58%,
+      var(--yellow-400)
+    );
+  }
+
+  /* ---- BEFORE: one Google-Forms card per question ------------------- */
+  .qcard {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .qlabel {
+    font-weight: 550;
+    color: var(--ink-900);
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .qlabel .star {
+    color: var(--red-500);
+  }
+  .qinput {
+    border-bottom: 1px solid var(--ink-100);
+    padding: 6px 2px;
+    color: var(--ink-300);
+    font-size: 15px;
+  }
+  .qradios {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--ink-700);
+    font-size: 15px;
+  }
+  .qradio {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 5px 2px;
+  }
+  .ring {
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    border: 1.6px solid var(--ink-300);
+    flex: none;
+  }
+  .qdrop {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1.5px dashed var(--navy-200);
+    background: var(--navy-50);
+    border-radius: 10px;
+    padding: 11px 15px;
+  }
+  .qdrop .t {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .qdrop .t b {
+    font-size: 13.5px;
+    font-weight: 620;
+    color: var(--navy-700);
+  }
+  .qdrop .t span {
+    font-size: 12px;
+    color: var(--ink-500);
+  }
+  .ellipsis {
+    text-align: center;
+    color: var(--ink-500);
+    font-size: 13.5px;
+    padding: 6px 0 2px;
+    letter-spacing: 0.01em;
+  }
+  .ruler {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -30px;
+    width: 3px;
+    border-radius: 2px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--ink-300) 0 6px,
+      transparent 6px 12px
+    );
+  }
+
+  /* ---- AFTER: group cards ------------------------------------------ */
+  .group {
+    padding: 20px 24px 22px;
+  }
+  .group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--ink-100);
+  }
+  .group-head-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .group-title {
+    font-size: 12px;
+    font-weight: 680;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+  .step {
+    width: 21px;
+    height: 21px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--navy-50);
+    border: 1px solid var(--navy-100);
+    color: var(--navy-700);
+    font-size: 11.5px;
+    font-weight: 680;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .field.wide {
+    grid-column: 1 / -1;
+  }
+  .field .l {
+    font-size: 12.5px;
+    color: var(--ink-500);
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+  .tag-opt {
+    font-size: 10.5px;
+    font-weight: 640;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+    border: 1px solid var(--ink-100);
+    border-radius: 5px;
+    padding: 0 4px;
+    line-height: 1.5;
+  }
+
+  /* ---- Inputs (same kit as the profile's EditCard) ------------------ */
+  .input {
+    font-family: inherit;
+    font-size: 15.5px;
+    color: var(--ink-900);
+    background: #fff;
+    border: 1px solid var(--ink-300);
+    border-radius: 9px;
+    padding: 8px 11px;
+    width: 100%;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .input.ph {
+    color: var(--ink-300);
+  }
+  .input:focus {
+    outline: 2px solid var(--navy-700);
+    outline-offset: -1px;
+    border-color: var(--navy-700);
+  }
+  .input.focused {
+    border-color: var(--navy-700);
+    box-shadow: 0 0 0 3px var(--navy-100);
+    color: var(--ink-900);
+  }
+  .input.bad {
+    border-color: var(--danger);
+    background: var(--danger-50);
+  }
+  textarea.input,
+  .input.area {
+    resize: vertical;
+    min-height: 62px;
+  }
+  .select {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .select svg {
+    flex: none;
+    color: var(--ink-500);
+  }
+  .hint {
+    font-size: 12.5px;
+    color: var(--ink-500);
+    margin-top: 5px;
+    line-height: 1.45;
+  }
+
+  /* ---- Open select (mocked, for the Jenjang list) ------------------- */
+  .menu {
+    margin-top: 5px;
+    border: 1px solid var(--ink-100);
+    border-radius: 11px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(27, 33, 45, 0.1);
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+  }
+  .opt {
+    padding: 8px 11px;
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--ink-900);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .opt.new {
+    background: var(--yellow-400);
+    background: linear-gradient(90deg, #fef7e1, #fffcf2);
+    box-shadow: inset 2px 0 0 var(--yellow-400);
+    font-weight: 600;
+  }
+  .opt .flag {
+    font-size: 10.5px;
+    font-weight: 680;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #8e6c01;
+  }
+  .opt .code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+    color: var(--ink-300);
+  }
+  .msg-bad {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 550;
+    color: var(--danger);
+    margin-top: 5px;
+  }
+  .card.has-error {
+    border-color: var(--danger-200);
+    box-shadow: 0 0 0 3px var(--danger-50), 0 1px 2px rgba(27, 33, 45, 0.05);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 4px 11px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .chip.count {
+    background: var(--ink-50);
+    border-color: var(--ink-100);
+    color: var(--ink-500);
+  }
+  .chip.ok {
+    background: var(--green-50);
+    border-color: var(--green-200);
+    color: var(--green-600);
+  }
+  .chip.warn {
+    background: var(--danger-50);
+    border-color: var(--danger-200);
+    color: var(--danger);
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+
+  /* ---- Document tiles ---------------------------------------------- */
+  .docs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
+    gap: 12px;
+  }
+  .doc {
+    border: 1px solid var(--ink-100);
+    border-radius: 12px;
+    padding: 12px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #fff;
+  }
+  .doc.empty {
+    border-style: dashed;
+    border-color: var(--navy-200);
+    background: var(--navy-50);
+  }
+  .doc.missing {
+    border-style: dashed;
+    border-color: var(--ink-300);
+    background: var(--ink-50);
+  }
+  .doc.bad {
+    border-style: dashed;
+    border-color: var(--danger);
+    background: var(--danger-50);
+  }
+  .doc-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .thumb {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: 8px;
+    background: var(--navy-50);
+    color: var(--navy-700);
+    display: grid;
+    place-items: center;
+  }
+  .doc.empty .thumb {
+    background: #fff;
+    border: 1px dashed var(--navy-200);
+    color: var(--navy-700);
+  }
+  .doc.missing .thumb {
+    background: #fff;
+    border: 1px dashed var(--ink-300);
+    color: var(--ink-300);
+  }
+  .doc.bad .thumb {
+    background: #fff;
+    border: 1px dashed var(--danger);
+    color: var(--danger);
+  }
+  .doc-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-900);
+    line-height: 1.3;
+  }
+  .doc.missing .doc-name {
+    color: var(--ink-500);
+    font-weight: 550;
+  }
+  .doc-state {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-600);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    overflow-wrap: anywhere;
+  }
+  .doc.empty .doc-state {
+    color: var(--ink-500);
+    font-weight: 500;
+  }
+  .doc.missing .doc-state {
+    color: var(--ink-500);
+    font-weight: 500;
+  }
+  .doc.bad .doc-state {
+    color: var(--danger);
+  }
+  .doc-acts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy-700);
+    margin-top: auto;
+    padding-top: 2px;
+  }
+  .doc-acts a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .doc-acts a:hover {
+    color: var(--red-500);
+  }
+  .doc-acts .sep {
+    color: var(--ink-300);
+    font-weight: 400;
+  }
+
+  /* ---- The one action, at the end ---------------------------------- */
+  .foot {
+    padding: 20px 24px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .foot-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    border-radius: 999px;
+    background: var(--navy-700);
+    color: #fff;
+    font-weight: 620;
+    font-size: 15px;
+    padding: 11px 26px;
+    border: 0;
+    font-family: inherit;
+    line-height: 1.4;
+  }
+  .btn:hover {
+    background: var(--navy-800);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--red-500);
+    outline-offset: 2px;
+  }
+  .btn.busy {
+    opacity: 0.6;
+  }
+  .foot-note {
+    font-size: 13px;
+    color: var(--ink-500);
+    line-height: 1.45;
+  }
+  .summary-bad {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid var(--danger-200);
+    background: var(--danger-50);
+    border-radius: 11px;
+    padding: 11px 14px;
+    font-size: 13.5px;
+    color: var(--danger);
+    line-height: 1.5;
+  }
+  .summary-bad b {
+    font-weight: 640;
+  }
+  .summary-bad a {
+    color: inherit;
+    font-weight: 620;
+  }
+
+  /* ---- Marketing header card --------------------------------------- */
+  .head-body {
+    padding: 22px 24px 20px;
+  }
+  .head-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.022em;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .head-sub {
+    color: var(--ink-500);
+    margin: 8px 0 0;
+    font-size: 15px;
+  }
+  .head-meta {
+    margin: 16px 0 0;
+    padding-top: 13px;
+    border-top: 1px solid var(--ink-100);
+    font-size: 13.5px;
+    color: var(--ink-500);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+
+  /* ---- Callout badges ---------------------------------------------- */
+  .anno {
+    position: relative;
+  }
+  .badge {
+    position: absolute;
+    left: -34px;
+    top: 14px;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: var(--navy-700);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 680;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 760px) {
+    .badge,
+    .ruler {
+      display: none;
+    }
+    .artboard {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+
+  .legend {
+    list-style: none;
+    padding: 0;
+    margin: 22px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px 28px;
+    counter-reset: legend;
+  }
+  .legend li {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    align-items: start;
+    counter-increment: legend;
+    font-size: 14.5px;
+    color: var(--page-muted);
+    line-height: 1.5;
+  }
+  .legend li::before {
+    content: counter(legend);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--page-accent);
+    color: var(--page-badge-fg);
+    font-size: 12px;
+    font-weight: 680;
+    display: grid;
+    place-items: center;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .legend b {
+    color: var(--page-fg);
+    font-weight: 640;
+    display: block;
+    font-size: 15px;
+    margin-bottom: 1px;
+  }
+
+  .state-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 18px;
+  }
+  .state-tag {
+    font-size: 11.5px;
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+    display: block;
+    margin-bottom: 11px;
+  }
+  .state-box {
+    background: var(--ink-50);
+    border: 1px solid var(--page-line);
+    border-radius: 14px;
+    padding: 20px;
+    color-scheme: light;
+    color: var(--ink-900);
+  }
+
+  /* ---- Notes ------------------------------------------------------- */
+  .notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
+    gap: 26px;
+  }
+  .note h3 {
+    font-size: 15px;
+    font-weight: 650;
+    margin: 0 0 8px;
+    letter-spacing: -0.005em;
+  }
+  .note p,
+  .note li {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--page-muted);
+    line-height: 1.55;
+  }
+  .note ul {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .note b {
+    color: var(--page-fg);
+    font-weight: 620;
+  }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.88em;
+    background: var(--page-panel);
+    border: 1px solid var(--page-line);
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+
+  @media (max-width: 560px) {
+    .fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap" style="padding-bottom:0">
+  <p style="margin:0;border:1px solid var(--page-line);background:var(--page-panel);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--page-muted)">
+    <b style="color:var(--page-fg)">Mockup 2026-08-06 — nothing built, no code changed.</b>
+    Applies the shipped Profile redesign to the public Join&nbsp;Us form
+    (<span style="font-family:ui-monospace,Menlo,monospace;font-size:13px">src/app/join/ApplicationForm.tsx</span>),
+    with a single Kirim at the end as asked.
+  </p>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Public site · /join</p>
+    <h1>Join&nbsp;Us, in the profile’s clothes</h1>
+    <p class="lede">
+      Same sixteen questions, same field kit, same 640px column — regrouped
+      into the five cards the Profile page already uses, and submitted with one
+      button at the bottom. The difference from Profile: nothing here is saved
+      yet, so every card is open at once and no card gets its own “Simpan”.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>Why the current form feels different</h2>
+      <p>
+        It isn’t worse-designed — it’s an older decision. <code>ApplicationForm</code>
+        still uses the Google-Forms-style kit (<code>QuestionCard</code>,
+        one box per question) that Profile used before Plan&nbsp;19.
+      </p>
+    </div>
+    <div class="problems">
+      <div class="problem">
+        <b>Seventeen cards, one column</b>
+        <span>
+          Sixteen questions each in their own bordered box, stacked — about
+          3,000px of scrolling before the button comes into view.
+        </span>
+      </div>
+      <div class="problem">
+        <b>No grouping to navigate by</b>
+        <span>
+          KTP number, school city and a bank-book photo all read as equally
+          important. There’s no “I’m nearly done with identity” moment.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Fifteen asterisks</b>
+        <span>
+          All but one field is required, so the asterisk marks the norm rather
+          than the exception and stops carrying information.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Five identical dropzones</b>
+        <span>
+          Each upload is a full-width dashed box saying “Pilih file”. You can’t
+          see at a glance how many are still outstanding.
+        </span>
+      </div>
+      <div class="problem">
+        <b>A six-name radio list</b>
+        <span>
+          Pengundang&nbsp;/&nbsp;Unit is the live leader list — it grows. As a
+          radio stack it’s the tallest card on the page and grows with the team.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Errors arrive one at a time</b>
+        <span>
+          Submit surfaces only the first problem, as a line of text above the
+          button, with no link back to the field it’s about.
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Today</h2>
+      <p>Recreated from the current render — first five of seventeen cards.</p>
+    </div>
+    <div class="artboard plain">
+      <div class="artboard-label">Before <em>— max-w-[640px], ~3,000px tall</em></div>
+      <div class="canvas" style="position:relative">
+        <div class="card">
+          <div class="brandbar"></div>
+          <div class="head-body">
+            <p class="head-title">Gabung CONNECTeam</p>
+            <p class="head-sub">
+              Isi form di bawah ini. Butuh sekitar 5 menit — tim kami bakal ngecek
+              dan menghubungi kamu buat langkah selanjutnya.
+            </p>
+            <p class="head-meta">Kolom bertanda <span style="color:var(--red-500)">*</span> wajib diisi.</p>
+          </div>
+        </div>
+
+        <div class="card"><div class="qcard">
+          <span class="qlabel">Nama Lengkap (sesuai KTP)<span class="star"> *</span></span>
+          <div class="qinput">Jawaban kamu</div>
+        </div></div>
+
+        <div class="card"><div class="qcard">
+          <span class="qlabel">No KTP<span class="star"> *</span></span>
+          <div class="qinput">Jawaban kamu</div>
+        </div></div>
+
+        <div class="card"><div class="qcard">
+          <span class="qlabel">Tempat Lahir<span class="star"> *</span></span>
+          <div class="qinput">Jawaban kamu</div>
+        </div></div>
+
+        <div class="card"><div class="qcard">
+          <span class="qlabel">Tanggal Lahir<span class="star"> *</span></span>
+          <div class="qinput">Jawaban kamu</div>
+        </div></div>
+
+        <div class="card"><div class="qcard">
+          <span class="qlabel">Pendidikan Terakhir<span class="star"> *</span></span>
+          <div class="qradios">
+            <span class="qradio"><span class="ring"></span>SMA / SLTA / SMK</span>
+            <span class="qradio"><span class="ring"></span>S1</span>
+            <span class="qradio"><span class="ring"></span>S2</span>
+            <span class="qradio"><span class="ring"></span>S3</span>
+          </div>
+        </div></div>
+
+        <div class="card"><div class="qcard">
+          <span class="qlabel">Foto KTP<span class="star"> *</span></span>
+          <div class="qdrop">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--navy-700);flex:none" aria-hidden="true"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+            <span class="t"><b>Pilih file</b><span>Belum ada file dipilih</span></span>
+          </div>
+        </div></div>
+
+        <div class="ellipsis">⋮ &nbsp;10 kartu lagi, lalu “Kirim”</div>
+        <div class="ruler" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Proposed — the whole form</h2>
+      <p>
+        Five group cards borrowed straight from <code>IntakeSummary</code>’s
+        edit state, all open at once, one action at the bottom. Shown empty, as
+        a first-time applicant sees it.
+      </p>
+    </div>
+
+    <div class="artboard">
+      <div class="artboard-label">After <em>— same 640px column, ~1,150px tall</em></div>
+      <div class="canvas">
+
+        <!-- header -->
+        <div class="card anno">
+          <span class="badge">1</span>
+          <div class="brandbar"></div>
+          <div class="head-body">
+            <p class="head-title">Gabung CONNECTeam</p>
+            <p class="head-sub">
+              Isi form di bawah ini. Butuh sekitar 5 menit — tim kami bakal ngecek
+              dan menghubungi kamu buat langkah selanjutnya.
+            </p>
+            <p class="head-meta">
+              <span class="chip count">4 bagian · 5 menit</span>
+              Semua kolom wajib diisi kecuali yang ditandai <span class="tag-opt">opsional</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- 1. nama & kontak -->
+        <div class="card anno">
+          <span class="badge">2</span>
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="step">1</span>
+                <span class="group-title">Nama &amp; kontak</span>
+              </div>
+            </div>
+            <div class="fields">
+              <div class="field wide">
+                <span class="l">Nama lengkap (sesuai KTP)</span>
+                <div class="input ph">Jawaban kamu</div>
+              </div>
+              <div class="field">
+                <span class="l">Email aktif</span>
+                <div class="input ph">nama@email.com</div>
+                <span class="hint">Kami hubungi kamu lewat email ini.</span>
+              </div>
+              <div class="field">
+                <span class="l">No HP aktif (Whatsapp)</span>
+                <div class="input ph">08…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. identitas -->
+        <div class="card anno">
+          <span class="badge">3</span>
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="step">2</span>
+                <span class="group-title">Identitas</span>
+              </div>
+            </div>
+            <div class="fields">
+              <div class="field">
+                <span class="l">No KTP</span>
+                <div class="input ph">16 digit</div>
+              </div>
+              <div class="field">
+                <span class="l">Tempat lahir</span>
+                <div class="input ph">Kota kelahiran</div>
+              </div>
+              <div class="field">
+                <span class="l">Tanggal lahir</span>
+                <div class="input ph select"><span>dd / mm / yyyy</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
+                </div>
+              </div>
+              <div class="field wide">
+                <span class="l">Alamat domisili</span>
+                <div class="input ph area">Alamat tempat tinggal sekarang</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. pendidikan -->
+        <div class="card anno">
+          <span class="badge">4</span>
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="step">3</span>
+                <span class="group-title">Pendidikan terakhir</span>
+              </div>
+            </div>
+            <div class="fields">
+              <div class="field">
+                <span class="l">Jenjang</span>
+                <div class="input ph select"><span>Pilih…</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>
+                </div>
+              </div>
+              <div class="field">
+                <span class="l">Tahun kelulusan</span>
+                <div class="input ph">2019</div>
+              </div>
+              <div class="field">
+                <span class="l">Sekolah / universitas</span>
+                <div class="input ph">Jawaban kamu</div>
+              </div>
+              <div class="field">
+                <span class="l">Kota</span>
+                <div class="input ph">Jawaban kamu</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. dokumen -->
+        <div class="card anno">
+          <span class="badge">5</span>
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="step">4</span>
+                <span class="group-title">Dokumen</span>
+                <span class="chip count">0 dari 4 wajib</span>
+              </div>
+            </div>
+            <div class="docs">
+
+              <div class="doc empty">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M14 10h4M14 14h4M5 16c.9-1.6 2.1-2.4 3.5-2.4S11.1 14.4 12 16"/></svg>
+                  </span>
+                  <span class="doc-name">Foto KTP</span>
+                </div>
+                <span class="doc-state">Belum dipilih</span>
+                <div class="doc-acts"><a href="#dokumen">Pilih file</a></div>
+              </div>
+
+              <div class="doc empty">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c0-3.6 3.4-5.8 7.5-5.8s7.5 2.2 7.5 5.8"/></svg>
+                  </span>
+                  <span class="doc-name">Foto selfie</span>
+                </div>
+                <span class="doc-state">Belum dipilih</span>
+                <div class="doc-acts"><a href="#dokumen">Pilih file</a></div>
+              </div>
+
+              <div class="doc empty">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.7 2.2-4.4 5-4.4s5 1.7 5 4.4M13.5 19c0-2.7 1.5-4.4 4-4.4s3.5 1.7 3.5 4.4"/></svg>
+                  </span>
+                  <span class="doc-name">Kartu keluarga</span>
+                </div>
+                <span class="doc-state">Belum dipilih</span>
+                <div class="doc-acts"><a href="#dokumen">Pilih file</a></div>
+              </div>
+
+              <div class="doc empty">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 4l9 4.5"/><path d="M5 10.5v7M9.7 10.5v7M14.3 10.5v7M19 10.5v7"/><path d="M3 20.5h18"/></svg>
+                  </span>
+                  <span class="doc-name">Buku tabungan</span>
+                </div>
+                <span class="doc-state">Belum dipilih</span>
+                <div class="doc-acts"><a href="#dokumen">Pilih file</a></div>
+              </div>
+
+              <div class="doc missing">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M12 9.5v5M9.5 12h5"/></svg>
+                  </span>
+                  <span class="doc-name">KTP pasangan</span>
+                </div>
+                <span class="doc-state">Opsional</span>
+                <div class="doc-acts"><a href="#dokumen">Pilih file</a></div>
+              </div>
+
+            </div>
+            <p class="hint" style="margin-top:12px">
+              Foto jelas &amp; tidak buram, maks. 100MB per file. JPG, PNG atau PDF.
+            </p>
+          </div>
+        </div>
+
+        <!-- 5. pengundang + kirim -->
+        <div class="card anno">
+          <span class="badge">6</span>
+          <div class="group" style="padding-bottom:6px">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="group-title">Pengundang / Unit</span>
+              </div>
+            </div>
+            <div class="fields">
+              <div class="field wide">
+                <span class="l">Siapa yang ngajak kamu?</span>
+                <div class="input ph select"><span>Pilih nama leader…</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>
+                </div>
+                <span class="hint">Nggak tahu? Pilih nama unit tempat kamu dengar soal CONNECTeam.</span>
+              </div>
+            </div>
+          </div>
+          <div class="foot" style="border-top:1px solid var(--ink-100);margin-top:18px">
+            <div class="foot-row">
+              <button class="btn" type="button">Kirim aplikasi</button>
+              <span class="foot-note">
+                Cek lagi sebelum kirim — setelah terkirim, perubahan lewat leader kamu.
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <ol class="legend">
+      <li>
+        <div>
+          <b>The header earns its gradient bar</b>
+          Same card as today, plus what the form is going to cost you: four
+          sections, five minutes, and the required rule stated once instead of
+          fifteen asterisks.
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Nama &amp; kontak — the Profile identity header, before there’s an identity</b>
+          Same three fields the Profile header edits. Email is a normal input
+          here (no Google account to lock it to yet) and carries the one line
+          explaining why we ask.
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Identitas — the same two-column grid</b>
+          <code>EditField</code> + <code>EditInput</code> exactly as
+          <code>IntakeSummary</code> uses them: label above input, address spans
+          both columns. Nothing new to build.
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Pendidikan — jenjang becomes a select</b>
+          The four-option radio stack collapses into the same
+          <code>EditSelect</code> Profile already edits it with, freeing the row
+          for tahun kelulusan.
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Dokumen — five tiles and a counter</b>
+          The Profile’s <code>DocTile</code> in its empty state: dashed navy for
+          the four required, dashed grey “Opsional” for the spouse ID. The
+          “0 dari 4 wajib” chip ticks up as files are picked — one glance
+          instead of five dropzones to scan.
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Pengundang, then the only button on the page</b>
+          The last question and the action share a card, so “what’s left” and
+          “done” are the same stopping point. One <code>Kirim aplikasi</code> —
+          no per-card Simpan, since nothing exists to save into yet.
+        </div>
+      </li>
+    </ol>
+
+    <div class="section-head" style="margin-top:38px">
+      <h2 style="font-size:18px">Jenjang — with Diploma added</h2>
+      <p>
+        Fifth option, second in the list: between SMA&nbsp;/&nbsp;SLTA&nbsp;/&nbsp;SMK
+        and S1. Order comes from the <code>EDUCATION_OPTIONS</code> array, so
+        the same list appears in the select here, in the Profile’s Pendidikan
+        editor, and in the leader’s applicant queue.
+      </p>
+    </div>
+    <div class="artboard plain">
+      <div class="artboard-label">Detail <em>— select, open</em></div>
+      <div class="canvas narrow">
+        <div class="card">
+          <div class="group">
+            <div class="fields" style="grid-template-columns:minmax(0,1fr)">
+              <div class="field">
+                <span class="l">Jenjang</span>
+                <div class="input focused select"><span>Pilih…</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15.5l6-6 6 6"/></svg>
+                </div>
+                <div class="menu">
+                  <span class="opt">SMA / SLTA / SMK <span class="code">smaSltaSmk</span></span>
+                  <span class="opt new">Diploma (D1–D4) <span class="flag">baru</span></span>
+                  <span class="opt">S1 <span class="code">s1</span></span>
+                  <span class="opt">S2 <span class="code">s2</span></span>
+                  <span class="opt">S3 <span class="code">s3</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes" style="margin-top:24px">
+      <div class="note">
+        <h3>One list, three screens</h3>
+        <p>
+          <code>EDUCATION_OPTIONS</code> in
+          <code>src/lib/memberIntakeOptions.ts</code> is the only definition —
+          the Join form, the Profile editor, and
+          <code>ApplicantQueue</code>’s label lookup all read it. Adding a row
+          there covers all three.
+        </p>
+      </div>
+      <div class="note">
+        <h3>But it’s a Prisma enum, not a string</h3>
+        <p>
+          <code>education</code> is <code>EducationLevel</code> in
+          <code>schema.prisma</code>, so this needs a real migration —
+          <code>ALTER TYPE … ADD VALUE 'diploma'</code>. Cheap and additive
+          (nothing stored changes), but it’s a schema change, not a content
+          edit. Enum <em>position</em> doesn’t matter: display order is the
+          array’s.
+        </p>
+      </div>
+      <div class="note">
+        <h3>Label wording — decided</h3>
+        <p>
+          <b>Diploma (D1–D4)</b>, so applicants at any diploma level recognise
+          their option without guessing. Worth noting the source Google Form
+          didn’t offer Diploma at all — this is a deliberate addition, not a
+          transcription fix.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>States worth deciding on</h2>
+      <p>
+        The parts that differ from Profile, where a single submit has to carry
+        what per-section saves used to.
+      </p>
+    </div>
+
+    <div class="state-grid">
+
+      <div class="state-box">
+        <span class="state-tag">Files picked</span>
+        <div class="docs" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+          <div class="doc">
+            <div class="doc-top">
+              <span class="thumb" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M14 10h4M14 14h4M5 16c.9-1.6 2.1-2.4 3.5-2.4S11.1 14.4 12 16"/></svg>
+              </span>
+              <span class="doc-name">Foto KTP</span>
+            </div>
+            <span class="doc-state"><span class="dot"></span>ktp-depan.jpg</span>
+            <div class="doc-acts"><a href="#s">Ganti</a><span class="sep">·</span><a href="#s">Hapus</a></div>
+          </div>
+          <div class="doc empty">
+            <div class="doc-top">
+              <span class="thumb" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c0-3.6 3.4-5.8 7.5-5.8s7.5 2.2 7.5 5.8"/></svg>
+              </span>
+              <span class="doc-name">Foto selfie</span>
+            </div>
+            <span class="doc-state">Belum dipilih</span>
+            <div class="doc-acts"><a href="#s">Pilih file</a></div>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:11px">
+          Nothing uploads until Kirim — the tile shows the chosen filename, and
+          “Hapus” un-picks it. Same tile component, one extra state.
+        </p>
+      </div>
+
+      <div class="state-box">
+        <span class="state-tag">Submitting</span>
+        <div class="card">
+          <div class="foot">
+            <div class="foot-row">
+              <button class="btn busy" type="button">Mengupload 2 dari 5…</button>
+            </div>
+            <span class="foot-note">
+              Jangan tutup halaman ini. File lagi dikirim.
+            </span>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:11px">
+          The button already cycles Mengecek → Mengupload → Mengirim. With five
+          files behind one click, a count makes the longest step legible.
+        </p>
+      </div>
+
+      <div class="state-box">
+        <span class="state-tag">Submit with gaps</span>
+        <div class="card has-error">
+          <div class="group" style="padding-bottom:16px">
+            <div class="group-head" style="margin-bottom:14px">
+              <div class="group-head-left">
+                <span class="step">2</span>
+                <span class="group-title">Identitas</span>
+              </div>
+              <span class="chip warn"><span class="dot"></span>1 belum diisi</span>
+            </div>
+            <div class="fields" style="grid-template-columns:minmax(0,1fr)">
+              <div class="field">
+                <span class="l">No KTP</span>
+                <div class="input ph bad">16 digit</div>
+                <span class="msg-bad">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.3v.2"/></svg>
+                  Nomor KTP wajib diisi.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:11px">
+          Submit checks everything at once: each gap is marked at its own field,
+          the card that owns it gets a count, and the page scrolls to the first.
+        </p>
+      </div>
+
+      <div class="state-box">
+        <span class="state-tag">…and at the button</span>
+        <div class="card">
+          <div class="foot">
+            <div class="summary-bad">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" style="flex:none;margin-top:2px" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.3v.2"/></svg>
+              <span>
+                <b>3 hal masih kurang.</b> Cek
+                <a href="#s">Identitas</a>, <a href="#s">Dokumen</a> dan
+                <a href="#s">Pengundang / Unit</a>.
+              </span>
+            </div>
+            <div class="foot-row">
+              <button class="btn" type="button">Kirim aplikasi</button>
+            </div>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:11px">
+          Replaces today’s single first-error line. Named sections are only
+          possible because the fields are grouped — the current flat form has
+          nothing to point at.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>What this costs to build</h2>
+      <p>
+        Mostly a re-layout of <code>ApplicationForm.tsx</code>. Nothing in the
+        data model, the server action, or Storage changes.
+      </p>
+    </div>
+    <div class="notes">
+      <div class="note">
+        <h3>Already exists</h3>
+        <ul>
+          <li>
+            <b>Every card and input.</b> <code>FieldGroupCard</code>,
+            <code>EditField</code>, <code>EditInput</code>,
+            <code>EditTextArea</code>, <code>EditSelect</code> and
+            <code>DocTile</code> are all exported from
+            <code>IntakeFormFields.tsx</code> and already shared by both forms.
+          </li>
+          <li>
+            <b>Submit stays as it is.</b> Same <code>handleSubmit</code>: check
+            the email, upload five files, call <code>submitApplication</code>.
+            One button in, one button out.
+          </li>
+        </ul>
+      </div>
+      <div class="note">
+        <h3>New, and small</h3>
+        <ul>
+          <li>
+            <b>An empty/picked state for <code>DocTile</code>.</b> It currently
+            takes a saved <code>url</code>; here it needs a pending
+            <code>File</code> — filename in place of “Terupload”, plus “Hapus”.
+          </li>
+          <li>
+            <b>Per-field validation.</b> Today’s check returns the first error
+            as a string. Grouped errors mean a
+            <code>Record&lt;field, string&gt;</code> and a scroll-to-first —
+            worth it, but it’s the real work in this change.
+          </li>
+          <li>
+            <b>An <code>EditSelect</code> for Pengundang / Unit.</b> The
+            existing one is hardcoded to <code>EDUCATION_OPTIONS</code>; it
+            needs to take options as a prop.
+          </li>
+        </ul>
+      </div>
+      <div class="note">
+        <h3>Open questions</h3>
+        <ul>
+          <li>
+            <b>Should the button stick?</b> Mocked at the end, as asked. On
+            mobile a sticky bottom bar keeps it reachable — but it also covers
+            content on a form this long. Easy to add later either way.
+          </li>
+          <li>
+            <b>Radios or a select for Pengundang?</b> A select scales with the
+            leader list; radios show every name without a tap. Six names today.
+          </li>
+          <li>
+            <b>Does the member “Isi Data” first-fill form follow?</b>
+            <code>JoinDataForm</code>’s pre-save branch is the same
+            question-card stack. Matching it here leaves that one the odd path
+            out — worth doing in the same pass.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>
