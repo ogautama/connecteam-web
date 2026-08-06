@@ -9,7 +9,8 @@ Implementation starts once this plan merges.
 
 ## Goal
 
-`/member/isi-data` renders saved data as a receipt: seventeen
+The Profile page (`/member/isi-data` when this plan was written,
+`/member/profile` since 2026-08-06) renders saved data as a receipt: seventeen
 label-left/value-right rows of identical weight, four links that all say
 "Lihat file", an em-dash where "optional" should be, and one small underlined
 "Ubah data" that reopens all sixteen inputs and five upload pickers to fix a
@@ -70,16 +71,16 @@ file was picked. The state change is one line:
   field in a two-column grid; `SummaryFileRow` by a document tile (icon,
   name, "Terupload" state, "Lihat · Ganti"). The optional spouse-KTP tile is
   dashed with "Opsional" + "Upload" — no more em-dash.
-- **`JoinDataForm`** (`src/app/member/isi-data/JoinDataForm.tsx`) —
+- **`JoinDataForm`** (`src/app/member/profile/JoinDataForm.tsx`) —
   `editingSection` state; per-section save handlers that merge the edited
   group into the saved record and call the existing `submitJoinData`;
   per-tile upload+save for documents.
-- **`page.tsx`** (`src/app/member/isi-data/page.tsx`) — drop the title-only
+- **`page.tsx`** (`src/app/member/profile/page.tsx`) — drop the title-only
   header card (the identity header takes the brand bar).
 - **Masked KTP** — display component with a reveal toggle.
 - The read-only accepted-application variant (07c) reuses the same layout
   with no edit affordances; its `note` moves under the header chips.
-- Tests: update `isi-data/__tests__` for the new structure; add coverage for
+- Tests: update `profile/__tests__` for the new structure; add coverage for
   section-merge saves (untouched fields survive a section save) and the mask
   toggle.
 

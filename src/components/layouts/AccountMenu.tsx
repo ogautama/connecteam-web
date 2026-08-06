@@ -60,10 +60,10 @@ export default function AccountMenu({
               the Onboarding checklist — it's personal data a member revisits,
               not a one-time step (see ONBOARDING_SECTIONS in
               @/content/onboarding). The page was called "Isi Data" until the
-              rename that followed; its route still is, deliberately, so
-              existing links and `?next=` redirects keep working. */}
+              rename that followed, and its route caught up on 2026-08-06;
+              /member/isi-data still 308s here (next.config.ts). */}
           <Link
-            href="/member/isi-data"
+            href="/member/profile"
             role="menuitem"
             className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-ink-700 hover:bg-ink-50"
           >

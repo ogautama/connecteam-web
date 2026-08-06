@@ -28,10 +28,10 @@ describe("LoginForm", () => {
   });
 
   it("forwards a `next` destination through to sign-in", () => {
-    render(<LoginForm next="/member/isi-data" />);
+    render(<LoginForm next="/member/profile" />);
     fireEvent.click(
       screen.getByRole("button", { name: /Sign in with Google/i }),
     );
-    expect(signInWithGoogle).toHaveBeenCalledWith("/member/isi-data");
+    expect(signInWithGoogle).toHaveBeenCalledWith("/member/profile");
   });
 });

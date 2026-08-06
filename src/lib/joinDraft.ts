@@ -1,10 +1,10 @@
 import type { EducationLevel } from "@prisma/client";
 
 /**
- * The handoff between the public /join form and the member "Isi Data" form
+ * The handoff between the public /join form and the member Profile form
  * (Plan 07c): when someone fills out /join under an email that turns out to
  * already be a member, we stash what they typed here, send them to log in,
- * and prefill /member/isi-data with it rather than making them retype 11
+ * and prefill /member/profile with it rather than making them retype 11
  * fields.
  *
  * Text fields only, never the photos. A File can't be put back into a file

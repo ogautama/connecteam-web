@@ -14,9 +14,10 @@ export const metadata: Metadata = {
  * Reached from "Profile" in the account dropdown (AccountMenu.tsx) since
  * 2026-08-05, when it left the Onboarding checklist for good: this is
  * personal data a member comes back to, not a one-time onboarding step.
- * Renamed "Isi Data" → "Profile" to match that menu item; the route stays
- * /member/isi-data so existing links, `?next=` redirects and Plan 07c's
- * draft handoff keep working.
+ * Renamed "Isi Data" → "Profile" to match that menu item, and the route
+ * followed on 2026-08-06. /member/isi-data 308s here (next.config.ts) so
+ * existing links, `?next=` redirects and Plan 07c's draft handoff keep
+ * working.
  *
  * Capped at 640px and one question per card (JoinDataForm) rather than the
  * app's usual max-w-content — a Google-Forms-style layout the user asked
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
  * the read-only accepted-application view have no header of their own, same
  * as before.
  */
-export default async function IsiDataPage() {
+export default async function ProfilePage() {
   const user = await requireMember();
   const [saved, pengundangUnitOptions] = await Promise.all([
     getMemberIntake(user.id),

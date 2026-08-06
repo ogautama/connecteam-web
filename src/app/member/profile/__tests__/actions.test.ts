@@ -77,7 +77,7 @@ describe("submitJoinData", () => {
     const result = await submitJoinData(validInput);
 
     expect(upsertMemberIntake).toHaveBeenCalledWith("user_1", validInput);
-    expect(revalidatePath).toHaveBeenCalledWith("/member/isi-data");
+    expect(revalidatePath).toHaveBeenCalledWith("/member/profile");
     expect(result).toEqual(savedRecord);
   });
 

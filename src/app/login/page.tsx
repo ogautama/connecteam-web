@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 /**
  * `?next=` is a generic post-login destination, forwarded to
  * /auth/callback (which validates it). /join uses it to send someone who
- * turns out to already be a member straight to /member/isi-data.
+ * turns out to already be a member straight to /member/profile.
  */
 export default async function LoginPage({
   searchParams,

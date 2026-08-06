@@ -199,7 +199,7 @@ export default function ApplicationForm({
           upload ulang dokumennya aja.
         </p>
         <a
-          href="/login?next=%2Fmember%2Fisi-data"
+          href="/login?next=%2Fmember%2Fprofile"
           className="mt-1 rounded-full bg-brand-navy-700 px-6 py-2.5 font-semibold text-white hover:bg-brand-navy-800"
         >
           Login &amp; lanjut isi data
