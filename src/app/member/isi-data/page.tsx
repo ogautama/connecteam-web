@@ -26,6 +26,13 @@ export const metadata: Metadata = {
  * same email, JoinDataForm shows that read-only instead of a blank form
  * (2026-07-30) — no need to fill the same data twice. Read-only only: the
  * user explicitly deferred building an edit path for that case.
+ *
+ * No title-only header card here any more (Plan 19, 2026-08-06): once a
+ * MemberIntake row exists, the identity header JoinDataForm renders for it
+ * carries the brand bar and the page's heading duty (name, not "Profile" —
+ * the account menu already said that to get here). The first-fill form and
+ * the read-only accepted-application view have no header of their own, same
+ * as before.
  */
 export default async function IsiDataPage() {
   const user = await requireMember();
@@ -40,17 +47,7 @@ export default async function IsiDataPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[640px] flex-col gap-4">
-      <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-sm">
-        <div className="h-2.5 bg-gradient-to-r from-brand-navy-700 via-brand-red-500 to-brand-yellow-400" />
-        {/* Heading only. The "lengkapi data pribadi" blurb and the
-            required-field legend both went 2026-08-05: this is a page
-            members revisit, not a form they're being walked through, and
-            the * convention needs no explaining. /join keeps its legend —
-            that one is someone's first encounter with the form. */}
-        <div className="p-6">
-          <h1 className="text-2xl font-bold tracking-tight text-ink-900">Profile</h1>
-        </div>
-      </div>
+      <h1 className="sr-only">Profile</h1>
       <JoinDataForm
         userId={user.id}
         defaultEmail={user.email}

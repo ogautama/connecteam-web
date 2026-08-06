@@ -150,9 +150,14 @@ describe("isi-data page", () => {
     render(await IsiDataPage());
 
     expect(getAcceptedApplicantByEmail).toHaveBeenCalledWith("rani@example.com");
-    expect(screen.getByText("1234567890123456")).toBeInTheDocument();
+    // No KTP is masked by default (Plan 19) — only the last four digits show.
+    expect(screen.getByText("•••• •••• •••• 3456")).toBeInTheDocument();
+    expect(screen.queryByText("1234567890123456")).not.toBeInTheDocument();
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Ubah data" })).not.toBeInTheDocument();
+    // Read-only: no per-section "Ubah" and no document "Ganti"/"Upload".
+    expect(screen.queryByRole("button", { name: /^Ubah/ })).not.toBeInTheDocument();
+    expect(screen.queryByText("Ganti")).not.toBeInTheDocument();
+    expect(screen.queryByText("Upload")).not.toBeInTheDocument();
   });
 
   test("skips the applicant lookup entirely once MemberIntake already exists", async () => {
@@ -161,7 +166,10 @@ describe("isi-data page", () => {
     render(await IsiDataPage());
 
     expect(getAcceptedApplicantByEmail).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Ubah data" })).toBeInTheDocument();
+    // Plan 19: one "Ubah" per editable section instead of a single "Ubah data".
+    expect(screen.getByRole("button", { name: "Ubah Nama & kontak" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ubah Identitas" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ubah Pendidikan terakhir" })).toBeInTheDocument();
   });
 });
 
@@ -216,7 +224,7 @@ describe("isi-data page — /join draft handoff", () => {
 
     render(await IsiDataPage());
 
-    expect(screen.getByRole("button", { name: "Ubah data" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ubah Nama & kontak" })).toBeInTheDocument();
     expect(screen.queryByText("Rani Dari Join")).not.toBeInTheDocument();
   });
 
