@@ -23,8 +23,12 @@ export async function createSupabaseServerClient() {
           );
         } catch {
           // Called during a Server Component render, which can't set
-          // cookies — safe to ignore since proxy.ts's session refresh on
-          // every /member/** request keeps the cookie current regardless.
+          // cookies. Ignorable *only* because proxy.ts refreshes the session
+          // site-wide (its matcher is deliberately not scoped to /member/**)
+          // and so writes the rotated tokens where they can actually persist.
+          // Narrow that matcher and this becomes silent session loss: the
+          // render refreshes, Supabase revokes the old refresh token, and the
+          // new one dies here — the member is signed out on the next request.
         }
       },
     },
