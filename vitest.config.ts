@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -16,5 +16,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
+    // Claude Code checks branches out into .claude/worktrees/*, each a full
+    // copy of the repo. Without this the suite collects every worktree's
+    // tests alongside our own and runs the same specs several times over.
+    exclude: [...configDefaults.exclude, "**/.claude/**"],
   },
 });
