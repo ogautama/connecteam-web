@@ -120,6 +120,7 @@ are captured inline in those docs so each can be picked up independently.
 | 16 | DISC lead visibility (hierarchy-scoped `/member/leads`) | 04, 06, 15 | [16-disc-lead-visibility.md](16-disc-lead-visibility.md) | Not started |
 | 17 | MBTI / Self Motivation result upload (Onboarding "Kenali Dirimu") | 07 | [17-mbti-self-motivation-result-upload.md](17-mbti-self-motivation-result-upload.md) | ✅ Done — [PR #22](https://github.com/ogautama/connecteam-web/pull/22) |
 | 18 | IT & Content Admin (admin/super-admin roles, editable living-document content) | 02b, 07 | [18-content-admin.md](18-content-admin.md) | Proposed 2026-07-29 — scheduled after 07–14 ship |
+| 19 | Profile page redesign (per-section editing, masked KTP) | 07, 07c | [19-profile-redesign.md](19-profile-redesign.md) | Proposed 2026-08-06 — mockup approved, [spec](../design/spec-profile-redesign.html) |
 
 § **2026-07-24, revised 2026-07-26**: after being shown a UX reference (a
 working "quest hub" prototype — gamified level tabs, progress bars,
