@@ -8,6 +8,8 @@ import {
   RadioGroup,
   TextAreaField,
   TextField,
+  type IntakeSection,
+  type IntakeSectionValues,
 } from "@/components/forms/IntakeFormFields";
 import type { ApplicantAsIntake } from "@/lib/applicant";
 import { clearJoinDraft, readJoinDraft, type JoinDraft } from "@/lib/joinDraft";
@@ -174,7 +176,6 @@ function IntakeForm({
   draft,
 }: JoinDataFormProps & { draft: JoinDraft | null }) {
   const [saved, setSaved] = useState<MemberIntakeRecord | null>(initial);
-  const [editing, setEditing] = useState(!initial && (!linkedApplication || Boolean(draft)));
   const [form, setForm] = useState<FormState>(
     initial
       ? formFromSaved(initial)
@@ -189,23 +190,142 @@ function IntakeForm({
   const [status, setStatus] = useState<"idle" | "uploading" | "saving" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
+  // Plan 19 — per-section editing once a record exists. `form` doubles as
+  // the section editor's field values (it already holds every field), reset
+  // to the saved record whenever a section is opened or closed so an edit
+  // in one section never leaks into another.
+  const [editingSection, setEditingSection] = useState<IntakeSection | null>(null);
+  const [sectionStatus, setSectionStatus] = useState<"idle" | "saving">("idle");
+  const [sectionError, setSectionError] = useState<string | null>(null);
+  const [replacingDocument, setReplacingDocument] = useState<MemberIntakeFileField | null>(null);
+  const [docError, setDocError] = useState<string | null>(null);
+
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  function updateSectionField(key: keyof IntakeSectionValues, value: string) {
+    setForm((f) => ({ ...f, [key]: value }) as FormState);
+  }
+
+  function startEditingSection(section: IntakeSection) {
+    if (!saved) return;
+    setForm(formFromSaved(saved));
+    setSectionError(null);
+    setEditingSection(section);
+  }
+
+  function cancelSection() {
+    if (saved) setForm(formFromSaved(saved));
+    setSectionError(null);
+    setEditingSection(null);
+  }
+
+  function sectionValidationError(section: IntakeSection): string | null {
+    if (section === "kontak") {
+      if (!form.fullName.trim()) return "Nama lengkap wajib diisi.";
+      if (!form.activePhone.trim()) return "No HP aktif wajib diisi.";
+    } else if (section === "identitas") {
+      if (!form.ktpNumber.trim()) return "Nomor KTP wajib diisi.";
+      if (!form.birthPlace.trim()) return "Tempat lahir wajib diisi.";
+      if (!form.birthDate || Number.isNaN(Date.parse(form.birthDate))) {
+        return "Tanggal lahir wajib diisi.";
+      }
+      if (!form.address.trim()) return "Alamat domisili wajib diisi.";
+    } else {
+      if (!form.education) return "Pendidikan Terakhir wajib dipilih.";
+      if (!form.schoolName.trim()) return "Nama sekolah/universitas wajib diisi.";
+      if (!form.schoolCity.trim()) return "Kota sekolah/universitas wajib diisi.";
+      if (!form.graduationYear.trim()) return "Tahun kelulusan wajib diisi.";
+    }
+    return null;
+  }
+
+  async function saveSection() {
+    if (!saved || !editingSection) return;
+    const validationError = sectionValidationError(editingSection);
+    if (validationError) {
+      setSectionError(validationError);
+      return;
+    }
+    setSectionError(null);
+    setSectionStatus("saving");
+
+    // Merges the edited group into the saved record — every other field
+    // goes back unchanged, so the rest of submitJoinData's validation still
+    // passes (those values were already valid when they were saved).
+    const input: MemberIntakeInput = {
+      ...saved,
+      fullName: editingSection === "kontak" ? form.fullName.trim() : saved.fullName,
+      activePhone: editingSection === "kontak" ? form.activePhone.trim() : saved.activePhone,
+      ktpNumber: editingSection === "identitas" ? form.ktpNumber.trim() : saved.ktpNumber,
+      birthPlace: editingSection === "identitas" ? form.birthPlace.trim() : saved.birthPlace,
+      birthDate: editingSection === "identitas" ? form.birthDate : saved.birthDate,
+      address: editingSection === "identitas" ? form.address.trim() : saved.address,
+      education:
+        editingSection === "pendidikan" ? (form.education as EducationLevel) : saved.education,
+      schoolName: editingSection === "pendidikan" ? form.schoolName.trim() : saved.schoolName,
+      schoolCity: editingSection === "pendidikan" ? form.schoolCity.trim() : saved.schoolCity,
+      graduationYear:
+        editingSection === "pendidikan" ? form.graduationYear.trim() : saved.graduationYear,
+    };
+
+    try {
+      const next = await submitJoinData(input);
+      setSaved(next);
+      setForm(formFromSaved(next));
+      setEditingSection(null);
+      setSectionStatus("idle");
+    } catch (err) {
+      setSectionStatus("idle");
+      setSectionError(err instanceof Error ? err.message : "Gagal menyimpan. Coba lagi sebentar lagi.");
+    }
+  }
+
+  async function handleDocumentReplace(field: MemberIntakeFileField, file: File) {
+    if (!saved) return;
+    if (file.size > MAX_FILE_BYTES) {
+      setDocError("Ukuran file maksimal 100MB.");
+      return;
+    }
+    setDocError(null);
+    setReplacingDocument(field);
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = memberIntakeStoragePath(userId, field, ext);
+      const { error: uploadError } = await supabase.storage
+        .from(MEMBER_INTAKE_BUCKET)
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+
+      const keyName = `${field}PhotoKey` as
+        | "ktpPhotoKey"
+        | "selfiePhotoKey"
+        | "familyCardPhotoKey"
+        | "savingsPhotoKey"
+        | "spousePhotoKey";
+      const input: MemberIntakeInput = { ...saved, [keyName]: path };
+      const next = await submitJoinData(input);
+      setSaved(next);
+      setForm(formFromSaved(next));
+    } catch (err) {
+      setDocError(err instanceof Error ? err.message : "Gagal mengupload. Coba lagi sebentar lagi.");
+    } finally {
+      setReplacingDocument(null);
+    }
+  }
+
+  // This form only ever renders before a MemberIntake row exists (see the
+  // `if (saved) return ...` branch above) — once one does, edits go through
+  // the per-section flow instead, so there's never a saved key to fall back
+  // to here.
   const requiredFiles: { field: MemberIntakeFileField; label: string; existingKey: string | null }[] = [
-    { field: "ktp", label: "Foto KTP", existingKey: saved?.ktpPhotoKey ?? null },
-    {
-      field: "selfie",
-      label: "Foto Selfie (tanpa pegang KTP)",
-      existingKey: saved?.selfiePhotoKey ?? null,
-    },
-    { field: "familyCard", label: "Kartu Keluarga", existingKey: saved?.familyCardPhotoKey ?? null },
-    {
-      field: "savings",
-      label: "Foto buku tabungan / rekening koran",
-      existingKey: saved?.savingsPhotoKey ?? null,
-    },
+    { field: "ktp", label: "Foto KTP", existingKey: null },
+    { field: "selfie", label: "Foto Selfie (tanpa pegang KTP)", existingKey: null },
+    { field: "familyCard", label: "Kartu Keluarga", existingKey: null },
+    { field: "savings", label: "Foto buku tabungan / rekening koran", existingKey: null },
   ];
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -255,11 +375,11 @@ function IntakeForm({
 
       const [ktpPhotoKey, selfiePhotoKey, familyCardPhotoKey, savingsPhotoKey, spousePhotoKey] =
         await Promise.all([
-          uploadIfNeeded("ktp", files.ktp, saved?.ktpPhotoKey ?? null),
-          uploadIfNeeded("selfie", files.selfie, saved?.selfiePhotoKey ?? null),
-          uploadIfNeeded("familyCard", files.familyCard, saved?.familyCardPhotoKey ?? null),
-          uploadIfNeeded("savings", files.savings, saved?.savingsPhotoKey ?? null),
-          uploadIfNeeded("spouse", files.spouse, saved?.spousePhotoKey ?? null),
+          uploadIfNeeded("ktp", files.ktp, null),
+          uploadIfNeeded("selfie", files.selfie, null),
+          uploadIfNeeded("familyCard", files.familyCard, null),
+          uploadIfNeeded("savings", files.savings, null),
+          uploadIfNeeded("spouse", files.spouse, null),
         ]);
 
       setStatus("saving");
@@ -277,7 +397,6 @@ function IntakeForm({
       setSaved(next);
       setForm(formFromSaved(next));
       setFiles(EMPTY_FILES);
-      setEditing(false);
       setStatus("idle");
     } catch (err) {
       setStatus("error");
@@ -285,12 +404,29 @@ function IntakeForm({
     }
   }
 
-  if (!editing && saved) {
+  if (saved) {
     return (
-      <IntakeSummary
-        data={{ ...saved, pengundangUnitLabel: saved.pengundangUnit }}
-        onEdit={() => setEditing(true)}
-      />
+      <div className="flex flex-col gap-4">
+        <IntakeSummary
+          data={{ ...saved, pengundangUnitLabel: saved.pengundangUnit }}
+          editable
+          editingSection={editingSection}
+          sectionValues={form}
+          onFieldChange={updateSectionField}
+          onEditSection={startEditingSection}
+          onSaveSection={saveSection}
+          onCancelSection={cancelSection}
+          savingSection={sectionStatus === "saving"}
+          sectionError={sectionError}
+          replacingDocument={replacingDocument}
+          onReplaceDocument={handleDocumentReplace}
+        />
+        {docError && (
+          <p role="alert" className="px-1 text-sm text-danger-500">
+            {docError}
+          </p>
+        )}
+      </div>
     );
   }
 
@@ -391,34 +527,34 @@ function IntakeForm({
         label="Foto KTP"
         required
         file={files.ktp}
-        existingUrl={saved?.ktpPhotoUrl ?? null}
+        existingUrl={null}
         onChange={(f) => setFiles((cur) => ({ ...cur, ktp: f }))}
       />
       <FileField
         label="Foto Selfie (tanpa pegang KTP)"
         required
         file={files.selfie}
-        existingUrl={saved?.selfiePhotoUrl ?? null}
+        existingUrl={null}
         onChange={(f) => setFiles((cur) => ({ ...cur, selfie: f }))}
       />
       <FileField
         label="Kartu Keluarga"
         required
         file={files.familyCard}
-        existingUrl={saved?.familyCardPhotoUrl ?? null}
+        existingUrl={null}
         onChange={(f) => setFiles((cur) => ({ ...cur, familyCard: f }))}
       />
       <FileField
         label="Foto buku tabungan halaman depan / rekening koran bagian atas (terlihat nama bank, no rekening dan nama pemilik rekening)"
         required
         file={files.savings}
-        existingUrl={saved?.savingsPhotoUrl ?? null}
+        existingUrl={null}
         onChange={(f) => setFiles((cur) => ({ ...cur, savings: f }))}
       />
       <FileField
         label="Foto KTP Pasangan (Suami/Istri) jika sudah berkeluarga"
         file={files.spouse}
-        existingUrl={saved?.spousePhotoUrl ?? null}
+        existingUrl={null}
         onChange={(f) => setFiles((cur) => ({ ...cur, spouse: f }))}
       />
 
@@ -448,20 +584,6 @@ function IntakeForm({
               ? "Menyimpan…"
               : "Simpan"}
         </button>
-        {saved && (
-          <button
-            type="button"
-            onClick={() => {
-              setForm(formFromSaved(saved));
-              setFiles(EMPTY_FILES);
-              setEditing(false);
-              setError(null);
-            }}
-            className="font-medium text-ink-500 hover:text-ink-700"
-          >
-            Batal
-          </button>
-        )}
       </div>
     </form>
   );
