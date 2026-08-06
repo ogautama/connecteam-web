@@ -2,8 +2,9 @@
 
 ## Status
 
-**Built** in [PR #18](https://github.com/ogautama/connecteam-web/pull/18)
-(open). Two rounds of redesign got here:
+**Merged to `main` 2026-08-05** in
+[PR #18](https://github.com/ogautama/connecteam-web/pull/18). Two rounds of
+redesign got here:
 
 1. **2026-07-24** — the flat Get Started page shipped in
    [PR #17](https://github.com/ogautama/connecteam-web/pull/17) (never

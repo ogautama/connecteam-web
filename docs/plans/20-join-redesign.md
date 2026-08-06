@@ -2,10 +2,15 @@
 
 ## Status
 
-**Proposed 2026-08-06.** Mockup approved:
+**Implemented 2026-08-06** in
+[PR #38](https://github.com/ogautama/connecteam-web/pull/38) (this plan doc
+merged via [PR #37](https://github.com/ogautama/connecteam-web/pull/37)).
+The same-day follow-up it deferred — Profile first-fill wearing the same
+cards — shipped as [Plan 20b](20b-profile-first-fill-redesign.md)
+([PR #39](https://github.com/ogautama/connecteam-web/pull/39)). Mockup:
 [spec-join-redesign.html](../design/spec-join-redesign.html) (open in a
 browser — before/after artboards, the submit/error states, and the Jenjang
-detail). Implementation starts once this plan merges.
+detail).
 
 ## Goal
 
