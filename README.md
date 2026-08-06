@@ -18,3 +18,27 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## Deployment
+
+Vercel, from `main`. Static assets still serve from whichever CDN edge is
+nearest the visitor; only function execution is pinned.
+
+`vercel.json` pins functions to **`sin1` (Singapore)**. JSON can't hold a
+comment, so the reason lives here: Vercel defaults new projects to `iad1`
+(Washington, D.C.), and our Supabase project — both the Postgres database and
+the auth API — is in `ap-southeast-1` (Singapore). Left at the default, every
+`auth.getUser()` and every Prisma query crossed the Pacific twice, ~250ms a
+round trip; a single member-space render serializes about ten of them. Our
+users are in Indonesia and our data is in Singapore, so there is nothing on
+the US East Coast worth being near.
+
+Don't remove the pin without moving Supabase first. To confirm where functions
+are actually running:
+
+```bash
+curl -sI https://connecteam-web.vercel.app/ | grep x-vercel-id
+```
+
+The header reads `<edge>::<function-region>::<id>` — the middle segment should
+be `sin1`.
