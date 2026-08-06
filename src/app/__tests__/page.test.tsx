@@ -34,14 +34,15 @@ describe("Home page", () => {
     ).toBeGreaterThan(0);
   });
 
-  // DISC shipped in Plan 04, so its teaser is live now. The calculator stays
-  // gated off (src/lib/features.ts) until Plan 05 — update this when that flag
-  // flips, so a staging build never has dead links.
-  test("links to the DISC test and not the unbuilt calculator", async () => {
+  // Both tool teasers are hidden (src/lib/features.ts): DISC is shipped but
+  // unlisted by choice since 2026-08-06 — prospects reach it via referral
+  // links (Plan 16), not the home page — and the calculator isn't built yet
+  // (Plan 05). Update this when either flag flips.
+  test("links to neither the unlisted DISC test nor the unbuilt calculator", async () => {
     render(await Home());
     expect(
-      screen.getByRole("link", { name: /Mulai Tes DISC/i }),
-    ).toHaveAttribute("href", "/tools/disc");
+      screen.queryByRole("link", { name: /Mulai Tes DISC/i }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: /Hitung Potensi Income/i }),
     ).not.toBeInTheDocument();
