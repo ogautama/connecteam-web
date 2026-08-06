@@ -34,7 +34,14 @@ describe("visibleNavItems", () => {
       "Calculator",
       "References",
       "Directory",
+      "Leads",
     ]);
+  });
+
+  it("shows Leads to an agent too — it's not role-gated", () => {
+    expect(visibleNavItems("agent").map((item) => item.label)).toContain(
+      "Leads",
+    );
   });
 
   it("adds Add Member for a leader, and only for a leader", () => {

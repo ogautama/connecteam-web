@@ -50,6 +50,8 @@ export async function saveTestResultLead(input: {
     contact: user.email,
     inputs: { typed },
     result: { storagePath: input.storagePath },
+    ownerId: user.id,
+    takerUserId: user.id,
   });
 
   const supabase = await createSupabaseServerClient();

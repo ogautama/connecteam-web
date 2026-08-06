@@ -1,14 +1,22 @@
 import Link from "next/link";
 import type { CurrentUser } from "@/lib/auth";
 import { memberSections, navItemHref } from "@/lib/member/nav";
+import ReferralCard from "./ReferralCard";
 
 export function firstNameOf(name: string): string {
   return name.trim().split(/\s+/)[0] || name;
 }
 
 // Presentational half of /member — the page itself only resolves the session
-// and hands the user down, which keeps this renderable in a unit test.
-export default function MemberDashboard({ user }: { user: CurrentUser }) {
+// (plus the inviteCode ReferralCard needs) and hands both down, which keeps
+// this renderable in a unit test.
+export default function MemberDashboard({
+  user,
+  inviteCode,
+}: {
+  user: CurrentUser;
+  inviteCode: string;
+}) {
   return (
     <div className="mx-auto flex w-full max-w-content flex-col gap-6">
       <section className="flex flex-col gap-4 rounded-2xl bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
@@ -48,6 +56,8 @@ export default function MemberDashboard({ user }: { user: CurrentUser }) {
           Contests &amp; Campaigns bakal nongol di sini begitu siap.
         </p>
       </section>
+
+      <ReferralCard inviteCode={inviteCode} />
 
       <section aria-labelledby="sections-heading" className="flex flex-col gap-3">
         <h2 id="sections-heading" className="text-lg font-semibold text-ink-900">

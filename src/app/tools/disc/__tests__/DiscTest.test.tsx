@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-const { saveDiscLead } = vi.hoisted(() => ({ saveDiscLead: vi.fn() }));
+const { saveDiscLead, useSearchParams } = vi.hoisted(() => ({
+  saveDiscLead: vi.fn(),
+  useSearchParams: vi.fn(() => new URLSearchParams()),
+}));
 
 // The real action pulls in Prisma via createLead — this suite is about the UI.
 vi.mock("../actions", () => ({ saveDiscLead }));
+vi.mock("next/navigation", () => ({ useSearchParams }));
 
 import DiscTest from "../DiscTest";
 import { DISC_QUESTIONS, type DiscTrait } from "@/lib/disc/questions";
@@ -21,6 +25,7 @@ function completeTest(trait: DiscTrait) {
 beforeEach(() => {
   vi.clearAllMocks();
   saveDiscLead.mockResolvedValue(undefined);
+  useSearchParams.mockReturnValue(new URLSearchParams());
 });
 
 describe("DiscTest", () => {
@@ -125,8 +130,27 @@ describe("DiscTest", () => {
       name: "Rizky",
       contact: "081234567890",
       answers: DISC_QUESTIONS.map(() => "D"),
+      ref: undefined,
     });
     expect(await screen.findByText("Hasilnya tersimpan")).toBeInTheDocument();
+  });
+
+  test("a referral code in the URL rides along with the save", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("ref=cku7abc"));
+    render(<DiscTest />);
+    completeTest("D");
+
+    fireEvent.change(screen.getByLabelText(/Nama/i), {
+      target: { value: "Rizky" },
+    });
+    fireEvent.change(screen.getByLabelText(/Nomor WhatsApp/i), {
+      target: { value: "081234567890" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Simpan hasil saya/i }));
+
+    expect(saveDiscLead).toHaveBeenCalledWith(
+      expect.objectContaining({ ref: "cku7abc" }),
+    );
   });
 
   test("a failed save surfaces an error and keeps the form", async () => {
@@ -163,6 +187,7 @@ describe("DiscTest", () => {
       name: "Rani Putri",
       contact: "rani@example.com",
       answers: DISC_QUESTIONS.map(() => "D"),
+      ref: undefined,
     });
     expect(await screen.findByText("Hasilnya tersimpan")).toBeInTheDocument();
   });

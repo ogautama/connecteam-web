@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { DISC_QUESTIONS, DISC_TRAITS, type DiscTrait } from "@/lib/disc/questions";
 import { scoreDisc, type DiscResult } from "@/lib/disc/score";
 import { DISC_PROFILES, TRAIT_META } from "@/content/disc-profiles";
@@ -13,6 +14,10 @@ type DiscMember = { name: string; email: string };
 const emptyAnswers = () => DISC_QUESTIONS.map(() => null as DiscTrait | null);
 
 export default function DiscTest({ user = null }: { user?: DiscMember | null }) {
+  // Read once — attribution for the whole session's saves rides on
+  // whichever referral link the visitor arrived through, not on whatever
+  // the URL happens to say at save time.
+  const ref = useSearchParams().get("ref") ?? undefined;
   const [answers, setAnswers] = useState<(DiscTrait | null)[]>(emptyAnswers);
   const [step, setStep] = useState(0);
 
@@ -39,6 +44,7 @@ export default function DiscTest({ user = null }: { user?: DiscMember | null }) 
         answers={answers as DiscTrait[]}
         onRestart={restart}
         user={user}
+        refCode={ref}
       />
     );
   }
@@ -111,11 +117,13 @@ function Results({
   answers,
   onRestart,
   user,
+  refCode,
 }: {
   result: DiscResult;
   answers: DiscTrait[];
   onRestart: () => void;
   user: DiscMember | null;
+  refCode?: string;
 }) {
   const profile = DISC_PROFILES[result.profileKey];
 
@@ -178,7 +186,7 @@ function Results({
         <p className="mt-2 text-ink-700">{profile.watchOut}</p>
       </div>
 
-      <LeadCapture answers={answers} user={user} />
+      <LeadCapture answers={answers} user={user} refCode={refCode} />
 
       <div className="mt-10 flex flex-col items-center gap-4 border-t border-ink-100 pt-8 text-center">
         <p className="text-ink-500">
@@ -205,9 +213,11 @@ function Results({
 function LeadCapture({
   answers,
   user,
+  refCode,
 }: {
   answers: DiscTrait[];
   user: DiscMember | null;
+  refCode?: string;
 }) {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -222,7 +232,7 @@ function LeadCapture({
 
     (async () => {
       try {
-        await saveDiscLead({ name: user.name, contact: user.email, answers });
+        await saveDiscLead({ name: user.name, contact: user.email, answers, ref: refCode });
         if (!cancelled) setStatus("saved");
       } catch {
         if (!cancelled) {
@@ -251,7 +261,7 @@ function LeadCapture({
     setError(null);
     setStatus("saving");
     try {
-      await saveDiscLead({ name: name.trim(), contact: contact.trim(), answers });
+      await saveDiscLead({ name: name.trim(), contact: contact.trim(), answers, ref: refCode });
       setStatus("saved");
     } catch {
       setStatus("idle");
