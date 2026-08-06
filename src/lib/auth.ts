@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -10,23 +11,35 @@ export { signInWithGoogle, signOut } from "@/lib/auth-browser";
 
 export type CurrentUser = { id: string; name: string; email: string; role: Role };
 
-/** The raw Supabase session user, or null if unauthenticated. */
-export async function getSession(): Promise<SupabaseUser | null> {
+/**
+ * The raw Supabase session user, or null if unauthenticated.
+ *
+ * Wrapped in React's `cache` because `getUser()` is a live HTTPS call to the
+ * Supabase auth API, not a local JWT decode — and a single `/member/**`
+ * render asks for the session more than once (the layout's requireMember,
+ * then the page's). Memoized per request, those collapse into one round trip;
+ * outside a render (Server Functions, tests) `cache` is a pass-through, so
+ * behaviour is unchanged.
+ */
+export const getSession = cache(async function getSession(): Promise<SupabaseUser | null> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   return user;
-}
+});
 
-async function getProfile(userId: string): Promise<CurrentUser | null> {
+/** Same deduping as getSession, for the DB half of the same double lookup. */
+const getProfile = cache(async function getProfile(
+  userId: string
+): Promise<CurrentUser | null> {
   return prisma.user.findUnique({
     where: { id: userId },
     // `name` comes from Google's full_name via the on_auth_user_created
     // trigger — the member shell greets the user with it (Plan 06).
     select: { id: true, name: true, email: true, role: true },
   });
-}
+});
 
 /**
  * Session + a public.User lookup by id — this is where "authenticated but

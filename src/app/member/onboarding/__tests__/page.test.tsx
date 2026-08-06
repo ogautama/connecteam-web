@@ -38,6 +38,25 @@ describe("member hub page", () => {
     expect(getCompletedItemIds).toHaveBeenCalledWith("user_1");
   });
 
+  test("looks up test results on Onboarding, where they're actually rendered", async () => {
+    render(await renderAt("onboarding"));
+
+    expect(getTestResultState).toHaveBeenCalledWith("rani@example.com", "mbti");
+    expect(getTestResultState).toHaveBeenCalledWith(
+      "rani@example.com",
+      "selfMotivation",
+    );
+  });
+
+  test("skips the test-result lookups on sections that discard them", async () => {
+    // Two Lead queries plus two Supabase Storage signed-URL round trips, for
+    // data only the "Kenali Dirimu" detail reads — don't pay them to render
+    // a placeholder section.
+    render(await renderAt("recruiting"));
+
+    expect(getTestResultState).not.toHaveBeenCalled();
+  });
+
   test("never renders for a signed-out visitor — the guard redirects first", async () => {
     requireMember.mockRejectedValue(new Error("NEXT_REDIRECT"));
 
