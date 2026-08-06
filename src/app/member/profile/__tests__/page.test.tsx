@@ -92,28 +92,30 @@ describe("profile page", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Profile" })).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: /Nama Lengkap/ })).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: /No KTP/ })).toBeInTheDocument();
-    expect(screen.getByRole("radiogroup", { name: "Pendidikan Terakhir" })).toBeInTheDocument();
-    expect(screen.getByRole("radiogroup", { name: "Pengundang / Unit" })).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: "Robert / Lini" })).toBeInTheDocument();
+    // Plan 20b: the first fill wears /join's five group cards — education
+    // and Pengundang / Unit are selects now, not radio stacks.
+    expect(screen.getByRole("combobox", { name: "Jenjang" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Pengundang / Unit" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Robert / Lini" })).toBeInTheDocument();
   });
 
-  test("defaults the Email Aktif field to the signed-in member's email", async () => {
+  test("defaults the Email aktif field to the signed-in member's email", async () => {
     render(await IsiDataPage());
 
-    expect(screen.getByRole("textbox", { name: /Email Aktif/ })).toHaveValue(
+    expect(screen.getByRole("textbox", { name: /Email aktif/ })).toHaveValue(
       "rani@example.com",
     );
   });
 
-  test("Email Aktif is locked, and says why", async () => {
+  test("Email aktif is locked, and says why", async () => {
     // It's the Google account they sign in with, and it feeds the
     // PendingInvite allowlist — see submitJoinData. The server re-derives it
     // from the session regardless; this is the visible half.
     render(await IsiDataPage());
 
-    const email = screen.getByRole("textbox", { name: /Email Aktif/ });
+    const email = screen.getByRole("textbox", { name: /Email aktif/ });
     expect(email).toHaveAttribute("readonly");
-    expect(screen.getByText(/dikunci di sini/)).toBeInTheDocument();
+    expect(screen.getByText(/hubungi leader kalau perlu pindah/)).toBeInTheDocument();
   });
 
   test("renders Pengundang / Unit options from the live leader list, not a fixed picklist", async () => {
@@ -122,8 +124,8 @@ describe("profile page", () => {
     render(await IsiDataPage());
 
     expect(getPengundangUnitOptions).toHaveBeenCalled();
-    expect(screen.getByRole("radio", { name: "Zaki Firmansyah" })).toBeInTheDocument();
-    expect(screen.queryByRole("radio", { name: "Robert / Lini" })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Zaki Firmansyah" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Robert / Lini" })).not.toBeInTheDocument();
   });
 
   test("shows a matched accepted application read-only instead of a blank form", async () => {
@@ -188,9 +190,11 @@ describe("profile page — /join draft handoff", () => {
     expect(screen.getByRole("textbox", { name: /No KTP/ })).toHaveValue(
       "9999999999999999",
     );
-    expect(screen.getByRole("radio", { name: "Robert / Lini" })).toBeChecked();
+    expect(screen.getByRole("combobox", { name: "Pengundang / Unit" })).toHaveValue(
+      "Robert / Lini",
+    );
     // The signed-in identity wins over whatever was typed on the public form.
-    expect(screen.getByRole("textbox", { name: /Email Aktif/ })).toHaveValue(
+    expect(screen.getByRole("textbox", { name: /Email aktif/ })).toHaveValue(
       "rani@example.com",
     );
     expect(screen.getByText(/upload ulang dokumennya/)).toBeInTheDocument();

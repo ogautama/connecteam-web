@@ -164,6 +164,114 @@ describe("JoinDataForm — per-section editing", () => {
   });
 });
 
+// Plan 20b — the first fill (no MemberIntake row yet) wears /join's five
+// group cards with a single "Simpan": all-at-once validation, pending-file
+// tiles, selects for Jenjang and Pengundang / Unit.
+describe("JoinDataForm — first fill", () => {
+  function fillFirstFill(container: HTMLElement) {
+    const answers: [RegExp, string][] = [
+      [/Nama Lengkap/, "Rani Putri"],
+      [/No KTP/, "1234567890123456"],
+      [/Tempat lahir/, "Jakarta"],
+      [/No HP aktif/, "081234567890"],
+      [/Alamat domisili/, "Jl. Sudirman No. 1"],
+      [/Sekolah \/ universitas/, "Universitas Indonesia"],
+      [/^Kota/, "Jakarta"],
+      [/Tahun kelulusan/, "2020"],
+    ];
+    for (const [label, value] of answers) {
+      fireEvent.change(screen.getByRole("textbox", { name: label }), {
+        target: { value },
+      });
+    }
+    fireEvent.change(container.querySelector('input[type="date"]')!, {
+      target: { value: "1998-05-10" },
+    });
+    fireEvent.change(screen.getByRole("combobox", { name: "Jenjang" }), {
+      target: { value: "s1" },
+    });
+    fireEvent.change(screen.getByRole("combobox", { name: "Pengundang / Unit" }), {
+      target: { value: "Budi Santoso" },
+    });
+    const fileInputs = container.querySelectorAll<HTMLInputElement>('input[type="file"]');
+    for (const input of Array.from(fileInputs).slice(0, 4)) {
+      fireEvent.change(input, {
+        target: { files: [new File(["x"], "doc.jpg", { type: "image/jpeg" })] },
+      });
+    }
+  }
+
+  test("an empty submit flags every section at once — except the locked email", async () => {
+    renderForm(null);
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    // 2 kontak (email is locked, so it can't be "kurang") + 4 identitas +
+    // 4 pendidikan + 4 dokumen + 1 pengundang.
+    const summary = await screen.findByRole("alert");
+    expect(summary).toHaveTextContent("15 hal masih kurang.");
+    expect(screen.getByText("Nama lengkap wajib diisi.")).toBeInTheDocument();
+    expect(screen.getByText("Pendidikan Terakhir wajib dipilih.")).toBeInTheDocument();
+    expect(screen.getByText("2 belum diisi")).toBeInTheDocument(); // kontak
+    expect(submitJoinData).not.toHaveBeenCalled();
+  });
+
+  test("email renders locked to the signed-in account, not as a question", () => {
+    renderForm(null);
+
+    const email = screen.getByRole("textbox", { name: /Email aktif/ });
+    expect(email).toHaveValue("rani@example.com");
+    expect(email).toHaveAttribute("readonly");
+  });
+
+  test("a complete fill uploads to the member's own paths and saves once", async () => {
+    submitJoinData.mockResolvedValue(saved);
+    const { container } = renderForm(null);
+
+    fillFirstFill(container);
+    expect(screen.getByText("4 dari 4 wajib")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    // Uploads are keyed by userId (member-intake bucket), not a random
+    // submission id — re-submitting overwrites the member's own files.
+    await waitFor(() => expect(upload).toHaveBeenCalledTimes(4));
+    expect(upload.mock.calls.map((c) => c[0]).sort()).toEqual([
+      "user_1/familyCard.jpg",
+      "user_1/ktp.jpg",
+      "user_1/savings.jpg",
+      "user_1/selfie.jpg",
+    ]);
+    await waitFor(() => expect(submitJoinData).toHaveBeenCalledTimes(1));
+    expect(submitJoinData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fullName: "Rani Putri",
+        education: "s1",
+        pengundangUnit: "Budi Santoso",
+        ktpPhotoKey: "user_1/ktp.jpg",
+        spousePhotoKey: null,
+      }),
+    );
+    // Lands on the saved per-section view, same as a returning member.
+    expect(await screen.findByRole("button", { name: "Ubah Identitas" })).toBeInTheDocument();
+  });
+
+  test("Jenjang offers Diploma (D1–D4) between SMA and S1 here too", () => {
+    renderForm(null);
+
+    const options = Array.from(
+      (screen.getByRole("combobox", { name: "Jenjang" }) as HTMLSelectElement).options,
+    ).map((o) => o.text);
+    expect(options).toEqual([
+      "Pilih…",
+      "SMA / SLTA / SMK",
+      "Diploma (D1–D4)",
+      "S1",
+      "S2",
+      "S3",
+    ]);
+  });
+});
+
 describe("JoinDataForm — document tiles", () => {
   test("'Ganti' uploads and saves just that document's key, unchanged elsewhere", async () => {
     submitJoinData.mockResolvedValue(saved);

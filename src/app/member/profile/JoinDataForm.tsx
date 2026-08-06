@@ -3,11 +3,18 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { EducationLevel } from "@prisma/client";
 import {
-  FileField,
+  DOC_ICONS,
+  DocErrors,
+  DocTile,
+  EditField,
+  EditInput,
+  EditSelect,
+  EditTextArea,
+  FieldError,
+  FormCard,
   IntakeSummary,
-  RadioGroup,
-  TextAreaField,
-  TextField,
+  LockIcon,
+  invalidInputClass,
   type IntakeSection,
   type IntakeSectionValues,
 } from "@/components/forms/IntakeFormFields";
@@ -49,6 +56,32 @@ const EMPTY_FILES: FileFields = {
   savings: null,
   spouse: null,
 };
+
+const REQUIRED_FILES: { field: MemberIntakeFileField; label: string }[] = [
+  { field: "ktp", label: "Foto KTP" },
+  { field: "selfie", label: "Foto Selfie (tanpa pegang KTP)" },
+  { field: "familyCard", label: "Kartu Keluarga" },
+  { field: "savings", label: "Buku Tabungan" },
+];
+
+/** Everything the first-fill's all-at-once validation can flag: form
+ * fields plus the file slots. One flat map — the key sets don't collide.
+ * Email is locked to the session, so it never appears here. */
+type ErrorKey = keyof FormState | MemberIntakeFileField;
+type FieldErrors = Partial<Record<ErrorKey, string>>;
+
+/** The five first-fill group cards, in page order (Plan 20b — same layout
+ * as /join's ApplicationForm; kontak counts 2 fields, not 3, because the
+ * locked email can't be invalid). */
+const FIRST_FILL_SECTIONS = [
+  { key: "kontak", title: "Nama & kontak", fields: ["fullName", "activePhone"] },
+  { key: "identitas", title: "Identitas", fields: ["ktpNumber", "birthPlace", "birthDate", "address"] },
+  { key: "pendidikan", title: "Pendidikan terakhir", fields: ["education", "schoolName", "schoolCity", "graduationYear"] },
+  { key: "dokumen", title: "Dokumen", fields: ["ktp", "selfie", "familyCard", "savings", "spouse"] },
+  { key: "pengundang", title: "Pengundang / Unit", fields: ["pengundangUnit"] },
+] as const satisfies readonly { key: string; title: string; fields: readonly ErrorKey[] }[];
+
+type SectionKey = (typeof FIRST_FILL_SECTIONS)[number]["key"];
 
 function emptyForm(defaultEmail: string): FormState {
   return {
@@ -190,6 +223,27 @@ function IntakeForm({
   const [status, setStatus] = useState<"idle" | "uploading" | "saving" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
+  // Plan 20b — first-fill only: the all-at-once validation pass and the
+  // "Mengupload N dari M…" counter, same shape as /join's ApplicationForm.
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [uploadsDone, setUploadsDone] = useState(0);
+  const [uploadsTotal, setUploadsTotal] = useState(0);
+
+  // One plain ref object per first-fill card (see ApplicationForm for why
+  // these aren't a callback-ref factory or a shared ref-map prop).
+  const kontakRef = useRef<HTMLDivElement | null>(null);
+  const identitasRef = useRef<HTMLDivElement | null>(null);
+  const pendidikanRef = useRef<HTMLDivElement | null>(null);
+  const dokumenRef = useRef<HTMLDivElement | null>(null);
+  const pengundangRef = useRef<HTMLDivElement | null>(null);
+  const sectionRefs: Record<SectionKey, React.RefObject<HTMLDivElement | null>> = {
+    kontak: kontakRef,
+    identitas: identitasRef,
+    pendidikan: pendidikanRef,
+    dokumen: dokumenRef,
+    pengundang: pengundangRef,
+  };
+
   // Plan 19 — per-section editing once a record exists. `form` doubles as
   // the section editor's field values (it already holds every field), reset
   // to the saved record whenever a section is opened or closed so an edit
@@ -202,6 +256,21 @@ function IntakeForm({
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+    // A field stops being flagged the moment it's touched — the next submit
+    // re-checks everything anyway.
+    setFieldErrors((e) => (e[key] ? { ...e, [key]: undefined } : e));
+  }
+
+  function pickFile(field: MemberIntakeFileField, file: File | null) {
+    if (file && file.size > MAX_FILE_BYTES) {
+      // Rejected at pick time, not held until submit — the picker is still
+      // open in the person's head; "which file was too big" is obvious now.
+      setFiles((cur) => ({ ...cur, [field]: null }));
+      setFieldErrors((e) => ({ ...e, [field]: "Ukuran file maksimal 100MB." }));
+      return;
+    }
+    setFiles((cur) => ({ ...cur, [field]: file }));
+    setFieldErrors((e) => (e[field] ? { ...e, [field]: undefined } : e));
   }
 
   function updateSectionField(key: keyof IntakeSectionValues, value: string) {
@@ -317,42 +386,63 @@ function IntakeForm({
     }
   }
 
-  // This form only ever renders before a MemberIntake row exists (see the
-  // `if (saved) return ...` branch above) — once one does, edits go through
-  // the per-section flow instead, so there's never a saved key to fall back
-  // to here.
-  const requiredFiles: { field: MemberIntakeFileField; label: string; existingKey: string | null }[] = [
-    { field: "ktp", label: "Foto KTP", existingKey: null },
-    { field: "selfie", label: "Foto Selfie (tanpa pegang KTP)", existingKey: null },
-    { field: "familyCard", label: "Kartu Keluarga", existingKey: null },
-    { field: "savings", label: "Foto buku tabungan / rekening koran", existingKey: null },
-  ];
+  /** First-fill validation, everything at once (Plan 20b) — the messages
+   * match sectionValidationError's so the two flows never disagree on
+   * wording. This form only ever renders before a MemberIntake row exists
+   * (see the `if (saved) return ...` branch below) — once one does, edits
+   * go through the per-section flow instead, so there's never a saved file
+   * key to fall back to here. */
+  function validate(): FieldErrors {
+    const errs: FieldErrors = {};
+    if (!form.fullName.trim()) errs.fullName = "Nama lengkap wajib diisi.";
+    if (!form.activePhone.trim()) errs.activePhone = "No HP aktif wajib diisi.";
+    if (!form.ktpNumber.trim()) errs.ktpNumber = "Nomor KTP wajib diisi.";
+    if (!form.birthPlace.trim()) errs.birthPlace = "Tempat lahir wajib diisi.";
+    if (!form.birthDate || Number.isNaN(Date.parse(form.birthDate))) {
+      errs.birthDate = "Tanggal lahir wajib diisi.";
+    }
+    if (!form.address.trim()) errs.address = "Alamat domisili wajib diisi.";
+    if (!form.education) errs.education = "Pendidikan Terakhir wajib dipilih.";
+    if (!form.schoolName.trim()) errs.schoolName = "Nama sekolah/universitas wajib diisi.";
+    if (!form.schoolCity.trim()) errs.schoolCity = "Kota sekolah/universitas wajib diisi.";
+    if (!form.graduationYear.trim()) errs.graduationYear = "Tahun kelulusan wajib diisi.";
+    for (const f of REQUIRED_FILES) {
+      if (!files[f.field]) errs[f.field] = `${f.label} wajib diupload.`;
+    }
+    for (const [field, file] of Object.entries(files) as [MemberIntakeFileField, File | null][]) {
+      // Oversize is already rejected at pick time; belt to that suspender.
+      if (file && file.size > MAX_FILE_BYTES) errs[field] = "Ukuran file maksimal 100MB.";
+    }
+    if (!form.pengundangUnit) errs.pengundangUnit = "Pengundang / Unit wajib dipilih.";
+    return errs;
+  }
+
+  function sectionErrorCount(
+    section: (typeof FIRST_FILL_SECTIONS)[number],
+    errs: FieldErrors,
+  ): number {
+    return section.fields.filter((f) => errs[f]).length;
+  }
+
+  function scrollToSection(key: SectionKey) {
+    // jsdom has no scrollIntoView; optional-call keeps tests honest.
+    sectionRefs[key].current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
-    if (!form.education) {
-      setError("Pendidikan Terakhir wajib dipilih.");
+    const errs = validate();
+    setFieldErrors(errs);
+    const firstBad = FIRST_FILL_SECTIONS.find((s) => sectionErrorCount(s, errs) > 0);
+    if (firstBad) {
+      scrollToSection(firstBad.key);
       return;
-    }
-    if (!form.pengundangUnit) {
-      setError("Pengundang / Unit wajib dipilih.");
-      return;
-    }
-    for (const f of requiredFiles) {
-      if (!files[f.field] && !f.existingKey) {
-        setError(`${f.label} wajib diupload.`);
-        return;
-      }
-    }
-    for (const file of Object.values(files)) {
-      if (file && file.size > MAX_FILE_BYTES) {
-        setError("Ukuran file maksimal 100MB.");
-        return;
-      }
     }
 
+    setUploadsTotal(Object.values(files).filter(Boolean).length);
+    setUploadsDone(0);
     setStatus("uploading");
 
     try {
@@ -370,6 +460,7 @@ function IntakeForm({
           .from(MEMBER_INTAKE_BUCKET)
           .upload(path, file, { upsert: true, contentType: file.type });
         if (uploadError) throw uploadError;
+        setUploadsDone((d) => d + 1);
         return path;
       }
 
@@ -443,6 +534,20 @@ function IntakeForm({
     );
   }
 
+  // Plan 20b — the first fill wears the same five group cards as /join's
+  // ApplicationForm, with one "Simpan" at the end. Differences from /join:
+  // email renders locked to the Google account (no field of the validation
+  // pass), there's no existing-member check (they *are* the member), and
+  // uploads go to the member-intake bucket keyed by userId with
+  // upsert:true (re-submitting after a failure overwrites their own files).
+  const badSections = FIRST_FILL_SECTIONS.filter((s) => sectionErrorCount(s, fieldErrors) > 0);
+  const errorCount = FIRST_FILL_SECTIONS.reduce(
+    (n, s) => n + sectionErrorCount(s, fieldErrors),
+    0,
+  );
+  const pickedCount = REQUIRED_FILES.filter((f) => files[f.field]).length;
+  const busy = status === "uploading" || status === "saving";
+
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
       {draft && (
@@ -451,140 +556,250 @@ function IntakeForm({
           terus upload ulang dokumennya — file nggak bisa ikut kebawa.
         </p>
       )}
-      <TextField
-        label="Nama Lengkap (sesuai KTP)"
-        required
-        value={form.fullName}
-        onChange={(v) => update("fullName", v)}
-      />
-      <TextField label="No KTP" required value={form.ktpNumber} onChange={(v) => update("ktpNumber", v)} />
-      <TextField
-        label="Tempat Lahir"
-        required
-        value={form.birthPlace}
-        onChange={(v) => update("birthPlace", v)}
-      />
-      <TextField
-        label="Tanggal Lahir"
-        required
-        type="date"
-        value={form.birthDate}
-        onChange={(v) => update("birthDate", v)}
-      />
-      <TextField
-        label="Email Aktif"
-        required
-        type="email"
-        value={form.activeEmail}
-        onChange={(v) => update("activeEmail", v)}
-        readOnly
-        note="Ini email akun Google yang kamu pakai buat login, jadi dikunci di sini — ganti email berarti ganti akun. Kalau memang perlu pindah email, hubungi leader kamu."
-      />
-      <TextField
-        label="No HP aktif (Whatsapp)"
-        required
-        type="tel"
-        value={form.activePhone}
-        onChange={(v) => update("activePhone", v)}
-      />
-      <TextAreaField
-        label="Alamat Domisili"
-        required
-        value={form.address}
-        onChange={(v) => update("address", v)}
-      />
-      <RadioGroup
-        label="Pendidikan Terakhir"
-        required
-        options={EDUCATION_OPTIONS}
-        value={form.education}
-        onChange={(v) => update("education", v as EducationLevel)}
-      />
-      <TextField
-        label="Nama Sekolah / Universitas (pendidikan terakhir)"
-        required
-        value={form.schoolName}
-        onChange={(v) => update("schoolName", v)}
-      />
-      <TextField
-        label="Kota Sekolah / Universitas"
-        required
-        value={form.schoolCity}
-        onChange={(v) => update("schoolCity", v)}
-      />
-      <TextField
-        label="Tahun Kelulusan"
-        required
-        value={form.graduationYear}
-        onChange={(v) => update("graduationYear", v)}
-      />
 
-      <p className="px-1 text-xs text-ink-500">
-        Upload dokumen — foto jelas &amp; tidak buram, maks. 100MB per file.
-      </p>
+      {/* 1 — Nama & kontak */}
+      <FormCard
+        step={1}
+        title="Nama & kontak"
+        errorCount={sectionErrorCount(FIRST_FILL_SECTIONS[0], fieldErrors)}
+        cardRef={kontakRef}
+      >
+        <EditField label="Nama Lengkap (sesuai KTP)" wide>
+          <EditInput
+            value={form.fullName}
+            onChange={(e) => update("fullName", e.target.value)}
+            className={fieldErrors.fullName ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.fullName} />
+        </EditField>
+        <EditField label="Email aktif">
+          <EditInput
+            type="email"
+            value={form.activeEmail}
+            readOnly
+            aria-readonly
+            className="cursor-not-allowed border-dashed !bg-ink-50 text-ink-500"
+          />
+          <span className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-500">
+            <LockIcon />
+            Email akun Google kamu — hubungi leader kalau perlu pindah.
+          </span>
+        </EditField>
+        <EditField label="No HP aktif (Whatsapp)">
+          <EditInput
+            type="tel"
+            value={form.activePhone}
+            onChange={(e) => update("activePhone", e.target.value)}
+            className={fieldErrors.activePhone ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.activePhone} />
+        </EditField>
+      </FormCard>
 
-      <FileField
-        label="Foto KTP"
-        required
-        file={files.ktp}
-        existingUrl={null}
-        onChange={(f) => setFiles((cur) => ({ ...cur, ktp: f }))}
-      />
-      <FileField
-        label="Foto Selfie (tanpa pegang KTP)"
-        required
-        file={files.selfie}
-        existingUrl={null}
-        onChange={(f) => setFiles((cur) => ({ ...cur, selfie: f }))}
-      />
-      <FileField
-        label="Kartu Keluarga"
-        required
-        file={files.familyCard}
-        existingUrl={null}
-        onChange={(f) => setFiles((cur) => ({ ...cur, familyCard: f }))}
-      />
-      <FileField
-        label="Foto buku tabungan halaman depan / rekening koran bagian atas (terlihat nama bank, no rekening dan nama pemilik rekening)"
-        required
-        file={files.savings}
-        existingUrl={null}
-        onChange={(f) => setFiles((cur) => ({ ...cur, savings: f }))}
-      />
-      <FileField
-        label="Foto KTP Pasangan (Suami/Istri) jika sudah berkeluarga"
-        file={files.spouse}
-        existingUrl={null}
-        onChange={(f) => setFiles((cur) => ({ ...cur, spouse: f }))}
-      />
+      {/* 2 — Identitas */}
+      <FormCard
+        step={2}
+        title="Identitas"
+        errorCount={sectionErrorCount(FIRST_FILL_SECTIONS[1], fieldErrors)}
+        cardRef={identitasRef}
+      >
+        <EditField label="No KTP">
+          <EditInput
+            inputMode="numeric"
+            value={form.ktpNumber}
+            onChange={(e) => update("ktpNumber", e.target.value)}
+            className={fieldErrors.ktpNumber ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.ktpNumber} />
+        </EditField>
+        <EditField label="Tempat lahir">
+          <EditInput
+            value={form.birthPlace}
+            onChange={(e) => update("birthPlace", e.target.value)}
+            className={fieldErrors.birthPlace ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.birthPlace} />
+        </EditField>
+        <EditField label="Tanggal lahir">
+          <EditInput
+            type="date"
+            value={form.birthDate}
+            onChange={(e) => update("birthDate", e.target.value)}
+            className={fieldErrors.birthDate ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.birthDate} />
+        </EditField>
+        <EditField label="Alamat domisili" wide>
+          <EditTextArea
+            value={form.address}
+            onChange={(e) => update("address", e.target.value)}
+            className={fieldErrors.address ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.address} />
+        </EditField>
+      </FormCard>
 
-      <RadioGroup
-        label="Pengundang / Unit"
-        required
-        options={pengundangUnitOptions.map((u) => ({ value: u, label: u }))}
-        value={form.pengundangUnit}
-        onChange={(v) => update("pengundangUnit", v)}
-      />
+      {/* 3 — Pendidikan terakhir */}
+      <FormCard
+        step={3}
+        title="Pendidikan terakhir"
+        errorCount={sectionErrorCount(FIRST_FILL_SECTIONS[2], fieldErrors)}
+        cardRef={pendidikanRef}
+      >
+        <EditField label="Jenjang">
+          <EditSelect
+            label="Jenjang"
+            options={EDUCATION_OPTIONS}
+            value={form.education}
+            onChange={(v) => update("education", v as EducationLevel)}
+          />
+          <FieldError message={fieldErrors.education} />
+        </EditField>
+        <EditField label="Tahun kelulusan">
+          <EditInput
+            inputMode="numeric"
+            value={form.graduationYear}
+            onChange={(e) => update("graduationYear", e.target.value)}
+            className={fieldErrors.graduationYear ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.graduationYear} />
+        </EditField>
+        <EditField label="Sekolah / universitas">
+          <EditInput
+            value={form.schoolName}
+            onChange={(e) => update("schoolName", e.target.value)}
+            className={fieldErrors.schoolName ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.schoolName} />
+        </EditField>
+        <EditField label="Kota">
+          <EditInput
+            value={form.schoolCity}
+            onChange={(e) => update("schoolCity", e.target.value)}
+            className={fieldErrors.schoolCity ? invalidInputClass : undefined}
+          />
+          <FieldError message={fieldErrors.schoolCity} />
+        </EditField>
+      </FormCard>
 
-      {error && (
-        <p role="alert" className="px-1 text-danger-500">
-          {error}
+      {/* 4 — Dokumen: tiles hold the picked files; nothing uploads until
+          Simpan. */}
+      <FormCard
+        step={4}
+        title="Dokumen"
+        suffix={
+          <span className="rounded-full border border-ink-100 bg-ink-50 px-2.5 py-1 text-xs font-semibold text-ink-500">
+            {pickedCount} dari {REQUIRED_FILES.length} wajib
+          </span>
+        }
+        errorCount={sectionErrorCount(FIRST_FILL_SECTIONS[3], fieldErrors)}
+        cardRef={dokumenRef}
+        plain
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {REQUIRED_FILES.map((f) => (
+            <DocTile
+              key={f.field}
+              label={f.label}
+              icon={DOC_ICONS[f.field]}
+              url={null}
+              editable
+              pending
+              pendingFile={files[f.field]}
+              invalid={Boolean(fieldErrors[f.field])}
+              onReplace={(file) => pickFile(f.field, file)}
+              onRemove={() => pickFile(f.field, null)}
+            />
+          ))}
+          <DocTile
+            label="Foto KTP Pasangan"
+            icon={DOC_ICONS.spouse}
+            url={null}
+            optional
+            editable
+            pending
+            pendingFile={files.spouse}
+            invalid={Boolean(fieldErrors.spouse)}
+            onReplace={(file) => pickFile("spouse", file)}
+            onRemove={() => pickFile("spouse", null)}
+          />
+        </div>
+        <DocErrors errors={fieldErrors} />
+        <p className="mt-3 text-xs text-ink-500">
+          Foto jelas &amp; tidak buram, maks. 100MB per file. Buku tabungan: halaman
+          depan / rekening koran bagian atas — terlihat nama bank, no rekening dan nama
+          pemilik. KTP pasangan cuma kalau sudah berkeluarga.
         </p>
-      )}
+      </FormCard>
 
-      <div className="flex items-center gap-4 px-1">
-        <button
-          type="submit"
-          disabled={status === "uploading" || status === "saving"}
-          className="rounded-full bg-brand-navy-700 px-6 py-2.5 font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
-        >
-          {status === "uploading"
-            ? "Mengupload…"
-            : status === "saving"
-              ? "Menyimpan…"
-              : "Simpan"}
-        </button>
-      </div>
+      {/* 5 — Pengundang / Unit + the one button on the page */}
+      <FormCard
+        step={5}
+        title="Pengundang / Unit"
+        errorCount={sectionErrorCount(FIRST_FILL_SECTIONS[4], fieldErrors)}
+        cardRef={pengundangRef}
+        plain
+      >
+        <EditField label="Siapa yang ngajak kamu?">
+          <EditSelect
+            label="Pengundang / Unit"
+            options={pengundangUnitOptions.map((u) => ({ value: u, label: u }))}
+            value={form.pengundangUnit}
+            onChange={(v) => update("pengundangUnit", v)}
+          />
+          <FieldError message={fieldErrors.pengundangUnit} />
+          <span className="mt-0.5 text-xs text-ink-500">
+            Nggak tahu? Pilih nama unit tempat kamu dengar soal CONNECTeam.
+          </span>
+        </EditField>
+
+        <div className="mt-5 flex flex-col gap-3.5 border-t border-ink-100 pt-4">
+          {errorCount > 0 && (
+            <p
+              role="alert"
+              className="rounded-xl border border-danger-500/30 bg-danger-500/5 px-4 py-3 text-sm text-danger-500"
+            >
+              <span className="font-semibold">{errorCount} hal masih kurang.</span> Cek{" "}
+              {badSections.map((s, i) => (
+                <span key={s.key}>
+                  {i > 0 && (i === badSections.length - 1 ? " dan " : ", ")}
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection(s.key)}
+                    className="font-semibold underline hover:text-danger-500/80"
+                  >
+                    {s.title}
+                  </button>
+                </span>
+              ))}
+              .
+            </p>
+          )}
+          {error && (
+            <p role="alert" className="text-sm text-danger-500">
+              {error}
+            </p>
+          )}
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              type="submit"
+              disabled={busy}
+              className="rounded-full bg-brand-navy-700 px-6 py-2.5 font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
+            >
+              {status === "uploading"
+                ? `Mengupload ${Math.min(uploadsDone + 1, uploadsTotal)} dari ${uploadsTotal}…`
+                : status === "saving"
+                  ? "Menyimpan…"
+                  : "Simpan"}
+            </button>
+            {busy && (
+              <span className="text-[13px] text-ink-500">
+                Jangan tutup halaman ini. File lagi dikirim.
+              </span>
+            )}
+          </div>
+        </div>
+      </FormCard>
     </form>
   );
 }
