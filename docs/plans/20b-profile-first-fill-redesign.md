@@ -34,6 +34,19 @@ is only the pre-save branch of `JoinDataForm`.
 - **The 07c draft handoff is unchanged** — a /join draft still seeds the
   form state and shows its banner above the cards; only the rendering under
   the banner changed.
+- **Pengundang / Unit is derived, not asked, when the member was invited
+  via Add Member** (same-day follow-up, user request). Their invite already
+  placed them under a recruiter (`User.recruiterId`), so the unit is a fact
+  of the tree: `getPengundangUnitForMember` walks the recruiter chain up to
+  the nearest `role: "leader"` and uses that name — deliberately *not* the
+  recruiter's own name, since an Add Member invite may name an agent as
+  recruiter while Pengundang / Unit must be a leader. The field renders
+  locked (like the email), doesn't count toward "N hal masih kurang", and
+  `submitJoinData` re-derives it server-side (the render lock is courtesy,
+  the action is the guard — a draft's or direct POST's value loses to the
+  tree). Members with nothing to derive (no recruiter chain reaching a
+  leader, e.g. the bootstrap root) still get the select, validated against
+  the live list as before.
 
 ## How
 

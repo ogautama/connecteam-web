@@ -46,13 +46,17 @@ const saved: MemberIntakeRecord = {
   spousePhotoUrl: null,
 };
 
-function renderForm(initial: MemberIntakeRecord | null = saved) {
+function renderForm(
+  initial: MemberIntakeRecord | null = saved,
+  { recruiterUnit = null }: { recruiterUnit?: string | null } = {},
+) {
   return render(
     <JoinDataForm
       userId="user_1"
       defaultEmail="rani@example.com"
       initial={initial}
       pengundangUnitOptions={["Budi Santoso"]}
+      recruiterUnit={recruiterUnit}
       linkedApplication={null}
     />,
   );
@@ -168,7 +172,10 @@ describe("JoinDataForm — per-section editing", () => {
 // group cards with a single "Simpan": all-at-once validation, pending-file
 // tiles, selects for Jenjang and Pengundang / Unit.
 describe("JoinDataForm — first fill", () => {
-  function fillFirstFill(container: HTMLElement) {
+  function fillFirstFill(
+    container: HTMLElement,
+    { skipPengundang = false }: { skipPengundang?: boolean } = {},
+  ) {
     const answers: [RegExp, string][] = [
       [/Nama Lengkap/, "Rani Putri"],
       [/No KTP/, "1234567890123456"],
@@ -190,9 +197,11 @@ describe("JoinDataForm — first fill", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Jenjang" }), {
       target: { value: "s1" },
     });
-    fireEvent.change(screen.getByRole("combobox", { name: "Pengundang / Unit" }), {
-      target: { value: "Budi Santoso" },
-    });
+    if (!skipPengundang) {
+      fireEvent.change(screen.getByRole("combobox", { name: "Pengundang / Unit" }), {
+        target: { value: "Budi Santoso" },
+      });
+    }
     const fileInputs = container.querySelectorAll<HTMLInputElement>('input[type="file"]');
     for (const input of Array.from(fileInputs).slice(0, 4)) {
       fireEvent.change(input, {
@@ -253,6 +262,39 @@ describe("JoinDataForm — first fill", () => {
     );
     // Lands on the saved per-section view, same as a returning member.
     expect(await screen.findByRole("button", { name: "Ubah Identitas" })).toBeInTheDocument();
+  });
+
+  test("a derivable unit renders locked and leaves the summary count alone", async () => {
+    renderForm(null, { recruiterUnit: "Budi Santoso" });
+
+    // Locked, not asked — and the recruiter/unit distinction lives
+    // server-side: this prop is always the walked-up *leader* name, even
+    // when the actual recruiter is an agent.
+    const unit = screen.getByRole("textbox", { name: /Unit kamu/ });
+    expect(unit).toHaveValue("Budi Santoso");
+    expect(unit).toHaveAttribute("readonly");
+    expect(screen.queryByRole("combobox", { name: "Pengundang / Unit" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    // 15 minus the pengundang question that's no longer a question.
+    expect(await screen.findByRole("alert")).toHaveTextContent("14 hal masih kurang.");
+    expect(screen.queryByText("Pengundang / Unit wajib dipilih.")).not.toBeInTheDocument();
+  });
+
+  test("a complete fill with a locked unit submits that unit", async () => {
+    submitJoinData.mockResolvedValue(saved);
+    const { container } = renderForm(null, { recruiterUnit: "Budi Santoso" });
+
+    // Same fill as the select variant, minus picking Pengundang / Unit —
+    // there's nothing to pick.
+    fillFirstFill(container, { skipPengundang: true });
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    await waitFor(() => expect(submitJoinData).toHaveBeenCalledTimes(1));
+    expect(submitJoinData).toHaveBeenCalledWith(
+      expect.objectContaining({ pengundangUnit: "Budi Santoso" }),
+    );
   });
 
   test("Jenjang offers Diploma (D1–D4) between SMA and S1 here too", () => {

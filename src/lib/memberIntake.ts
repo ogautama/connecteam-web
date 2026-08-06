@@ -118,6 +118,43 @@ export async function resolvePengundangUnitLeaderId(
   return leader?.id ?? null;
 }
 
+/**
+ * The member's own "Pengundang / Unit", derived from the tree instead of
+ * asked (Plan 20b follow-up, 2026-08-06): a member invited via Add Member
+ * already sits under a recruiter (User.recruiterId, set from their
+ * PendingInvite at sign-up), so their unit is a fact, not a question — the
+ * nearest `role: "leader"` at or above that recruiter. An Add Member invite
+ * may name any member of the branch as recruiter, hence the walk up rather
+ * than a single lookup.
+ *
+ * Null when there's nothing to derive — no recruiter (the bootstrap root)
+ * or a chain that never reaches a leader — in which case the form falls
+ * back to asking, exactly as before.
+ */
+export async function getPengundangUnitForMember(
+  userId: string
+): Promise<string | null> {
+  // Capped walk: recruiter chains are short (it's an org tree), and the cap
+  // turns hypothetical cycle corruption into a null instead of a hang.
+  let cursor: string | null = userId;
+  for (let hop = 0; cursor && hop < 20; hop++) {
+    const user: { recruiterId: string | null } | null = await prisma.user.findUnique({
+      where: { id: cursor },
+      select: { recruiterId: true },
+    });
+    if (!user?.recruiterId) return null;
+    const recruiter: { id: string; name: string; role: string } | null =
+      await prisma.user.findUnique({
+        where: { id: user.recruiterId },
+        select: { id: true, name: true, role: true },
+      });
+    if (!recruiter) return null;
+    if (recruiter.role === "leader") return recruiter.name;
+    cursor = recruiter.id;
+  }
+  return null;
+}
+
 export async function upsertMemberIntake(
   userId: string,
   input: MemberIntakeInput

@@ -1,20 +1,26 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 
-const { requireMember, getMemberIntake, getPengundangUnitOptions, getAcceptedApplicantByEmail } =
-  vi.hoisted(() => ({
-    requireMember: vi.fn(),
-    getMemberIntake: vi.fn(),
-    getPengundangUnitOptions: vi.fn(),
-    getAcceptedApplicantByEmail: vi.fn(),
-  }));
+const {
+  requireMember,
+  getMemberIntake,
+  getPengundangUnitOptions,
+  getPengundangUnitForMember,
+  getAcceptedApplicantByEmail,
+} = vi.hoisted(() => ({
+  requireMember: vi.fn(),
+  getMemberIntake: vi.fn(),
+  getPengundangUnitOptions: vi.fn(),
+  getPengundangUnitForMember: vi.fn(),
+  getAcceptedApplicantByEmail: vi.fn(),
+}));
 
 vi.mock("@/lib/auth", () => ({ requireMember }));
 vi.mock("@/lib/memberIntake", async () => {
   const actual = await vi.importActual<typeof import("@/lib/memberIntake")>(
     "@/lib/memberIntake",
   );
-  return { ...actual, getMemberIntake, getPengundangUnitOptions };
+  return { ...actual, getMemberIntake, getPengundangUnitOptions, getPengundangUnitForMember };
 });
 vi.mock("@/lib/applicant", () => ({ getAcceptedApplicantByEmail }));
 
@@ -67,6 +73,9 @@ beforeEach(() => {
   });
   getMemberIntake.mockResolvedValue(null);
   getPengundangUnitOptions.mockResolvedValue(["Robert / Lini", "Haryo / Daisy"]);
+  // Default: nothing derivable from the tree — the select fallback. The
+  // locked-unit variant sets its own value.
+  getPengundangUnitForMember.mockResolvedValue(null);
   getAcceptedApplicantByEmail.mockResolvedValue(null);
 });
 
@@ -126,6 +135,24 @@ describe("profile page", () => {
     expect(getPengundangUnitOptions).toHaveBeenCalled();
     expect(screen.getByRole("option", { name: "Zaki Firmansyah" })).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: "Robert / Lini" })).not.toBeInTheDocument();
+  });
+
+  test("locks Pengundang / Unit to the member's own unit leader when derivable from the tree", async () => {
+    // Invited via Add Member: their recruiter chain reaches a leader, so
+    // the unit is a fact — shown locked, not asked. Note the distinction:
+    // the *recruiter* may be an agent; the unit name is always the leader
+    // getPengundangUnitForMember walked up to.
+    getPengundangUnitForMember.mockResolvedValue("Robert / Lini");
+
+    render(await IsiDataPage());
+
+    const unit = screen.getByRole("textbox", { name: /Unit kamu/ });
+    expect(unit).toHaveValue("Robert / Lini");
+    expect(unit).toHaveAttribute("readonly");
+    expect(screen.getByText(/Otomatis dari leader yang ngundang kamu/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("combobox", { name: "Pengundang / Unit" }),
+    ).not.toBeInTheDocument();
   });
 
   test("shows a matched accepted application read-only instead of a blank form", async () => {

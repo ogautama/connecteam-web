@@ -131,6 +131,13 @@ type JoinDataFormProps = {
    * not a fixed list — the source form hardcodes 6 names because it can't
    * query our data; we can. */
   pengundangUnitOptions: string[];
+  /** The unit derived from this member's own recruiter chain
+   * (getPengundangUnitForMember) — set for anyone invited via Add Member.
+   * When present, the first-fill renders Pengundang / Unit locked to it
+   * instead of asking; submitJoinData re-derives it server-side either way,
+   * so the lock here is the courtesy, not the guard. Null (no recruiter
+   * chain to a leader) falls back to the select. */
+  recruiterUnit: string | null;
   /** An accepted /join application matching this member's own email
    * (src/lib/applicant.ts's getAcceptedApplicantByEmail) — only looked at
    * when there's no MemberIntake yet. Shown read-only: editing that data
@@ -205,20 +212,20 @@ function IntakeForm({
   defaultEmail,
   initial,
   pengundangUnitOptions,
+  recruiterUnit,
   linkedApplication,
   draft,
 }: JoinDataFormProps & { draft: JoinDraft | null }) {
   const [saved, setSaved] = useState<MemberIntakeRecord | null>(initial);
-  const [form, setForm] = useState<FormState>(
-    initial
-      ? formFromSaved(initial)
-      : draft
-        ? // The signed-in identity wins over whatever they typed into the
-          // public form's Email Aktif — they're the same address modulo
-          // case, and this is the one they actually sign in with.
-          { ...draft, activeEmail: defaultEmail }
-        : emptyForm(defaultEmail),
-  );
+  const [form, setForm] = useState<FormState>(() => {
+    if (initial) return formFromSaved(initial);
+    // The signed-in identity wins over whatever they typed into the public
+    // form: activeEmail is the address they actually sign in with (same
+    // modulo case), and pengundangUnit — when derivable from their own
+    // invite — is the tree's answer, not the draft's.
+    const base = draft ? { ...draft, activeEmail: defaultEmail } : emptyForm(defaultEmail);
+    return recruiterUnit ? { ...base, pengundangUnit: recruiterUnit } : base;
+  });
   const [files, setFiles] = useState<FileFields>(EMPTY_FILES);
   const [status, setStatus] = useState<"idle" | "uploading" | "saving" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -413,7 +420,11 @@ function IntakeForm({
       // Oversize is already rejected at pick time; belt to that suspender.
       if (file && file.size > MAX_FILE_BYTES) errs[field] = "Ukuran file maksimal 100MB.";
     }
-    if (!form.pengundangUnit) errs.pengundangUnit = "Pengundang / Unit wajib dipilih.";
+    // Locked to the tree when derivable (recruiterUnit) — a locked field
+    // can't be "kurang", same as the email.
+    if (!recruiterUnit && !form.pengundangUnit) {
+      errs.pengundangUnit = "Pengundang / Unit wajib dipilih.";
+    }
     return errs;
   }
 
@@ -740,18 +751,37 @@ function IntakeForm({
         cardRef={pengundangRef}
         plain
       >
-        <EditField label="Siapa yang ngajak kamu?">
-          <EditSelect
-            label="Pengundang / Unit"
-            options={pengundangUnitOptions.map((u) => ({ value: u, label: u }))}
-            value={form.pengundangUnit}
-            onChange={(v) => update("pengundangUnit", v)}
-          />
-          <FieldError message={fieldErrors.pengundangUnit} />
-          <span className="mt-0.5 text-xs text-ink-500">
-            Nggak tahu? Pilih nama unit tempat kamu dengar soal CONNECTeam.
-          </span>
-        </EditField>
+        {recruiterUnit ? (
+          // Invited via Add Member — their unit is a fact of the tree, so
+          // it renders locked like the email (submitJoinData re-derives it
+          // server-side regardless of what a direct POST claims).
+          <EditField label="Unit kamu">
+            <EditInput
+              value={recruiterUnit}
+              readOnly
+              aria-readonly
+              className="cursor-not-allowed border-dashed !bg-ink-50 text-ink-500"
+            />
+            <span className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-500">
+              <LockIcon />
+              Otomatis dari leader yang ngundang kamu — hubungi leader kalau ada yang
+              salah.
+            </span>
+          </EditField>
+        ) : (
+          <EditField label="Siapa yang ngajak kamu?">
+            <EditSelect
+              label="Pengundang / Unit"
+              options={pengundangUnitOptions.map((u) => ({ value: u, label: u }))}
+              value={form.pengundangUnit}
+              onChange={(v) => update("pengundangUnit", v)}
+            />
+            <FieldError message={fieldErrors.pengundangUnit} />
+            <span className="mt-0.5 text-xs text-ink-500">
+              Nggak tahu? Pilih nama unit tempat kamu dengar soal CONNECTeam.
+            </span>
+          </EditField>
+        )}
 
         <div className="mt-5 flex flex-col gap-3.5 border-t border-ink-100 pt-4">
           {errorCount > 0 && (
