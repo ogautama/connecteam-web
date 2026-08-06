@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
-import { CALCULATOR_LIVE, DISC_LIVE } from "@/lib/features";
+import { CALCULATOR_LIVE, DISC_LISTED } from "@/lib/features";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -158,8 +158,9 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* DISC teaser — hidden until the DISC tool exists (Plan 04), see features.ts */}
-      {DISC_LIVE && (
+      {/* DISC teaser — hidden while the tool is unlisted (referral links only,
+          Plan 16), see features.ts */}
+      {DISC_LISTED && (
         <section className="mx-auto w-full max-w-content px-6 py-20">
           <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-ink-100 bg-brand-yellow-50 p-8 sm:flex-row sm:text-left">
             <div className="text-center sm:text-left">
