@@ -1,0 +1,15 @@
+-- Plan 20: "Diploma (D1–D4)" joins the education picklist, between
+-- SMA / SLTA / SMK and S1. A deliberate addition, not a transcription fix —
+-- the source Google Form never offered Diploma, so from here the picklist
+-- is no longer a strict copy of the original (docs/plans/20-join-redesign.md).
+--
+-- This statement stands alone on purpose: ALTER TYPE ... ADD VALUE is
+-- refused inside a transaction block on older Postgres, and even on the
+-- versions that allow it (12+, Supabase runs 15) nothing else in the same
+-- transaction may *use* the new value — so nothing may share this file.
+--
+-- BEFORE 's1' keeps the database's enum order identical to the schema.prisma
+-- declaration, so `prisma migrate dev` sees no drift. Display order is the
+-- EDUCATION_OPTIONS array in src/lib/memberIntakeOptions.ts either way; no
+-- stored rows change, no backfill.
+ALTER TYPE "EducationLevel" ADD VALUE 'diploma' BEFORE 's1';

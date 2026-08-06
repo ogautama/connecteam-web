@@ -12,12 +12,13 @@ export const metadata: Metadata = {
 
 /**
  * Replaces Plan 03's Google Form embed (2026-07-30) — the real Plan 15
- * follow-on: a public application form, no account needed. Same
- * card-per-question look and the same 16 questions as the member "Isi
- * Data" form (@/components/forms/IntakeFormFields, ApplicationForm.tsx),
- * just without the member sidebar (MarketingLayout instead of MemberShell)
- * and with no auth gate — submitApplication (./actions.ts) is reachable by
- * anyone. Submissions land in a leader's review queue
+ * follow-on: a public application form, no account needed. The same 16
+ * questions as the member Profile form, and since Plan 20 the same
+ * five-group-card look too (@/components/forms/IntakeFormFields,
+ * ApplicationForm.tsx) — one "Kirim aplikasi" at the end instead of
+ * Profile's per-section saves. No member sidebar (MarketingLayout instead
+ * of MemberShell) and no auth gate — submitApplication (./actions.ts) is
+ * reachable by anyone. Submissions land in a leader's review queue
  * (/member/admin/add-member) rather than auto-creating an account.
  */
 export default async function JoinPage() {
@@ -39,8 +40,14 @@ export default async function JoinPage() {
               Isi form di bawah ini. Butuh sekitar 5 menit — tim kami bakal ngecek
               dan menghubungi kamu buat langkah selanjutnya.
             </p>
-            <p className="mt-4 border-t border-ink-100 pt-3 text-sm text-ink-500">
-              Kolom bertanda <span className="text-brand-red-500">*</span> wajib diisi.
+            {/* The cost up front, and the required rule once — the form
+                itself carries no asterisks (Plan 20: all but one field is
+                required, so marking the norm said nothing). */}
+            <p className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 border-t border-ink-100 pt-3 text-sm text-ink-500">
+              <span className="rounded-full border border-ink-100 bg-ink-50 px-2.5 py-1 text-xs font-semibold text-ink-500">
+                5 bagian · 5 menit
+              </span>
+              Semua kolom wajib diisi kecuali yang ditandai opsional.
             </p>
           </div>
         </div>

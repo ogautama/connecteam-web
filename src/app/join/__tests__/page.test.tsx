@@ -30,8 +30,10 @@ describe("Join page", () => {
       screen.getByRole("heading", { level: 1, name: "Gabung CONNECTeam" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: /Nama Lengkap/ })).toBeInTheDocument();
-    expect(screen.getByRole("radiogroup", { name: "Pengundang / Unit" })).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: "Robert / Lini" })).toBeInTheDocument();
+    // Plan 20: Pengundang / Unit is a select fed by the live leader list,
+    // no longer a radio stack.
+    expect(screen.getByRole("combobox", { name: "Pengundang / Unit" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Robert / Lini" })).toBeInTheDocument();
     expect(screen.queryByTitle("Form pendaftaran CONNECTeam")).not.toBeInTheDocument();
   });
 
@@ -39,6 +41,6 @@ describe("Join page", () => {
     render(await JoinPage());
 
     expect(getCurrentUser).toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Kirim" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Kirim aplikasi" })).toBeInTheDocument();
   });
 });

@@ -551,22 +551,36 @@ export function EditField({
   );
 }
 
-export function EditInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={editInputClass} />;
+// Both merge an incoming className onto the base look instead of dropping
+// it, so a caller can layer state styling (the /join form's invalid-field
+// red) without forking the input.
+export function EditInput({
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} className={`${editInputClass} ${className ?? ""}`} />;
 }
 
-export function EditTextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea rows={2} {...props} className={`${editInputClass} resize-none`} />;
+export function EditTextArea({
+  className,
+  ...props
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea rows={2} {...props} className={`${editInputClass} resize-none ${className ?? ""}`} />;
 }
 
 export function EditSelect({
   value,
   onChange,
   label,
+  options = EDUCATION_OPTIONS,
 }: {
   value: string;
   onChange: (value: string) => void;
   label: string;
+  /** Defaults to the education list this select was built for (the Profile
+   * Pendidikan editor); the /join form also feeds it the live
+   * Pengundang / Unit names (Plan 20). */
+  options?: { value: string; label: string }[];
 }) {
   return (
     <select
@@ -578,7 +592,7 @@ export function EditSelect({
       <option value="" disabled>
         Pilih…
       </option>
-      {EDUCATION_OPTIONS.map((o) => (
+      {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
         </option>
@@ -715,9 +729,17 @@ export function IdentityHeader({
   );
 }
 
-/** One document tile — "Ganti" (or "Upload" when missing) replaces just
- * that file and saves immediately; there's no group-level edit for
- * Dokumen, so this is always interactive on its own when `editable`. */
+/** One document tile, in one of two lives:
+ *
+ * - **Saved** (the Profile page): `url` points at an uploaded object.
+ *   "Ganti" (or "Upload" when missing) replaces just that file and saves
+ *   immediately; there's no group-level edit for Dokumen, so this is always
+ *   interactive on its own when `editable`.
+ * - **Pending** (`pending` — the /join form, Plan 20): nothing exists
+ *   server-side yet, so the tile holds a picked `File` that only uploads on
+ *   the form's single submit. Shows the filename in place of "Terupload",
+ *   offers "Ganti · Hapus", and a still-empty required tile invites with
+ *   "Pilih file" on navy dashes instead of reading like absent data. */
 export function DocTile({
   label,
   icon,
@@ -726,6 +748,10 @@ export function DocTile({
   editable,
   replacing,
   onReplace,
+  pending,
+  pendingFile,
+  onRemove,
+  invalid,
 }: {
   label: string;
   icon: React.ReactNode;
@@ -733,15 +759,33 @@ export function DocTile({
   optional?: boolean;
   editable: boolean;
   replacing?: boolean;
+  /** File chosen — in saved mode this uploads+saves immediately (the
+   * Profile flow); in pending mode it just hands the File to the form. */
   onReplace?: (file: File) => void;
+  /** Pre-submit mode: no `url` ever, `pendingFile` instead. */
+  pending?: boolean;
+  pendingFile?: File | null;
+  /** Un-pick the pending file (pending mode only). */
+  onRemove?: () => void;
+  /** Required tile flagged by a submit-time validation pass. */
+  invalid?: boolean;
 }) {
   const inputId = useId();
-  const missing = !url;
+  const missing = !url && !pendingFile;
+
+  // Empty-tile chrome: red dashes when flagged, grey for the optional slot,
+  // and in pending mode inviting navy (matches the form's upload dropzones)
+  // for a required pick that hasn't happened yet.
+  const emptyClass = invalid
+    ? "border-dashed border-danger-500/60 bg-danger-500/5"
+    : pending && !optional
+      ? "border-dashed border-brand-navy-200 bg-brand-navy-50"
+      : "border-dashed border-ink-200 bg-ink-50";
 
   return (
     <div
       className={`flex flex-col gap-2 rounded-xl border p-3 ${
-        missing ? "border-dashed border-ink-200 bg-ink-50" : "border-ink-100 bg-white"
+        missing ? emptyClass : "border-ink-100 bg-white"
       }`}
     >
       <div className="flex items-center gap-2.5">
@@ -749,7 +793,11 @@ export function DocTile({
           aria-hidden
           className={`grid h-[34px] w-[34px] shrink-0 place-items-center rounded-lg ${
             missing
-              ? "border border-dashed border-ink-300 bg-white text-ink-300"
+              ? invalid
+                ? "border border-dashed border-danger-500/60 bg-white text-danger-500"
+                : pending && !optional
+                  ? "border border-dashed border-brand-navy-200 bg-white text-brand-navy-700"
+                  : "border border-dashed border-ink-300 bg-white text-ink-300"
               : "bg-brand-navy-50 text-brand-navy-700"
           }`}
         >
@@ -760,12 +808,20 @@ export function DocTile({
         </span>
       </div>
       <span
-        className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
-          missing ? "text-ink-500" : "text-success-500"
+        className={`inline-flex items-center gap-1.5 break-all text-xs font-semibold ${
+          missing ? (invalid ? "text-danger-500" : "text-ink-500") : "text-success-500"
         }`}
       >
-        {!missing && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
-        {missing ? (optional ? "Opsional" : "Belum diupload") : "Terupload"}
+        {!missing && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current" />}
+        {pendingFile
+          ? pendingFile.name
+          : missing
+            ? optional
+              ? "Opsional"
+              : pending
+                ? "Belum dipilih"
+                : "Belum diupload"
+            : "Terupload"}
       </span>
       <div className="mt-auto flex items-center gap-2 pt-0.5 text-[13px] font-semibold text-brand-navy-700">
         {url && (
@@ -776,8 +832,16 @@ export function DocTile({
         {url && editable && <span className="text-ink-300">·</span>}
         {editable && (
           <label htmlFor={inputId} className="cursor-pointer hover:text-brand-red-600">
-            {replacing ? "Mengupload…" : missing ? "Upload" : "Ganti"}
+            {replacing ? "Mengupload…" : missing ? (pending ? "Pilih file" : "Upload") : "Ganti"}
           </label>
+        )}
+        {editable && pendingFile && onRemove && (
+          <>
+            <span className="text-ink-300">·</span>
+            <button type="button" onClick={onRemove} className="hover:text-brand-red-600">
+              Hapus
+            </button>
+          </>
         )}
       </div>
       {editable && (
