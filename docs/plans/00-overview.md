@@ -226,7 +226,7 @@ Plan 06's nav.)*
   belongs with the account rather than in a checklist that's meant to empty
   out. The entry point lands in the account dropdown (`AccountMenu.tsx`)
   labeled "Profile", above "Member Space"; no new sidebar item, and
-  `/member/isi-data` itself is untouched. (2) **`lisensi-aaji-aasi` and
+  the page itself is untouched. (2) **`lisensi-aaji-aasi` and
   `kelas-mfc-sertifikasi` get hidden** — both are `"Segera hadir"`
   placeholders with no content behind them. Checked 2026-08-05: no
   `OnboardingProgress` row exists for either id, so hiding them costs nobody
@@ -240,9 +240,15 @@ Plan 06's nav.)*
   (There is exactly one such row today.) **Resolved during the build:** the
   "Isi Data" page heading, its `<title>`, and the `/join` success copy that
   pointed at it were all renamed to **"Profile"**, so nothing user-facing
-  says "Isi Data" any more. The route stays `/member/isi-data` on purpose —
-  moving it would break `?next=` redirects, existing links and Plan 07c's
-  draft handoff for no user-visible gain.
+  says "Isi Data" any more. The route stayed `/member/isi-data` at the time —
+  moving it would have broken `?next=` redirects, existing links and Plan
+  07c's draft handoff for no user-visible gain. **Reversed 2026-08-06:** the
+  route is now `/member/profile`, with a permanent (308) redirect from
+  `/member/isi-data` in `next.config.ts` — the objection was never to the
+  rename itself, only to breaking the old path, and a redirect costs one
+  config entry. Redirects run before the filesystem and before the auth
+  proxy, and query strings carry through, so the Plan 07c handoff and any
+  in-flight `?next=%2Fmember%2Fisi-data` still land correctly.
 - ~~**Editing "Email Aktif" on the Profile page silently pre-authorizes a
   new login**~~ — **closed 2026-08-05 by locking the field.** "Email Aktif"
   is now display-only in the form, with a note saying why, and
@@ -260,7 +266,7 @@ Plan 06's nav.)*
   worth either deleting or giving a real purpose, but it's a decision about
   invite semantics, not something to settle in a checklist restructure. The
   original problem, for the record: `submitJoinData`
-  (`src/app/member/isi-data/actions.ts`) calls `createPendingInvite` with
+  (`src/app/member/profile/actions.ts`) calls `createPendingInvite` with
   whatever `activeEmail` the member typed, recruited by the chosen
   "Pengundang / Unit" leader. `PendingInvite` **is** the allowlist, so if
   that address isn't already a `User`, saving the form pre-authorizes it —

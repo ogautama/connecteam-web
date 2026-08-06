@@ -88,7 +88,7 @@ scratch.
 |---|---|---|---|
 | Dashboard | — (`/member`) | Plan 06 | real |
 | **Onboarding** | `onboarding` *(default)* | Plan 07 | **real** — 4 accordion items after the 2026-08-05 shrink (see below) |
-| ~~↳ Join & Isi Data~~ | — | Plan 07 | **off the checklist 2026-08-05** — the page shipped at `/member/isi-data`; its entry point is now "Profile" in `AccountMenu`, not a checklist row |
+| ~~↳ Join & Isi Data~~ | — | Plan 07 | **off the checklist 2026-08-05** — the page shipped at `/member/isi-data`, moved to `/member/profile` 2026-08-06; its entry point is "Profile" in `AccountMenu`, not a checklist row |
 | ↳ Download PruForce | `onboarding-pruforce` | Plan 07 | placeholder — moved from Plan 11 |
 | ~~↳ Lisensi AAJI & AASI~~ | — | Plan 07 | **hidden 2026-08-05** — empty placeholder, no content behind it |
 | ~~↳ Kelas MFC & Sertifikasi Produk~~ | — | Plan 07 | **hidden 2026-08-05** — empty placeholder, no content behind it |
@@ -148,7 +148,7 @@ Two separate calls, both landing on `ONBOARDING_SECTIONS` in
 in [00-overview.md](00-overview.md#known-deferred-issues); the before/after
 is [spec-profile-menu.html](../design/spec-profile-menu.html).
 
-1. **"Isi Data" left the checklist for the account menu.** `/member/isi-data`
+1. **"Isi Data" left the checklist for the account menu.** The Profile page
    is personal data a member comes back to, not a one-time step, so it
    doesn't belong in a list meant to empty out. Its entry point is now a
    "Profile" item in `AccountMenu.tsx`, above "Member Space". The page, its
@@ -164,8 +164,11 @@ is [spec-profile-menu.html](../design/spec-profile-menu.html).
 
 The page was renamed "Isi Data" → **"Profile"** to match the menu item
 (heading, `<title>`, and the `/join` success copy that points at it). Its
-route stays `/member/isi-data`: moving it would break `?next=` redirects,
-existing links and Plan 07c's draft handoff for no user-visible gain.
+route stayed `/member/isi-data` at the time: moving it would have broken
+`?next=` redirects, existing links and Plan 07c's draft handoff for no
+user-visible gain. **Since 2026-08-06 the route is `/member/profile`**, with
+a 308 redirect from the old path in `next.config.ts` that keeps every one of
+those links working.
 
 ## Depends on
 

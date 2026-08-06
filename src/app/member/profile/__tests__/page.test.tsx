@@ -70,7 +70,7 @@ beforeEach(() => {
   getAcceptedApplicantByEmail.mockResolvedValue(null);
 });
 
-describe("isi-data page", () => {
+describe("profile page", () => {
   test("gates on membership before rendering", async () => {
     render(await IsiDataPage());
 
@@ -176,7 +176,7 @@ describe("isi-data page", () => {
 // Plan 07c: someone who filled out the public /join form under an email
 // that already belongs to a member is sent here to log in, with their typed
 // answers handed over through sessionStorage.
-describe("isi-data page — /join draft handoff", () => {
+describe("profile page — /join draft handoff", () => {
   test("prefills the form from a draft under this member's own email", async () => {
     saveJoinDraft(draft);
 

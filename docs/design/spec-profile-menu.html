@@ -191,14 +191,16 @@
         behavior, not a proposal.</b> Both changes below landed on the Plan 07
         branch: <code>ONBOARDING_SECTIONS</code> is down to the four items in
         the "Usulan" panel, and "Profile" is live in the account dropdown
-        pointing at <code>/member/isi-data</code>. The one dead
+        pointing at the Profile page. The one dead
         <code>join-isi-data</code> progress row was deleted by migration
         <code>20260805110000_drop_join_isi_data_progress</code>; the member's
         intake data and uploads were untouched. The "Sekarang — 7 langkah"
         panel is kept as a before-shot, not as current state. The page the
         menu item opens was also renamed "Isi Data" → <b>"Profile"</b>, so
-        the mockup's note about that label mismatch no longer applies; its
-        route is still <code>/member/isi-data</code>.
+        the mockup's note about that label mismatch no longer applies. Its
+        route was still <code>/member/isi-data</code> at the time; since
+        2026-08-06 it is <code>/member/profile</code>, with a 308 redirect
+        from the old path in <code>next.config.ts</code>.
       </span>
     </div>
   </section>

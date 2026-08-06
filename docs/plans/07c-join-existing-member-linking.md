@@ -17,9 +17,11 @@ Two things in that account no longer describe current behaviour, later the
 same day: the `join-isi-data` progress marker is gone (the checklist item
 moved to the account menu, so `submitJoinData` stopped writing it and a
 migration deleted the row), and the destination page is now titled
-**"Profile"** — its route is still `/member/isi-data`, so the handoff and
-its `?next=` redirect are untouched. See "The checklist shrank from 7 items
-to 4" in [07-member-onboarding.md](07-member-onboarding.md).
+**"Profile"** — and as of 2026-08-06 so is its route, `/member/profile`.
+The handoff and its `?next=` redirect are still untouched: `/member/isi-data`
+308s to the new path (`next.config.ts`), query string included. See "The
+checklist shrank from 7 items to 4" in
+[07-member-onboarding.md](07-member-onboarding.md).
 
 That last leg took one extra fix outside this plan: the *applicant*-intake
 leader policy queried the `User` table directly in its `USING` clause,
@@ -31,7 +33,7 @@ on the unrelated member-intake bucket. So every member save failed with
 `prisma/migrations/20260731120123_fix_applicant_intake_leader_policy_security_definer`.
 
 Amends [Plan 07](07-member-onboarding.md)'s "Isi Data"
-(`/member/isi-data`, `JoinDataForm.tsx`) and the public "Join Us" form
+(`/member/profile`, `JoinDataForm.tsx`) and the public "Join Us" form
 (`/join`, `ApplicationForm.tsx`) — sits alongside the existing accepted-
 Applicant→Isi-Data read-only link (built 2026-07-30) as a second linking
 path, for someone who submits /join under an email that's already a real
@@ -42,11 +44,11 @@ Data changes — out of the Onboarding checklist, into the account dropdown
 as "Profile". See
 [spec-profile-menu.html](../design/spec-profile-menu.html) and the entry in
 [Plan 00's open items](00-overview.md). Nothing in this plan's own linking
-flow changes; `/login?next=/member/isi-data` still lands on the same page.
+flow changes; `/login?next=/member/profile` still lands on the same page.
 
 ## Depends on
 
-- [Plan 07](07-member-onboarding.md) — owns `/member/isi-data` and the
+- [Plan 07](07-member-onboarding.md) — owns `/member/profile` and the
   public `/join` application, including the existing accepted-Applicant
   read-only link this plan sits alongside.
 - [Plan 02b](02b-supabase-auth-google-oauth.md) — the Google OAuth sign-in
@@ -77,7 +79,7 @@ reuse what they just typed on their real Isi Data page.
 
 When /join's "Email Aktif" matches an existing `User`, don't create an
 `Applicant`. Tell them they already have an account, get them to log in,
-and land them on `/member/isi-data` with the text fields they just typed
+and land them on `/member/profile` with the text fields they just typed
 pre-filled — without asking them to retype 11 fields, and without silently
 creating a duplicate/orphaned Applicant record for an existing member.
 
@@ -130,7 +132,7 @@ creating a duplicate/orphaned Applicant record for an existing member.
   existing field/file validation and before `uploadIfNeeded` runs, call
   `checkExistingMember`. If true — skip uploads and `submitApplication`
   entirely, save the draft (Phase 3), show a new "you already have an
-  account" screen linking to `/login?next=/member/isi-data`. If false —
+  account" screen linking to `/login?next=/member/profile`. If false —
   unchanged.
 
 ### Phase 3 — the draft handoff
@@ -140,7 +142,7 @@ creating a duplicate/orphaned Applicant record for an existing member.
   namespaced key, storing the 11 text fields plus `activeEmail`.
 - `ApplicationForm.tsx` calls `saveJoinDraft` in the "already a member"
   branch.
-- `src/app/member/isi-data/JoinDataForm.tsx`: on mount, if there's no
+- `src/app/member/profile/JoinDataForm.tsx`: on mount, if there's no
   `saved` MemberIntake, read the draft; if present and its `activeEmail`
   matches this member's own email, prefill the form (files empty, note
   explaining re-upload is needed), then clear the draft immediately
@@ -189,5 +191,5 @@ creating a duplicate/orphaned Applicant record for an existing member.
 - `npx tsc --noEmit`, `npm run lint`, `npm test -- --run` all clean.
 - Manual end-to-end in the browser: submit /join with an email that
   already belongs to a real `User` in the dev DB → see the "already a
-  member" screen → log in → land on `/member/isi-data` pre-filled with
+  member" screen → log in → land on `/member/profile` pre-filled with
   the typed answers, prompted to re-upload files.

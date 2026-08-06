@@ -136,8 +136,9 @@ enum EducationLevel {
   s3
 }
 
-// Plan 07's "Isi Data" onboarding item — one row per member, filled in from
-// its own full-page form (src/app/member/isi-data), not the public /join
+// Plan 07's "Isi Data" onboarding item, now the Profile page — one row per
+// member, filled in from its own full-page form (src/app/member/profile),
+// not the public /join
 // Applicant flow (a pre-enrollment application; this is post-signup HR
 // paperwork for someone already a User). Field set and "Pengundang / Unit"
 // options (src/lib/memberIntake.ts's PENGUNDANG_UNIT_OPTIONS) are copied

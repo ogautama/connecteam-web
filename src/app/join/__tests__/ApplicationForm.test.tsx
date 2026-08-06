@@ -92,7 +92,7 @@ describe("ApplicationForm — existing-member check", () => {
     expect(submitApplication).not.toHaveBeenCalled();
   });
 
-  test("stashes the typed text answers as a draft and points at /member/isi-data", async () => {
+  test("stashes the typed text answers as a draft and points at /member/profile", async () => {
     checkExistingMember.mockResolvedValue(true);
     const { container } = renderForm();
 
@@ -116,7 +116,7 @@ describe("ApplicationForm — existing-member check", () => {
     });
     expect(
       screen.getByRole("link", { name: /Login & lanjut isi data/ }),
-    ).toHaveAttribute("href", "/login?next=%2Fmember%2Fisi-data");
+    ).toHaveAttribute("href", "/login?next=%2Fmember%2Fprofile");
   });
 
   test("a non-member email submits exactly as before, leaving no draft behind", async () => {

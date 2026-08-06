@@ -38,8 +38,8 @@ describe("/auth/callback", () => {
 
   it("honours a same-origin `next` path", async () => {
     expect(
-      await destinationOf("/auth/callback?code=abc123&next=%2Fmember%2Fisi-data"),
-    ).toBe("https://app.example/member/isi-data");
+      await destinationOf("/auth/callback?code=abc123&next=%2Fmember%2Fprofile"),
+    ).toBe("https://app.example/member/profile");
   });
 
   it("skips the exchange when there's no code, but still redirects", async () => {
@@ -51,7 +51,7 @@ describe("/auth/callback", () => {
     ["https://evil.example/steal", "an absolute URL"],
     ["//evil.example/steal", "a protocol-relative URL"],
     ["/\\evil.example/steal", "a backslash protocol-relative URL"],
-    ["member/isi-data", "a bare relative path"],
+    ["member/profile", "a bare relative path"],
     ["", "an empty value"],
   ])("falls back to /member for %s (%s)", async (next) => {
     expect(

@@ -13,8 +13,8 @@ import {
 } from "@/lib/memberIntake";
 
 /**
- * The Profile page's intake form (Plan 07, route still /member/isi-data),
- * fields copied from the real Google Form it replaces.
+ * The Profile page's intake form (Plan 07, route /member/profile since
+ * 2026-08-06), fields copied from the real Google Form it replaces.
  *
  * **"Email Aktif" is not editable, by design.** It's the address on the
  * Google account the member signs in with, so changing it here would mean
@@ -123,7 +123,7 @@ export async function submitJoinData(
     });
   }
 
-  revalidatePath("/member/isi-data");
+  revalidatePath("/member/profile");
 
   // Re-read rather than assemble in place: photo fields need freshly signed
   // URLs (mirrors saveTestResultLead's "return the persisted state" shape in

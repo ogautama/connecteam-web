@@ -49,16 +49,16 @@ describe("AccountMenu", () => {
     );
   });
 
-  test('"Profile" opens Isi Data — its entry point since it left the checklist', () => {
+  test('"Profile" opens the Profile page — its entry point since it left the checklist', () => {
     render(<AccountMenu name="Rani Putri" role="agent" />);
 
     fireEvent.click(screen.getByRole("button", { name: /Rani Putri/ }));
 
-    // Labeled "Profile" even though the page still reads "Isi Data" — a
-    // known, accepted mismatch (docs/plans/00-overview.md), not a typo.
+    // Label, page and route all say "Profile" as of the 2026-08-06 route
+    // rename; the old /member/isi-data path 308s here (next.config.ts).
     expect(screen.getByRole("menuitem", { name: "Profile" })).toHaveAttribute(
       "href",
-      "/member/isi-data",
+      "/member/profile",
     );
   });
 

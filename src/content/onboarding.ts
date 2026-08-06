@@ -113,10 +113,12 @@ export const PRUFORCE_UPDATE_WARNING = {
 //
 // Shrunk from 7 to 4 on 2026-08-05 (two separate calls, both recorded in
 // 00-overview.md and mocked in design/spec-profile-menu.html):
-// - "join-isi-data" left the checklist entirely — /member/isi-data is
-//   personal data a member revisits, not a one-time step, so its entry
-//   point moved to the "Profile" item in AccountMenu. The page itself is
-//   unchanged; only where you find it moved.
+// - "join-isi-data" left the checklist entirely — the Profile page (then at
+//   /member/isi-data, /member/profile since 2026-08-06) is personal data a
+//   member revisits, not a one-time step, so its entry point moved to the
+//   "Profile" item in AccountMenu. The page itself is unchanged; only where
+//   you find it moved. The `join-isi-data` id above is an OnboardingProgress
+//   key, not a route — the route rename left it alone on purpose.
 // - "lisensi-aaji-aasi" and "kelas-mfc-sertifikasi" are hidden. Both were
 //   empty "Segera hadir" placeholders. Note this is a specific call about
 //   licensing/class content, NOT "hide every placeholder" —
