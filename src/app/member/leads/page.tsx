@@ -61,7 +61,7 @@ export default async function LeadsPage() {
                 <th className="px-4 py-3">Nama</th>
                 <th className="px-4 py-3">Profil</th>
                 <th className="px-4 py-3">Kontak</th>
-                <th className="px-4 py-3">Via</th>
+                <th className="px-4 py-3">Perekrut / Pengundang</th>
                 <th className="px-4 py-3">Tanggal</th>
               </tr>
             </thead>
