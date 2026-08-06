@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DISC leads, scoped to your downline — CONNECTeam</title>
+
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  /* ---- Page chrome tokens (theme-aware) ---------------------------- */
+  :root {
+    --page-bg: #ffffff;
+    --page-fg: #1b212d;
+    --page-muted: #6c7689;
+    --page-line: #e7eaf0;
+    --page-panel: #f7f8fb;
+    --page-accent: #183f87;
+    --page-badge-fg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page-bg: #10131a;
+      --page-fg: #e9ecf3;
+      --page-muted: #98a1b3;
+      --page-line: #262c39;
+      --page-panel: #171b25;
+      --page-accent: #9eaecd;
+      --page-badge-fg: #10131a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #10131a; --page-fg: #e9ecf3; --page-muted: #98a1b3;
+    --page-line: #262c39; --page-panel: #171b25; --page-accent: #9eaecd;
+    --page-badge-fg: #10131a;
+  }
+  :root[data-theme="light"] {
+    --page-bg: #ffffff; --page-fg: #1b212d; --page-muted: #6c7689;
+    --page-line: #e7eaf0; --page-panel: #f7f8fb; --page-accent: #183f87;
+    --page-badge-fg: #ffffff;
+  }
+
+  /* ---- App tokens (from src/app/globals.css — fixed, light-only) ---- */
+  :root {
+    --navy-50: #f3f5f9; --navy-100: #e3e8f1; --navy-200: #c3cde0;
+    --navy-300: #9eaecd; --navy-700: #183f87; --navy-800: #14346f;
+    --red-100: #fde9ee; --red-500: #f04975; --red-700: #ad3554;
+    --yellow-50: #fffcf2; --yellow-100: #fef7e1; --yellow-300: #f9d667;
+    --yellow-400: #f5ba01; --yellow-700: #8e6c01;
+    --ink-50: #f9fafb; --ink-100: #edeff2; --ink-300: #aeb5c2;
+    --ink-500: #6c7689; --ink-700: #3c4453; --ink-900: #1b212d;
+  }
+
+  body {
+    background: var(--page-bg);
+    color: var(--page-fg);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 40px 24px 80px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 8px; }
+  .lede { color: var(--page-muted); max-width: 720px; margin: 0 0 6px; }
+  .lede code { font-size: 13px; }
+
+  .board { margin-top: 56px; }
+  .board-tag {
+    display: inline-block; background: var(--page-accent); color: var(--page-badge-fg);
+    font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    border-radius: 999px; padding: 3px 12px;
+  }
+  .board h2 { font-size: 19px; margin: 10px 0 4px; }
+  .board .note { color: var(--page-muted); font-size: 14px; max-width: 720px; margin: 0 0 18px; }
+
+  /* The frame every app mock sits in — app surfaces are light-only, so the
+     frame pins a white canvas regardless of page theme. */
+  .frame {
+    border: 1px solid var(--page-line); border-radius: 16px; overflow: hidden;
+    background: #ffffff; color: var(--ink-900); box-shadow: 0 1px 3px rgba(16,19,26,.06);
+  }
+  .frame + .caption { color: var(--page-muted); font-size: 13px; margin-top: 10px; }
+  .app { padding: 28px; }
+  .app-narrow { max-width: 720px; margin: 0 auto; }
+
+  /* ---- Shared app bits --------------------------------------------- */
+  .card {
+    background: #fff; border: 1px solid var(--ink-100); border-radius: 16px;
+    padding: 20px 22px;
+  }
+  .brandbar {
+    height: 4px; border-radius: 4px 4px 0 0; margin: -20px -22px 16px;
+    background: linear-gradient(90deg, var(--navy-700), var(--red-500), var(--yellow-400));
+  }
+  .chip {
+    display: inline-block; font-size: 11px; font-weight: 700; border-radius: 999px;
+    padding: 2px 10px; vertical-align: 2px;
+  }
+  .chip-member { background: var(--yellow-100); color: var(--yellow-700); border: 1px solid var(--yellow-300); }
+  .chip-profile { background: var(--navy-50); color: var(--navy-700); border: 1px solid var(--navy-200); font-family: ui-monospace, monospace; }
+  .muted { color: var(--ink-500); }
+  .small { font-size: 13px; }
+  .btn {
+    display: inline-block; background: var(--navy-700); color: #fff; border-radius: 999px;
+    font-size: 13px; font-weight: 600; padding: 8px 18px;
+  }
+  .btn-ghost {
+    display: inline-block; border: 1px solid var(--ink-100); color: var(--ink-700);
+    border-radius: 999px; font-size: 13px; font-weight: 600; padding: 8px 18px;
+  }
+  a.walink { color: var(--navy-700); font-weight: 600; text-decoration: none; border-bottom: 1px dotted var(--navy-300); }
+
+  /* ---- Board A: referral card -------------------------------------- */
+  .refcard .linkbox {
+    display: flex; gap: 10px; align-items: center; margin-top: 12px;
+    background: var(--ink-50); border: 1px dashed var(--ink-300); border-radius: 10px;
+    padding: 10px 14px; font-family: ui-monospace, monospace; font-size: 13px; color: var(--ink-700);
+  }
+  .refcard .linkbox .btn { margin-left: auto; flex-shrink: 0; }
+
+  /* ---- Board B/C: leads list --------------------------------------- */
+  table.leads { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.leads th {
+    text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--ink-500); padding: 8px 12px;
+    border-bottom: 1px solid var(--ink-100);
+  }
+  table.leads td { padding: 12px; border-bottom: 1px solid var(--ink-100); vertical-align: top; }
+  table.leads tr:last-child td { border-bottom: 0; }
+  .lead-name { font-weight: 600; color: var(--ink-900); }
+  .scrollx { overflow-x: auto; }
+
+  .empty {
+    text-align: center; padding: 40px 20px; color: var(--ink-500);
+    border: 1px dashed var(--ink-300); border-radius: 12px; background: var(--ink-50);
+  }
+
+  /* ---- Board D: detail --------------------------------------------- */
+  .traits { display: grid; gap: 10px; margin-top: 6px; }
+  .trait { display: grid; grid-template-columns: 26px 1fr 44px; gap: 10px; align-items: center; }
+  .trait .lbl { font-weight: 700; color: var(--navy-700); }
+  .trait .bar { height: 10px; border-radius: 999px; background: var(--ink-100); overflow: hidden; }
+  .trait .bar > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--navy-700), var(--red-500)); }
+  .trait .pct { font-size: 13px; color: var(--ink-500); text-align: right; }
+  .answers summary { cursor: default; font-weight: 600; font-size: 14px; color: var(--ink-700); }
+  .answers li { font-size: 13px; color: var(--ink-500); margin-top: 6px; }
+  .answers li b { color: var(--ink-700); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>DISC leads, scoped to your downline</h1>
+  <p class="lede">
+    Plan 16 mockup. Every DISC submission gets an owner in the recruitment
+    tree — resolved from the member's referral link
+    (<code>/tools/disc?ref=&lt;inviteCode&gt;</code>), falling back to the
+    root leader — and <code>/member/leads</code> shows exactly the viewer's
+    subtree: an agent sees their own referrals, a leader their downline,
+    root everything. Members' own auto-saved results ride along wearing an
+    <em>Anggota</em> badge.
+  </p>
+
+  <!-- ============================================================ -->
+  <div class="board">
+    <span class="board-tag">A · Dashboard</span>
+    <h2>The referral card — where a lead starts</h2>
+    <p class="note">
+      New card on <code>/member</code>, under the section quick-links. The
+      copy button is the only action; the link is the member's permanent
+      <code>inviteCode</code>, already minted at signup.
+    </p>
+    <div class="frame"><div class="app"><div class="app-narrow">
+      <div class="card refcard">
+        <div class="brandbar"></div>
+        <strong>Link tes DISC kamu</strong>
+        <p class="muted small" style="margin:6px 0 0">
+          Bagikan ke calon rekrutmu. Semua yang isi tes lewat link ini
+          muncul di halaman <b>Leads</b> kamu — lengkap sama hasil dan nomor
+          WhatsApp-nya.
+        </p>
+        <div class="linkbox">
+          <span>connecteam.id/tools/disc?ref=cku7…9df2</span>
+          <span class="btn">Salin link</span>
+        </div>
+      </div>
+    </div></div></div>
+    <p class="caption">
+      The card sits on the dashboard, not in the hub — it belongs to "my
+      account does things", next to the section cards.
+    </p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="board">
+    <span class="board-tag">B · Leads — leader view</span>
+    <h2>One list, newest first, whole subtree</h2>
+    <p class="note">
+      A leader with two agents. Row 2 is agent Budi's own test (auto-saved
+      when he took it signed-in): owned by Budi, badged <em>Anggota</em>,
+      contact is his account email rather than a WhatsApp number. Row 4
+      landed with no <code>ref</code>, so it fell back to root — only root
+      ever sees those.
+    </p>
+    <div class="frame"><div class="app">
+      <div class="scrollx">
+      <table class="leads">
+        <tr>
+          <th>Nama</th><th>Profil</th><th>Kontak</th><th>Via</th><th>Tanggal</th>
+        </tr>
+        <tr>
+          <td><span class="lead-name">Sinta Rahayu</span></td>
+          <td><span class="chip chip-profile">DI</span></td>
+          <td><a class="walink">0812-3456-7890</a></td>
+          <td class="muted">Budi Santoso</td>
+          <td class="muted">6 Agu</td>
+        </tr>
+        <tr>
+          <td><span class="lead-name">Budi Santoso</span> <span class="chip chip-member">Anggota</span></td>
+          <td><span class="chip chip-profile">SC</span></td>
+          <td class="muted">budi.s@gmail.com</td>
+          <td class="muted">Budi Santoso</td>
+          <td class="muted">5 Agu</td>
+        </tr>
+        <tr>
+          <td><span class="lead-name">Andi Wijaya</span></td>
+          <td><span class="chip chip-profile">D</span></td>
+          <td><a class="walink">0857-1122-3344</a></td>
+          <td class="muted">Citra Lestari</td>
+          <td class="muted">3 Agu</td>
+        </tr>
+        <tr>
+          <td><span class="lead-name">Rina Marlina</span></td>
+          <td><span class="chip chip-profile">IS</span></td>
+          <td><a class="walink">0819-9988-7766</a></td>
+          <td class="muted">— (tanpa link)</td>
+          <td class="muted">1 Agu</td>
+        </tr>
+      </table>
+      </div>
+    </div></div>
+    <p class="caption">
+      "Via" is the owner — whose referral link the prospect used. Rows link
+      to the detail page; the WhatsApp number is a <code>wa.me</code> link
+      (member rows keep a plain email instead). No export anywhere, per the
+      privacy promise on the test form.
+    </p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="board">
+    <span class="board-tag">C · Leads — agent view</span>
+    <h2>An agent sees their own referrals only — and starts empty</h2>
+    <p class="note">
+      Same page, agent session, no submissions yet. The empty state sells
+      the referral link instead of showing a bare table.
+    </p>
+    <div class="frame"><div class="app"><div class="app-narrow">
+      <div class="empty">
+        <strong style="color:var(--ink-700)">Belum ada leads</strong><br>
+        <span class="small">Bagikan link tes DISC kamu — hasil tes calon
+        rekrutmu bakal muncul di sini.</span><br>
+        <span class="btn" style="margin-top:14px">Salin link tes kamu</span>
+      </div>
+    </div></div></div>
+    <p class="caption">
+      Scoping is in the query itself (<code>ownerId IN descendants</code>,
+      viewer from the session) — there is no parameter that widens it.
+    </p>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="board">
+    <span class="board-tag">D · Detail</span>
+    <h2>One lead — result, profile copy, answer sheet</h2>
+    <p class="note">
+      <code>/member/leads/[id]</code>, gated by <code>canAccess</code>. An id
+      outside the viewer's subtree renders the same 404 as a nonexistent
+      one. Reuses the trait meta + profile copy the test's own result screen
+      already ships.
+    </p>
+    <div class="frame"><div class="app"><div class="app-narrow">
+      <div class="card">
+        <div class="brandbar"></div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <strong style="font-size:17px">Sinta Rahayu</strong>
+            <span class="chip chip-profile">DI</span><br>
+            <span class="muted small">Lewat link Budi Santoso · 6 Agustus 2026</span>
+          </div>
+          <span class="btn" style="margin-left:auto">Chat di WhatsApp</span>
+        </div>
+
+        <div class="traits" style="margin-top:20px">
+          <div class="trait"><span class="lbl">D</span><span class="bar"><i style="width:76%"></i></span><span class="pct">38%</span></div>
+          <div class="trait"><span class="lbl">I</span><span class="bar"><i style="width:58%"></i></span><span class="pct">29%</span></div>
+          <div class="trait"><span class="lbl">S</span><span class="bar"><i style="width:36%"></i></span><span class="pct">18%</span></div>
+          <div class="trait"><span class="lbl">C</span><span class="bar"><i style="width:30%"></i></span><span class="pct">15%</span></div>
+        </div>
+
+        <div style="background:var(--yellow-50);border:1px solid var(--yellow-100);border-radius:12px;padding:14px 16px;margin-top:18px">
+          <strong class="small">Si Penggerak</strong>
+          <p class="muted small" style="margin:4px 0 0">
+            Dominan-Influence: cepat ambil keputusan, senang ngajak orang,
+            paling hidup kalau ada target… <i>(profil &amp; tips pendekatan
+            dari DISC_PROFILES — copy yang sama dengan layar hasil tes.)</i>
+          </p>
+        </div>
+
+        <details class="answers" style="margin-top:16px" open>
+          <summary>Lembar jawaban (24)</summary>
+          <ol style="margin:8px 0 0;padding-left:20px">
+            <li>Pas dapat tugas baru yang arahannya belum jelas… — <b>Ambil keputusan sendiri dan jalan duluan (D)</b></li>
+            <li>Di kerja kelompok, aku biasanya… — <b>Yang ngangkat semangat tim (I)</b></li>
+            <li class="muted">… 22 lainnya</li>
+          </ol>
+        </details>
+      </div>
+    </div></div></div>
+    <p class="caption">
+      The WhatsApp button is the follow-up path the form promised the
+      prospect; it appears for prospect rows only (member rows have no
+      number to chat).
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
