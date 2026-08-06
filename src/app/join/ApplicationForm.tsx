@@ -561,11 +561,11 @@ export default function ApplicationForm({
                     ? "Mengecek…"
                     : "Kirim aplikasi"}
             </button>
-            <span className="text-[13px] text-ink-500">
-              {status === "uploading" || status === "saving"
-                ? "Jangan tutup halaman ini. File lagi dikirim."
-                : "Cek lagi sebelum kirim — setelah terkirim, perubahan lewat leader kamu."}
-            </span>
+            {(status === "uploading" || status === "saving") && (
+              <span className="text-[13px] text-ink-500">
+                Jangan tutup halaman ini. File lagi dikirim.
+              </span>
+            )}
           </div>
         </div>
       </FormCard>
