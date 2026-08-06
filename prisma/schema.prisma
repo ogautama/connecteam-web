@@ -44,6 +44,8 @@ model User {
   applicants   Applicant[]
   onboardingProgress OnboardingProgress[]
   memberIntake MemberIntake?
+  ownedLeads   Lead[]     @relation("ownedLeads")
+  takenLeads   Lead[]     @relation("takenLeads")
 }
 
 // Created by a leader (Plan 02c) before the invited person ever signs in.
@@ -70,14 +72,31 @@ enum LeadSource {
   selfMotivation
 }
 
+// ownerId (Plan 16) attributes a lead to a User in the recruitment tree —
+// resolved server-side from the DISC referral link (?ref=<inviteCode>) an
+// anonymous prospect arrived through, falling back to the root leader when
+// absent/unknown (resolveRecruiter's existing behaviour). NOT NULL: every
+// write path resolves an owner, there's no "unattributed" state to model.
+// takerUserId is set only when the person who took the test IS the member
+// (a signed-in member's own auto-saved result) — distinct from ownerId
+// because a member can also own leads referred by their own link, and the
+// two need telling apart (the "Anggota" badge on /member/leads keys on this,
+// not on contact shape).
 model Lead {
-  id        String     @id @default(cuid())
-  source    LeadSource
-  name      String
-  contact   String
-  inputs    Json
-  result    Json
-  createdAt DateTime   @default(now())
+  id          String     @id @default(cuid())
+  source      LeadSource
+  name        String
+  contact     String
+  inputs      Json
+  result      Json
+  createdAt   DateTime   @default(now())
+
+  ownerId     String
+  owner       User       @relation("ownedLeads", fields: [ownerId], references: [id])
+  takerUserId String?
+  taker       User?      @relation("takenLeads", fields: [takerUserId], references: [id])
+
+  @@index([source, ownerId, createdAt])
 }
 
 enum ApplicantStatus {

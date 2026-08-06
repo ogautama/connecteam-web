@@ -21,9 +21,9 @@ describe("MemberNav", () => {
 
     const nav = screen.getByRole("navigation", { name: "Member" });
     // Dashboard, Onboarding, Recruiting, Selling, Calculator, References,
-    // Directory — nothing expands since Onboarding (the default/active
-    // section) has no sidebar children of its own.
-    expect(within(nav).getAllByRole("link")).toHaveLength(7);
+    // Directory, Leads — nothing expands since Onboarding (the
+    // default/active section) has no sidebar children of its own.
+    expect(within(nav).getAllByRole("link")).toHaveLength(8);
     expect(within(nav).getByRole("link", { name: "Onboarding" })).toHaveAttribute(
       "href",
       "/member/onboarding",

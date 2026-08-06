@@ -2,15 +2,22 @@
 
 ## Status
 
-**Planned 2026-08-06** — the open decisions below were settled with
-@ogautama; mockup:
+**Implemented 2026-08-06.** Mockup:
 [spec-disc-leads.html](../design/spec-disc-leads.html) (open in a browser —
 the dashboard referral card, the leads list in leader and agent views, and
-the detail page). Same-day prerequisite already shipped separately: the DISC
-test is now **unlisted from the public site**
+the detail page). Same-day prerequisite shipped separately: the DISC test is
+now **unlisted from the public site**
 ([PR #41](https://github.com/ogautama/connecteam-web/pull/41)) — the
 marketing nav link and home teaser are gone, `/tools/disc` stays live and
 public, so a member's referral link becomes the way prospects find the test.
+
+Verified against the real dev database (migration applied, backfill
+correct: 5 existing self-save rows matched by email → owner+taker set, 2
+prospect rows → root fallback) and end to end in the browser, anonymously:
+a `/tools/disc?ref=<inviteCode>` submission landed owned by that member, and
+a submission with no `ref` fell back to root. The signed-in passes —
+`/member/leads` in a leader vs. agent session, the referral card, the
+Anggota badge — need a real Google session and are @ogautama's to run.
 
 ## Goal
 

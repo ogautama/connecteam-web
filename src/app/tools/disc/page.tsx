@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
 import { DISC_QUESTIONS } from "@/lib/disc/questions";
@@ -32,7 +33,10 @@ export default async function DiscPage() {
         </p>
       </section>
 
-      <DiscTest user={user ? { name: user.name, email: user.email } : null} />
+      {/* useSearchParams (reading ?ref=) needs a Suspense boundary above it. */}
+      <Suspense fallback={null}>
+        <DiscTest user={user ? { name: user.name, email: user.email } : null} />
+      </Suspense>
     </MarketingLayout>
   );
 }
