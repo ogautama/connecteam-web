@@ -2,9 +2,25 @@
 
 ## Status
 
-Not started. Amends [Plan 15](15-recruitment-tree.md) (see that doc's
-superseded notice) — the tree/visibility model it built is unaffected and
-stays as-is; only the `Applicant → User` promotion path changes.
+**Done — shipped in pieces, never as its own branch** (status corrected
+2026-08-06; this doc said "Not started" long after the work had landed):
+
+- The schema change (`Applicant.enrolledUserId` dropped) and the
+  `promoteApplicant` removal shipped inside Plan 02b's implementation —
+  [PR #7](https://github.com/ogautama/connecteam-web/pull/7), commit
+  `05e3411` — exactly per the coordination note below: `User.id` lost its
+  Prisma-originated default there, so the old promotion path couldn't have
+  survived that migration anyway.
+- The storage decision (applicant ID photos on Supabase Storage,
+  signed/expiring URLs on read) shipped with the in-app `/join` application
+  form — [PR #26](https://github.com/ogautama/connecteam-web/pull/26), the
+  `applicant-intake` bucket — by which point the field set had grown from
+  one ID photo to five documents (see the 2026-07-30 note in
+  `prisma/schema.prisma`).
+
+Amends [Plan 15](15-recruitment-tree.md) (see that doc's superseded
+notice) — the tree/visibility model it built is unaffected and stays as-is;
+only the `Applicant → User` promotion path changed.
 
 ## Goal
 

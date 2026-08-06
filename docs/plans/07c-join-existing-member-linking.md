@@ -3,7 +3,7 @@
 ## Status
 
 **Built** in [PR #26](https://github.com/ogautama/connecteam-web/pull/26),
-2026-07-31, merged into the Plan 07 branch — it reaches `main` with
+2026-07-31, merged into the Plan 07 branch — reached `main` 2026-08-05 with
 [PR #18](https://github.com/ogautama/connecteam-web/pull/18). **Verified end
 to end** against the dev DB: submitting /join as an existing member's email
 shows the "already a member" screen, uploads nothing and creates no

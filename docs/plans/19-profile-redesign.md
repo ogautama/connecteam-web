@@ -2,10 +2,14 @@
 
 ## Status
 
-**Proposed 2026-08-06.** Mockup approved:
+**Implemented 2026-08-06** in
+[PR #35](https://github.com/ogautama/connecteam-web/pull/35); the route
+moved from `/member/isi-data` to `/member/profile` (with a 308 from the old
+path) the same day in
+[PR #36](https://github.com/ogautama/connecteam-web/pull/36). Mockup:
 [spec-profile-redesign.html](../design/spec-profile-redesign.html) (open in a
-browser — before/after artboards, the edit states, and the masked-KTP detail).
-Implementation starts once this plan merges.
+browser — before/after artboards, the edit states, and the masked-KTP
+detail).
 
 ## Goal
 

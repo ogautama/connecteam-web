@@ -100,14 +100,14 @@ are captured inline in those docs so each can be picked up independently.
 | 01 | Project foundations (layouts, design tokens, test runner) | — | [01-foundations.md](01-foundations.md) | ✅ Done — [PR #1](https://github.com/ogautama/connecteam-web/pull/1) |
 | 02 | ~~Data & auth layer (Prisma, Neon, Auth.js, role middleware)~~ | 01 | [02-data-auth.md](02-data-auth.md) | ✅ Done, superseded† — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
 | 02b | Supabase infra + Google OAuth (Postgres, Auth, pending-invite gate) | 01 | [02b-supabase-auth-google-oauth.md](02b-supabase-auth-google-oauth.md) | ✅ Done — [PR #7](https://github.com/ogautama/connecteam-web/pull/7) |
-| 02c | Leader: Add Member (pending-invite creation UI) | 02b | [02c-leader-add-member.md](02c-leader-add-member.md) | Not started |
+| 02c | Leader: Add Member (pending-invite creation UI) | 02b | [02c-leader-add-member.md](02c-leader-add-member.md) | ✅ Done — [PR #15](https://github.com/ogautama/connecteam-web/pull/15) |
 | 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02b\* | [03-public-site.md](03-public-site.md) | ✅ Done — [PR #8](https://github.com/ogautama/connecteam-web/pull/8) |
 | 03b | Staging deployment (public site) | 03 | [03b-staging-deploy.md](03b-staging-deploy.md) | Code gating done (PR #9); deploy = manual checklist |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | ✅ Done — [PR #10](https://github.com/ogautama/connecteam-web/pull/10) |
 | 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
 | 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12); nav reworked 2026-07-26§ |
-| 07 | Member: Quest Hub (`/member/onboarding`, all member sections) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | Shell + Onboarding content built, other sections are placeholders by design — [PR #18](https://github.com/ogautama/connecteam-web/pull/18) (open); supersedes [PR #17](https://github.com/ogautama/connecteam-web/pull/17)§ |
-| 07c | Join Us → Profile: link an existing member's email (no auto-invite) | 07, 02b | [07c-join-existing-member-linking.md](07c-join-existing-member-linking.md) | ✅ Built — [PR #26](https://github.com/ogautama/connecteam-web/pull/26), merged into the Plan 07 branch; ships to `main` with [PR #18](https://github.com/ogautama/connecteam-web/pull/18) |
+| 07 | Member: Quest Hub (`/member/onboarding`, all member sections) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | ✅ Merged 2026-08-05 — [PR #18](https://github.com/ogautama/connecteam-web/pull/18) (supersedes [PR #17](https://github.com/ogautama/connecteam-web/pull/17))§; non-Onboarding sections stay placeholders by design |
+| 07c | Join Us → Profile: link an existing member's email (no auto-invite) | 07, 02b | [07c-join-existing-member-linking.md](07c-join-existing-member-linking.md) | ✅ Done — [PR #26](https://github.com/ogautama/connecteam-web/pull/26), merged into the Plan 07 branch; landed on `main` 2026-08-05 with [PR #18](https://github.com/ogautama/connecteam-web/pull/18) |
 | 08 | Member: Grow (Recruiting section content) | 07 | [08-member-grow.md](08-member-grow.md) | Revised§ — content only, no own route |
 | 09 | Member: Sell (Selling section content) | 07 | [09-member-sell.md](09-member-sell.md) | Revised§ — content only, no own route |
 | 10 | Member: Reference Data (References section category) | 07 | [10-member-reference.md](10-member-reference.md) | Revised§ — content only, no own route |
@@ -116,11 +116,13 @@ are captured inline in those docs so each can be picked up independently.
 | 13 | Member: Events (own section, nested under References) | 07 | [13-member-events.md](13-member-events.md) | Revised§ — content only, no own route |
 | 14 | Member: Directory (Directory section content) | 07 | [14-member-directory.md](14-member-directory.md) | Revised§ — content only, no own route |
 | 15 | ~~Recruitment tree & applications (schema + access control)~~ | 02 | [15-recruitment-tree.md](15-recruitment-tree.md) | ✅ Done, partially superseded† — [PR #5](https://github.com/ogautama/connecteam-web/pull/5) |
-| 15b | Recruitment tree rework (drop applicant→user promotion) | 02b | [15b-recruitment-tree-rework.md](15b-recruitment-tree-rework.md) | Not started |
+| 15b | Recruitment tree rework (drop applicant→user promotion) | 02b | [15b-recruitment-tree-rework.md](15b-recruitment-tree-rework.md) | ✅ Done, shipped in pieces — schema + `promoteApplicant` removal with [PR #7](https://github.com/ogautama/connecteam-web/pull/7), applicant files on Supabase Storage with [PR #26](https://github.com/ogautama/connecteam-web/pull/26); never its own branch |
 | 16 | DISC lead visibility (hierarchy-scoped `/member/leads`) | 04, 06, 15 | [16-disc-lead-visibility.md](16-disc-lead-visibility.md) | Not started |
 | 17 | MBTI / Self Motivation result upload (Onboarding "Kenali Dirimu") | 07 | [17-mbti-self-motivation-result-upload.md](17-mbti-self-motivation-result-upload.md) | ✅ Done — [PR #22](https://github.com/ogautama/connecteam-web/pull/22) |
 | 18 | IT & Content Admin (admin/super-admin roles, editable living-document content) | 02b, 07 | [18-content-admin.md](18-content-admin.md) | Proposed 2026-07-29 — scheduled after 07–14 ship |
-| 19 | Profile page redesign (per-section editing, masked KTP) | 07, 07c | [19-profile-redesign.md](19-profile-redesign.md) | Proposed 2026-08-06 — mockup approved, [spec](../design/spec-profile-redesign.html) |
+| 19 | Profile page redesign (per-section editing, masked KTP) | 07, 07c | [19-profile-redesign.md](19-profile-redesign.md) | ✅ Done — [PR #35](https://github.com/ogautama/connecteam-web/pull/35); route moved to `/member/profile` in [PR #36](https://github.com/ogautama/connecteam-web/pull/36) |
+| 20 | Join Us redesign (five group cards, one Kirim, Diploma D1–D4) | 19 | [20-join-redesign.md](20-join-redesign.md) | ✅ Done — [PR #38](https://github.com/ogautama/connecteam-web/pull/38) (plan: [PR #37](https://github.com/ogautama/connecteam-web/pull/37)) |
+| 20b | Profile first-fill in the five group cards | 19, 20 | [20b-profile-first-fill-redesign.md](20b-profile-first-fill-redesign.md) | ✅ Done — [PR #39](https://github.com/ogautama/connecteam-web/pull/39) |
 
 § **2026-07-24, revised 2026-07-26**: after being shown a UX reference (a
 working "quest hub" prototype — gamified level tabs, progress bars,
@@ -305,13 +307,14 @@ Plan 06's nav.)*
   [spec.html](../design/spec.html) sketched, rather than the bottom tab bar
   in [spec-alt-member-nav.html](../design/spec-alt-member-nav.html). The
   marketing-header item above is still open; it's separate chrome.
-- **`/join` embedded Google Form not verified for public access** (Plan 03).
-  The iframe wiring works, but in a browser not signed into Google the embed
-  showed Google's own sign-in prompt — unconfirmed whether that's just the
-  test browser or the form's sharing settings requiring sign-in. Open the
-  form's settings and confirm a logged-out visitor can view and submit it
-  (this is a Google Form config check, not a code change). Moot once the form
-  itself is rebuilt in-app, if that's ever scoped.
+- ~~**`/join` embedded Google Form not verified for public access**~~ (Plan
+  03) — **moot since 2026-08-05.** [PR #26](https://github.com/ogautama/connecteam-web/pull/26)
+  replaced the embed with the native in-app application form (reached `main`
+  with [PR #18](https://github.com/ogautama/connecteam-web/pull/18)), so
+  there is no Google Form left on `/join` to configure. The original worry,
+  for the record: in a browser not signed into Google the iframe showed
+  Google's own sign-in prompt, and it was never confirmed whether a
+  logged-out visitor could submit.
 - **A pending invitee can't be anyone's recruiter yet** (Plan 02c). If A
   invites B and then wants to add C *under B* before B has signed in, there's
   no way to say so: B has no `User` row until first login, and
