@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile page redesign — CONNECTeam</title>
+
+<style>
+  /* ---- Page chrome tokens (theme-aware) ---------------------------- */
+  :root {
+    --page-bg: #ffffff;
+    --page-fg: #1b212d;
+    --page-muted: #6c7689;
+    --page-line: #e7eaf0;
+    --page-panel: #f7f8fb;
+    --page-accent: #183f87;
+    --page-badge-fg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page-bg: #10131a;
+      --page-fg: #e9ecf3;
+      --page-muted: #98a1b3;
+      --page-line: #262c39;
+      --page-panel: #171b25;
+      --page-accent: #9eaecd;
+      --page-badge-fg: #10131a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #10131a;
+    --page-fg: #e9ecf3;
+    --page-muted: #98a1b3;
+    --page-line: #262c39;
+    --page-panel: #171b25;
+    --page-accent: #9eaecd;
+    --page-badge-fg: #10131a;
+  }
+  :root[data-theme="light"] {
+    --page-bg: #ffffff;
+    --page-fg: #1b212d;
+    --page-muted: #6c7689;
+    --page-line: #e7eaf0;
+    --page-panel: #f7f8fb;
+    --page-accent: #183f87;
+    --page-badge-fg: #ffffff;
+  }
+
+  /* ---- App tokens (from src/app/globals.css — fixed, light-only) ---- */
+  :root {
+    --navy-50: #f3f5f9;
+    --navy-100: #e3e8f1;
+    --navy-200: #c3cde0;
+    --navy-700: #183f87;
+    --navy-800: #14346f;
+    --red-500: #f04975;
+    --yellow-400: #f5ba01;
+    --ink-50: #f9fafb;
+    --ink-100: #edeff2;
+    --ink-300: #aeb5c2;
+    --ink-500: #6c7689;
+    --ink-700: #3c4453;
+    --ink-900: #1b212d;
+    --green-600: #16a34a;
+    --green-50: #f0fdf4;
+    --green-200: #bbf7d0;
+
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  body {
+    background: var(--page-bg);
+    color: var(--page-fg);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  /* ---- Document typography ----------------------------------------- */
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--page-accent);
+    margin: 0;
+  }
+  h1 {
+    font-size: clamp(30px, 4.4vw, 42px);
+    line-height: 1.12;
+    letter-spacing: -0.024em;
+    font-weight: 700;
+    text-wrap: balance;
+    margin: 10px 0 0;
+  }
+  h2 {
+    font-size: 22px;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    font-weight: 680;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .lede {
+    font-size: 17px;
+    color: var(--page-muted);
+    max-width: 62ch;
+    margin: 14px 0 0;
+  }
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+  .section-head p {
+    margin: 0;
+    color: var(--page-muted);
+    max-width: 66ch;
+    font-size: 15px;
+  }
+
+  /* ---- Diagnosis list ---------------------------------------------- */
+  .problems {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--page-line);
+    border: 1px solid var(--page-line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .problem {
+    background: var(--page-bg);
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .problem b {
+    font-size: 14.5px;
+    font-weight: 640;
+    letter-spacing: -0.005em;
+  }
+  .problem span {
+    font-size: 14px;
+    color: var(--page-muted);
+    line-height: 1.5;
+  }
+
+  /* ---- Artboard (always light — the app itself is light-only) ------- */
+  .artboard {
+    background: var(--ink-50);
+    border: 1px solid var(--page-line);
+    border-radius: 16px;
+    padding: 30px 30px 34px 52px;
+    overflow-x: auto;
+    color: var(--ink-900);
+    font-size: 15px;
+    line-height: 1.55;
+    color-scheme: light;
+  }
+  .artboard.plain {
+    padding-left: 30px;
+  }
+  .artboard-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 650;
+    color: var(--page-muted);
+  }
+  .artboard-label em {
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    font-size: 13.5px;
+  }
+  .canvas {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 340px;
+  }
+
+  /* ---- Shared card chrome ------------------------------------------ */
+  .card {
+    background: #fff;
+    border: 1px solid var(--ink-100);
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(27, 33, 45, 0.05);
+    position: relative;
+  }
+  .brandbar {
+    height: 10px;
+    border-radius: 15px 15px 0 0;
+    background: linear-gradient(
+      90deg,
+      var(--navy-700),
+      var(--red-500) 58%,
+      var(--yellow-400)
+    );
+  }
+
+  /* ---- BEFORE recreation ------------------------------------------- */
+  .before-rows {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .before-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .before-row .l {
+    color: var(--ink-500);
+  }
+  .before-row .v {
+    font-weight: 500;
+    text-align: right;
+  }
+  .before-row .v.link {
+    color: var(--navy-700);
+    text-decoration: underline;
+  }
+  .before-row .v.dash {
+    color: var(--ink-300);
+    font-weight: 400;
+  }
+  .before-edit {
+    margin-top: 4px;
+    align-self: flex-start;
+    color: var(--navy-700);
+    text-decoration: underline;
+    font-weight: 500;
+  }
+  .before-title {
+    padding: 24px;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* ---- AFTER: identity header -------------------------------------- */
+  .id-card {
+    overflow: hidden;
+  }
+  .id-body {
+    padding: 22px 24px 24px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .avatar {
+    width: 66px;
+    height: 66px;
+    flex: none;
+    border-radius: 18px;
+    background: linear-gradient(150deg, var(--navy-700), var(--navy-800));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 27px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+  }
+  .id-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .id-name {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.022em;
+    line-height: 1.2;
+    color: var(--ink-900);
+  }
+  .id-contact {
+    color: var(--ink-500);
+    font-size: 14.5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+  .id-contact .sep {
+    color: var(--ink-300);
+  }
+  .id-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 9px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 4px 11px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .chip.unit {
+    background: var(--navy-50);
+    border-color: var(--navy-100);
+    color: var(--navy-700);
+  }
+  .chip.ok {
+    background: var(--green-50);
+    border-color: var(--green-200);
+    color: var(--green-600);
+  }
+  .chip.count {
+    background: var(--ink-50);
+    border-color: var(--ink-100);
+    color: var(--ink-500);
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+
+  /* ---- The per-section edit affordance ----------------------------- */
+  .ubah {
+    flex: none;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 620;
+    color: var(--navy-700);
+    padding: 4px 9px;
+    margin: -4px -9px -4px 0;
+    border-radius: 8px;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .ubah:hover {
+    background: var(--navy-50);
+    color: var(--navy-800);
+  }
+  .ubah:focus-visible {
+    outline: 2px solid var(--navy-700);
+    outline-offset: 1px;
+  }
+
+  /* ---- AFTER: field groups ----------------------------------------- */
+  .group {
+    padding: 20px 24px 22px;
+  }
+  .group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--ink-100);
+  }
+  .group-head-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .group-title {
+    font-size: 12px;
+    font-weight: 680;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .field.wide {
+    grid-column: 1 / -1;
+  }
+  .field .l {
+    font-size: 12.5px;
+    color: var(--ink-500);
+  }
+  .field .v {
+    font-size: 15.5px;
+    font-weight: 550;
+    color: var(--ink-900);
+    overflow-wrap: anywhere;
+  }
+  .field .v.num {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---- Masked KTP number ------------------------------------------- */
+  .secret {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 1px;
+  }
+  .secret .v {
+    font-variant-numeric: tabular-nums;
+  }
+  .secret .v.hidden {
+    letter-spacing: 0.11em;
+    color: var(--ink-700);
+  }
+  .reveal {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 620;
+    color: var(--navy-700);
+    padding: 3px 8px;
+    margin: -3px 0;
+    border-radius: 7px;
+    line-height: 1.4;
+  }
+  .reveal:hover {
+    background: var(--navy-50);
+    color: var(--navy-800);
+  }
+  .reveal:focus-visible {
+    outline: 2px solid var(--navy-700);
+    outline-offset: 1px;
+  }
+  .detail-pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+    gap: 16px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .detail-pair .card {
+    padding: 18px 20px 19px;
+  }
+  .state-tag {
+    font-size: 11.5px;
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  /* ---- AFTER: edit state ------------------------------------------- */
+  .card.editing {
+    border-color: var(--navy-200);
+    box-shadow: 0 0 0 3px var(--navy-50), 0 1px 2px rgba(27, 33, 45, 0.05);
+  }
+  .input {
+    font-family: inherit;
+    font-size: 15.5px;
+    color: var(--ink-900);
+    background: #fff;
+    border: 1px solid var(--ink-300);
+    border-radius: 9px;
+    padding: 8px 11px;
+    width: 100%;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .input:focus {
+    outline: 2px solid var(--navy-700);
+    outline-offset: -1px;
+    border-color: var(--navy-700);
+  }
+  .input.locked {
+    background: var(--ink-50);
+    color: var(--ink-500);
+    border-style: dashed;
+  }
+  textarea.input {
+    resize: vertical;
+    min-height: 62px;
+  }
+  .hint {
+    font-size: 12.5px;
+    color: var(--ink-500);
+    margin-top: 5px;
+    line-height: 1.45;
+  }
+  .edit-foot {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ink-100);
+  }
+  .btn {
+    border-radius: 999px;
+    background: var(--navy-700);
+    color: #fff;
+    font-weight: 620;
+    font-size: 14px;
+    padding: 9px 22px;
+    border: 0;
+    font-family: inherit;
+    line-height: 1.4;
+  }
+  .btn:hover {
+    background: var(--navy-800);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--red-500);
+    outline-offset: 2px;
+  }
+  .btn-quiet {
+    border: 0;
+    background: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 550;
+    color: var(--ink-500);
+    padding: 0;
+  }
+  .btn-quiet:hover {
+    color: var(--ink-900);
+  }
+  .locked-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--ink-500);
+    font-size: 12.5px;
+    margin-top: 5px;
+  }
+
+  /* ---- AFTER: document tiles --------------------------------------- */
+  .docs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
+    gap: 12px;
+  }
+  .doc {
+    border: 1px solid var(--ink-100);
+    border-radius: 12px;
+    padding: 12px 13px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #fff;
+  }
+  .doc.missing {
+    border-style: dashed;
+    background: var(--ink-50);
+  }
+  .doc-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .thumb {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: 8px;
+    background: var(--navy-50);
+    color: var(--navy-700);
+    display: grid;
+    place-items: center;
+  }
+  .doc.missing .thumb {
+    background: #fff;
+    border: 1px dashed var(--ink-300);
+    color: var(--ink-300);
+  }
+  .doc-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-900);
+    line-height: 1.3;
+  }
+  .doc.missing .doc-name {
+    color: var(--ink-500);
+    font-weight: 550;
+  }
+  .doc-state {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-600);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .doc.missing .doc-state {
+    color: var(--ink-500);
+    font-weight: 500;
+  }
+  .doc-acts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy-700);
+    margin-top: auto;
+    padding-top: 2px;
+  }
+  .doc-acts a:hover {
+    color: var(--red-500);
+  }
+  .doc-acts .sep {
+    color: var(--ink-300);
+    font-weight: 400;
+  }
+
+  /* ---- Callout badges ---------------------------------------------- */
+  .anno {
+    position: relative;
+  }
+  .badge {
+    position: absolute;
+    left: -34px;
+    top: 14px;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: var(--navy-700);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 680;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 760px) {
+    .badge {
+      display: none;
+    }
+    .artboard {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+
+  .legend {
+    list-style: none;
+    padding: 0;
+    margin: 22px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px 28px;
+    counter-reset: legend;
+  }
+  .legend li {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    align-items: start;
+    counter-increment: legend;
+    font-size: 14.5px;
+    color: var(--page-muted);
+    line-height: 1.5;
+  }
+  .legend li::before {
+    content: counter(legend);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--page-accent);
+    color: var(--page-badge-fg);
+    font-size: 12px;
+    font-weight: 680;
+    display: grid;
+    place-items: center;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .legend b {
+    color: var(--page-fg);
+    font-weight: 640;
+    display: block;
+    font-size: 15px;
+    margin-bottom: 1px;
+  }
+
+  /* ---- Notes ------------------------------------------------------- */
+  .notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
+    gap: 26px;
+  }
+  .note h3 {
+    font-size: 15px;
+    font-weight: 650;
+    margin: 0 0 8px;
+    letter-spacing: -0.005em;
+  }
+  .note p,
+  .note li {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--page-muted);
+    line-height: 1.55;
+  }
+  .note ul {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .note b {
+    color: var(--page-fg);
+    font-weight: 620;
+  }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.88em;
+    background: var(--page-panel);
+    border: 1px solid var(--page-line);
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+  hr.rule {
+    border: 0;
+    border-top: 1px solid var(--page-line);
+    margin: 0;
+  }
+
+  @media (max-width: 560px) {
+    .fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .id-body {
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap" style="padding-bottom:0">
+  <p style="margin:0;border:1px solid var(--page-line);background:var(--page-panel);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--page-muted)">
+    <b style="color:var(--page-fg)">Proposed 2026-08-06 — not yet built.</b>
+    Mockup for Plan 19 (<span style="font-family:ui-monospace,Menlo,monospace;font-size:13px">docs/plans/19-profile-redesign.md</span>).
+    Decisions locked: per-section editing, No&nbsp;KTP masked by default, Pengundang&nbsp;/&nbsp;Unit not editable.
+  </p>
+</div>
+
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Member space · /member/isi-data</p>
+    <h1>Profile, redesigned</h1>
+    <p class="lede">
+      The data is right — the page just presents it as a receipt. Seventeen
+      rows of equal weight, four identical “Lihat file” links, and the one
+      action on the page rendered as the smallest thing on it. Same fields,
+      same components, regrouped so the page reads like a profile — and edited
+      one section at a time.
+    </p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>What’s not working</h2>
+      <p>
+        Six issues, all in <code>IntakeSummary</code> and the page shell around
+        it. None require new data.
+      </p>
+    </div>
+    <div class="problems">
+      <div class="problem">
+        <b>A header card holding one word</b>
+        <span>
+          The gradient bar and 110px of card exist to say “Profile” — which the
+          account menu already said.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Seventeen rows, no hierarchy</b>
+        <span>
+          KTP number, city of school, and a spouse ID photo all get identical
+          weight. Nothing is findable by shape.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Label left, value right</b>
+        <span>
+          Across 590px the eye has to travel a blank gap per row, and unrelated
+          values form a false right-hand column.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Four links that all say the same thing</b>
+        <span>
+          “Lihat file” ×4 gives no sense of what was uploaded or whether it’s
+          the right file — you open a tab to find out.
+        </span>
+      </div>
+      <div class="problem">
+        <b>An em-dash where state should be</b>
+        <span>
+          “Foto KTP Pasangan — ” reads as missing data. It’s optional, and only
+          the form knows that.
+        </span>
+      </div>
+      <div class="problem">
+        <b>One button, seventeen fields</b>
+        <span>
+          Fixing a typo in a phone number reopens all sixteen inputs and five
+          upload pickers.
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Today</h2>
+      <p>Recreated from the current render.</p>
+    </div>
+    <div class="artboard plain">
+      <div class="artboard-label">Before <em>— max-w-[640px]</em></div>
+      <div class="canvas">
+        <div class="card">
+          <div class="brandbar"></div>
+          <div class="before-title">Profile</div>
+        </div>
+        <div class="card">
+          <div class="before-rows">
+            <div class="before-row"><span class="l">Nama Lengkap (sesuai KTP)</span><span class="v">Admin</span></div>
+            <div class="before-row"><span class="l">No KTP</span><span class="v">123</span></div>
+            <div class="before-row"><span class="l">Tempat Lahir</span><span class="v">Ujung Pandang</span></div>
+            <div class="before-row"><span class="l">Tanggal Lahir</span><span class="v">4 Juni 1981</span></div>
+            <div class="before-row"><span class="l">Email Aktif</span><span class="v">ogautama@gmail.com</span></div>
+            <div class="before-row"><span class="l">No HP Aktif (Whatsapp)</span><span class="v">081231888248</span></div>
+            <div class="before-row"><span class="l">Alamat Domisili</span><span class="v">Dian Istana C1 no 37</span></div>
+            <div class="before-row"><span class="l">Pendidikan Terakhir</span><span class="v">S1</span></div>
+            <div class="before-row"><span class="l">Nama Sekolah / Universitas</span><span class="v">SFU</span></div>
+            <div class="before-row"><span class="l">Kota Sekolah / Universitas</span><span class="v">Vancouver</span></div>
+            <div class="before-row"><span class="l">Tahun Kelulusan</span><span class="v">2006</span></div>
+            <div class="before-row"><span class="l">Foto KTP</span><span class="v link">Lihat file</span></div>
+            <div class="before-row"><span class="l">Foto Selfie</span><span class="v link">Lihat file</span></div>
+            <div class="before-row"><span class="l">Kartu Keluarga</span><span class="v link">Lihat file</span></div>
+            <div class="before-row"><span class="l">Foto Buku Tabungan</span><span class="v link">Lihat file</span></div>
+            <div class="before-row"><span class="l">Foto KTP Pasangan</span><span class="v dash">—</span></div>
+            <div class="before-row"><span class="l">Pengundang / Unit</span><span class="v">Olivia Gau</span></div>
+            <span class="before-edit">Ubah data</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Proposed — resting state</h2>
+      <p>
+        Same seventeen values, same tokens, same 640px column. Four groups, each
+        with its own “Ubah”.
+      </p>
+    </div>
+
+    <div class="artboard">
+      <div class="artboard-label">After <em>— nothing being edited</em></div>
+      <div class="canvas">
+
+        <!-- 1 — identity header -->
+        <div class="card id-card anno">
+          <span class="badge">1</span>
+          <div class="brandbar"></div>
+          <div class="id-body">
+            <div class="avatar" aria-hidden="true">A</div>
+            <div class="id-main">
+              <div class="id-name">Admin</div>
+              <div class="id-contact">
+                <span>ogautama@gmail.com</span>
+                <span class="sep">·</span>
+                <span>081231888248</span>
+              </div>
+              <div class="id-chips">
+                <span class="chip unit">Unit Olivia Gau</span>
+                <span class="chip ok"><span class="dot"></span>Data lengkap</span>
+              </div>
+            </div>
+            <button class="ubah" type="button">Ubah</button>
+          </div>
+        </div>
+
+        <!-- 2 — identitas -->
+        <div class="card anno">
+          <span class="badge">2</span>
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="group-title">Identitas</span>
+              </div>
+              <button class="ubah" type="button">Ubah</button>
+            </div>
+            <div class="fields">
+              <div class="field">
+                <span class="l">No KTP</span>
+                <span class="secret">
+                  <span class="v hidden">•••• •••• •••• 0003</span>
+                  <button class="reveal" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+                    Lihat
+                  </button>
+                </span>
+              </div>
+              <div class="field">
+                <span class="l">Tempat &amp; tanggal lahir</span>
+                <span class="v">Ujung Pandang, 4 Juni 1981</span>
+              </div>
+              <div class="field wide">
+                <span class="l">Alamat domisili</span>
+                <span class="v">Dian Istana C1 no 37</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 — pendidikan -->
+        <div class="card anno">
+          <span class="badge">3</span>
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="group-title">Pendidikan terakhir</span>
+              </div>
+              <button class="ubah" type="button">Ubah</button>
+            </div>
+            <div class="fields">
+              <div class="field">
+                <span class="l">Jenjang</span>
+                <span class="v">S1</span>
+              </div>
+              <div class="field">
+                <span class="l">Tahun kelulusan</span>
+                <span class="v num">2006</span>
+              </div>
+              <div class="field">
+                <span class="l">Sekolah / universitas</span>
+                <span class="v">SFU</span>
+              </div>
+              <div class="field">
+                <span class="l">Kota</span>
+                <span class="v">Vancouver</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 — dokumen -->
+        <div class="card anno">
+          <span class="badge">4</span>
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="group-title">Dokumen</span>
+                <span class="chip count">4 dari 4 wajib</span>
+              </div>
+            </div>
+            <div class="docs">
+
+              <div class="doc">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M14 10h4M14 14h4M5 16c.9-1.6 2.1-2.4 3.5-2.4S11.1 14.4 12 16"/></svg>
+                  </span>
+                  <span class="doc-name">Foto KTP</span>
+                </div>
+                <span class="doc-state"><span class="dot"></span>Terupload</span>
+                <div class="doc-acts"><a href="#dokumen">Lihat</a><span class="sep">·</span><a href="#dokumen">Ganti</a></div>
+              </div>
+
+              <div class="doc">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c0-3.6 3.4-5.8 7.5-5.8s7.5 2.2 7.5 5.8"/></svg>
+                  </span>
+                  <span class="doc-name">Foto selfie</span>
+                </div>
+                <span class="doc-state"><span class="dot"></span>Terupload</span>
+                <div class="doc-acts"><a href="#dokumen">Lihat</a><span class="sep">·</span><a href="#dokumen">Ganti</a></div>
+              </div>
+
+              <div class="doc">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3 19c0-2.7 2.2-4.4 5-4.4s5 1.7 5 4.4M13.5 19c0-2.7 1.5-4.4 4-4.4s3.5 1.7 3.5 4.4"/></svg>
+                  </span>
+                  <span class="doc-name">Kartu keluarga</span>
+                </div>
+                <span class="doc-state"><span class="dot"></span>Terupload</span>
+                <div class="doc-acts"><a href="#dokumen">Lihat</a><span class="sep">·</span><a href="#dokumen">Ganti</a></div>
+              </div>
+
+              <div class="doc">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 4l9 4.5"/><path d="M5 10.5v7M9.7 10.5v7M14.3 10.5v7M19 10.5v7"/><path d="M3 20.5h18"/></svg>
+                  </span>
+                  <span class="doc-name">Buku tabungan</span>
+                </div>
+                <span class="doc-state"><span class="dot"></span>Terupload</span>
+                <div class="doc-acts"><a href="#dokumen">Lihat</a><span class="sep">·</span><a href="#dokumen">Ganti</a></div>
+              </div>
+
+              <div class="doc missing">
+                <div class="doc-top">
+                  <span class="thumb" aria-hidden="true">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M12 9.5v5M9.5 12h5"/></svg>
+                  </span>
+                  <span class="doc-name">KTP pasangan</span>
+                </div>
+                <span class="doc-state">Opsional</span>
+                <div class="doc-acts"><a href="#dokumen">Upload</a></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <ol class="legend">
+      <li>
+        <div>
+          <b>The header carries identity, not a title</b>
+          Monogram (or the uploaded selfie), name, the two contact details people
+          actually check, and the unit as a chip. Its “Ubah” opens name and phone
+          only — email stays locked to the Google account, and the unit chip has
+          no edit path at all.
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Label above value, two columns — and the KTP number masked</b>
+          No blank gap to cross, no false right-hand column. Long values span
+          full width, TTL merges into one field the way Indonesian forms write
+          it. No KTP shows only its last four digits until “Lihat” is pressed —
+          it’s a government ID on a page that may be open on a shared screen.
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Groups you can skip past</b>
+          Four labelled groups instead of one 17-row block. Anyone looking for
+          their graduation year jumps to “Pendidikan” rather than counting rows.
+        </div>
+      </li>
+      <li>
+        <div>
+          <b>Documents edit per tile, not per group</b>
+          So there’s no group-level “Ubah” here — “Ganti” on a tile picks a file,
+          uploads it, and saves on its own. The optional spouse ID is a dashed
+          tile offering “Upload” instead of an em-dash that reads like an error.
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Proposed — editing one section</h2>
+      <p>
+        “Ubah” on Identitas swaps that card into inputs. Every other card stays
+        readable, and the four uploads are never touched.
+      </p>
+    </div>
+
+    <div class="artboard plain">
+      <div class="artboard-label">After <em>— Identitas open, rest untouched</em></div>
+      <div class="canvas">
+
+        <div class="card id-card">
+          <div class="brandbar"></div>
+          <div class="id-body">
+            <div class="avatar" aria-hidden="true">A</div>
+            <div class="id-main">
+              <div class="id-name">Admin</div>
+              <div class="id-contact">
+                <span>ogautama@gmail.com</span>
+                <span class="sep">·</span>
+                <span>081231888248</span>
+              </div>
+              <div class="id-chips">
+                <span class="chip unit">Unit Olivia Gau</span>
+                <span class="chip ok"><span class="dot"></span>Data lengkap</span>
+              </div>
+            </div>
+            <button class="ubah" type="button">Ubah</button>
+          </div>
+        </div>
+
+        <div class="card editing">
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="group-title">Identitas</span>
+              </div>
+            </div>
+            <div class="fields">
+              <div class="field">
+                <label class="l" for="m-ktp">No KTP</label>
+                <input class="input" id="m-ktp" type="text" value="3171040681000003" inputmode="numeric" />
+              </div>
+              <div class="field">
+                <label class="l" for="m-tempat">Tempat lahir</label>
+                <input class="input" id="m-tempat" type="text" value="Ujung Pandang" />
+              </div>
+              <div class="field">
+                <label class="l" for="m-tgl">Tanggal lahir</label>
+                <input class="input" id="m-tgl" type="date" value="1981-06-04" />
+              </div>
+              <div class="field wide">
+                <label class="l" for="m-alamat">Alamat domisili</label>
+                <textarea class="input" id="m-alamat" rows="2">Dian Istana C1 no 37</textarea>
+              </div>
+            </div>
+            <div class="edit-foot">
+              <button class="btn" type="button">Simpan</button>
+              <button class="btn-quiet" type="button">Batal</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="group-title">Pendidikan terakhir</span>
+              </div>
+              <button class="ubah" type="button">Ubah</button>
+            </div>
+            <div class="fields">
+              <div class="field">
+                <span class="l">Jenjang</span>
+                <span class="v">S1</span>
+              </div>
+              <div class="field">
+                <span class="l">Tahun kelulusan</span>
+                <span class="v num">2006</span>
+              </div>
+              <div class="field">
+                <span class="l">Sekolah / universitas</span>
+                <span class="v">SFU</span>
+              </div>
+              <div class="field">
+                <span class="l">Kota</span>
+                <span class="v">Vancouver</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:34px">
+      <h2 style="font-size:18px">The KTP number, masked and revealed</h2>
+      <p>
+        Masked by default with the last four digits showing — enough to confirm
+        “that’s my number” without exposing it. “Lihat” toggles; opening the
+        Identitas editor necessarily shows the full value, which is fine — that’s
+        the member’s own deliberate action.
+      </p>
+    </div>
+
+    <div class="artboard plain">
+      <div class="artboard-label">Detail <em>— the No KTP field, both states</em></div>
+      <div class="detail-pair">
+        <div class="card">
+          <span class="state-tag">Default</span>
+          <div class="field">
+            <span class="l">No KTP</span>
+            <span class="secret">
+              <span class="v hidden">•••• •••• •••• 0003</span>
+              <button class="reveal" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+                Lihat
+              </button>
+            </span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="state-tag">Setelah “Lihat”</span>
+          <div class="field">
+            <span class="l">No KTP</span>
+            <span class="secret">
+              <span class="v num">3171 0406 8100 0003</span>
+              <button class="reveal" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4M6.1 6.6A16.7 16.7 0 0 0 2 12s3.6 7 10 7a10.4 10.4 0 0 0 4.4-1"/><path d="M9.9 9.9a2.9 2.9 0 0 0 4.1 4.1"/></svg>
+                Sembunyikan
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:34px">
+      <h2 style="font-size:18px">And the header, for comparison</h2>
+      <p>
+        Two fields, one locked. The lock is worth showing rather than hiding —
+        it answers “why can’t I change my email” before it’s asked.
+      </p>
+    </div>
+
+    <div class="artboard plain">
+      <div class="artboard-label">After <em>— header open</em></div>
+      <div class="canvas">
+        <div class="card id-card editing">
+          <div class="brandbar"></div>
+          <div class="group">
+            <div class="group-head">
+              <div class="group-head-left">
+                <span class="group-title">Nama &amp; kontak</span>
+              </div>
+            </div>
+            <div class="fields">
+              <div class="field wide">
+                <label class="l" for="m-nama">Nama lengkap (sesuai KTP)</label>
+                <input class="input" id="m-nama" type="text" value="Admin" />
+              </div>
+              <div class="field">
+                <label class="l" for="m-hp">No HP aktif (Whatsapp)</label>
+                <input class="input" id="m-hp" type="tel" value="081231888248" />
+              </div>
+              <div class="field">
+                <span class="l">Email aktif</span>
+                <input class="input locked" type="email" value="ogautama@gmail.com" readonly />
+                <span class="locked-row">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+                  Email akun Google kamu — hubungi leader kalau perlu pindah.
+                </span>
+              </div>
+            </div>
+            <div class="edit-foot">
+              <button class="btn" type="button">Simpan</button>
+              <button class="btn-quiet" type="button">Batal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Is per-section editing actually cheap?</h2>
+      <p>
+        Yes — and it needs no change to <code>submitJoinData</code> or the
+        database.
+      </p>
+    </div>
+    <div class="notes">
+      <div class="note">
+        <h3>Why it works as-is</h3>
+        <ul>
+          <li>
+            The client already holds the whole saved record. A section save sends
+            the full <code>MemberIntakeInput</code> with only that group’s fields
+            swapped in — every other value goes back unchanged.
+          </li>
+          <li>
+            All the action’s validation still passes, because the untouched
+            fields were already valid when they were saved.
+          </li>
+          <li>
+            <code>uploadIfNeeded</code> already skips fields with no new file and
+            passes the existing storage key through, so editing Identitas never
+            re-uploads a photo.
+          </li>
+          <li>
+            One state change: <code>editing: boolean</code> becomes
+            <code>editingSection: "kontak" | "identitas" | "pendidikan" | null</code>.
+          </li>
+        </ul>
+      </div>
+      <div class="note">
+        <h3>What to watch</h3>
+        <ul>
+          <li>
+            <b>Last write wins.</b> Because each save rewrites the whole row, a
+            second tab open since before your edit would push its stale values
+            back. Cheap fix: re-read the record on save and merge, or narrow the
+            action to accept a partial.
+          </li>
+          <li>
+            <b>More saves, more side effects.</b> Each call also runs
+            <code>createPendingInvite</code> and <code>revalidatePath</code>.
+            The invite is a no-op today — the email always resolves to an
+            existing user — but three saves now fire it three times.
+          </li>
+          <li>
+            <b>First fill is unchanged.</b> A member with no record still gets
+            the full one-question-per-card form; sections only appear once
+            there’s something to edit.
+          </li>
+        </ul>
+      </div>
+      <div class="note">
+        <h3>Decided</h3>
+        <ul>
+          <li>
+            <b>Pengundang / Unit is not editable — by anyone, from this page.</b>
+            It renders as a chip in the header with no edit path; it belongs to
+            no section’s “Ubah”, and section saves always send the stored value
+            back unchanged. It resolves the member’s leader and feeds
+            <code>PendingInvite</code>, so changing it means re-parenting the
+            member in the tree — not a profile edit.
+          </li>
+          <li>
+            <b>No KTP is masked by default.</b> Last four digits visible, full
+            value behind a “Lihat” toggle. Client-side reveal of a value the
+            client already has — no server change. The Identitas editor shows
+            the full value, since editing requires it.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
