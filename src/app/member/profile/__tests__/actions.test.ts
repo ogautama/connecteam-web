@@ -5,6 +5,7 @@ const {
   upsertMemberIntake,
   getMemberIntake,
   getPengundangUnitOptions,
+  getPengundangUnitForMember,
   resolvePengundangUnitLeaderId,
   setItemCompletion,
   revalidatePath,
@@ -14,6 +15,7 @@ const {
   upsertMemberIntake: vi.fn(),
   getMemberIntake: vi.fn(),
   getPengundangUnitOptions: vi.fn(),
+  getPengundangUnitForMember: vi.fn(),
   resolvePengundangUnitLeaderId: vi.fn(),
   setItemCompletion: vi.fn(),
   revalidatePath: vi.fn(),
@@ -26,6 +28,7 @@ vi.mock("@/lib/memberIntake", () => ({
   upsertMemberIntake,
   getMemberIntake,
   getPengundangUnitOptions,
+  getPengundangUnitForMember,
   resolvePengundangUnitLeaderId,
 }));
 vi.mock("@/lib/onboardingProgress", () => ({ setItemCompletion }));
@@ -68,6 +71,9 @@ beforeEach(() => {
   });
   getMemberIntake.mockResolvedValue(savedRecord);
   getPengundangUnitOptions.mockResolvedValue(["Robert / Lini", "Haryo / Daisy"]);
+  // Default: nothing derivable from the tree — the submitted value is
+  // validated against the live list, as before Plan 20b's follow-up.
+  getPengundangUnitForMember.mockResolvedValue(null);
   resolvePengundangUnitLeaderId.mockResolvedValue("leader_1");
   createPendingInvite.mockResolvedValue({ ok: true, invite: {} });
 });
@@ -128,6 +134,34 @@ describe("submitJoinData", () => {
       submitJoinData({ ...validInput, pengundangUnit: "Someone Else" }),
     ).rejects.toThrow("Pengundang / Unit wajib dipilih.");
     expect(upsertMemberIntake).not.toHaveBeenCalled();
+  });
+
+  test("re-derives Pengundang / Unit from the member's own tree, ignoring the submitted value", async () => {
+    // Invited via Add Member: the unit is the walked-up *leader* of their
+    // recruiter chain (the recruiter themself may be an agent). A direct
+    // POST naming some other unit — even a real one from the list — loses
+    // to the tree, the same way activeEmail loses to the session.
+    getPengundangUnitForMember.mockResolvedValue("Haryo / Daisy");
+
+    await submitJoinData({ ...validInput, pengundangUnit: "Robert / Lini" });
+
+    expect(upsertMemberIntake).toHaveBeenCalledWith(
+      "user_1",
+      expect.objectContaining({ pengundangUnit: "Haryo / Daisy" }),
+    );
+    // The list validation doesn't even run — the tree already answered.
+    expect(getPengundangUnitOptions).not.toHaveBeenCalled();
+  });
+
+  test("a derived unit accepts a submit that names no unit at all", async () => {
+    getPengundangUnitForMember.mockResolvedValue("Haryo / Daisy");
+
+    await submitJoinData({ ...validInput, pengundangUnit: "" });
+
+    expect(upsertMemberIntake).toHaveBeenCalledWith(
+      "user_1",
+      expect.objectContaining({ pengundangUnit: "Haryo / Daisy" }),
+    );
   });
 
   test.each([

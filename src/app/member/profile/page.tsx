@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { requireMember } from "@/lib/auth";
 import { getAcceptedApplicantByEmail } from "@/lib/applicant";
-import { getMemberIntake, getPengundangUnitOptions } from "@/lib/memberIntake";
+import {
+  getMemberIntake,
+  getPengundangUnitForMember,
+  getPengundangUnitOptions,
+} from "@/lib/memberIntake";
 import JoinDataForm from "./JoinDataForm";
 
 export const metadata: Metadata = {
@@ -37,9 +41,14 @@ export const metadata: Metadata = {
  */
 export default async function ProfilePage() {
   const user = await requireMember();
-  const [saved, pengundangUnitOptions] = await Promise.all([
+  const [saved, pengundangUnitOptions, recruiterUnit] = await Promise.all([
     getMemberIntake(user.id),
     getPengundangUnitOptions(),
+    // A member invited via Add Member already sits under a leader — their
+    // Pengundang / Unit is that leader's name, shown locked instead of
+    // asked (the action re-derives it server-side too). Null falls back to
+    // the select.
+    getPengundangUnitForMember(user.id),
   ]);
   // Only worth looking up when there's nothing saved yet — an existing
   // MemberIntake row always wins, so a matched application would never be
@@ -54,6 +63,7 @@ export default async function ProfilePage() {
         defaultEmail={user.email}
         initial={saved}
         pengundangUnitOptions={pengundangUnitOptions}
+        recruiterUnit={recruiterUnit}
         linkedApplication={linkedApplication}
       />
     </div>

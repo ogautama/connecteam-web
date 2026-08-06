@@ -5,6 +5,7 @@ import { requireMember } from "@/lib/auth";
 import { createPendingInvite, isValidEmail } from "@/lib/invites";
 import {
   getMemberIntake,
+  getPengundangUnitForMember,
   getPengundangUnitOptions,
   type MemberIntakeInput,
   type MemberIntakeRecord,
@@ -87,9 +88,21 @@ export async function submitJoinData(
   if (!trimmed.schoolName) throw new Error("Nama sekolah/universitas wajib diisi.");
   if (!trimmed.schoolCity) throw new Error("Kota sekolah/universitas wajib diisi.");
   if (!trimmed.graduationYear) throw new Error("Tahun kelulusan wajib diisi.");
-  const pengundangUnitOptions = await getPengundangUnitOptions();
-  if (!pengundangUnitOptions.includes(trimmed.pengundangUnit)) {
-    throw new Error("Pengundang / Unit wajib dipilih.");
+
+  // Like activeEmail above: when the member was invited via Add Member,
+  // "Pengundang / Unit" is a fact of the tree (their recruiter's leader),
+  // not something they get to pick — the form renders it locked, and this
+  // re-derivation is the actual guard against a direct POST naming some
+  // other unit. Only members with nothing to derive (no recruiter chain to
+  // a leader) still answer for themselves, validated against the live list.
+  const derivedUnit = await getPengundangUnitForMember(user.id);
+  if (derivedUnit) {
+    trimmed.pengundangUnit = derivedUnit;
+  } else {
+    const pengundangUnitOptions = await getPengundangUnitOptions();
+    if (!pengundangUnitOptions.includes(trimmed.pengundangUnit)) {
+      throw new Error("Pengundang / Unit wajib dipilih.");
+    }
   }
 
   for (const [key, label] of [

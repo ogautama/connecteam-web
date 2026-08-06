@@ -3,11 +3,16 @@
 import { useRef, useState } from "react";
 import type { EducationLevel } from "@prisma/client";
 import {
+  DOC_ICONS,
+  DocErrors,
   DocTile,
   EditField,
   EditInput,
   EditSelect,
   EditTextArea,
+  FieldError,
+  FormCard,
+  invalidInputClass,
 } from "@/components/forms/IntakeFormFields";
 import type { ApplicantInput } from "@/lib/applicant";
 import {
@@ -68,14 +73,6 @@ const REQUIRED_FILES: { field: ApplicantFileField; label: string }[] = [
   { field: "familyCard", label: "Kartu Keluarga" },
   { field: "savings", label: "Buku Tabungan" },
 ];
-
-const DOC_ICONS: Record<ApplicantFileField, React.ReactNode> = {
-  ktp: <KtpIcon />,
-  selfie: <SelfieIcon />,
-  familyCard: <FamilyIcon />,
-  savings: <SavingsIcon />,
-  spouse: <SpouseIcon />,
-};
 
 /** Everything the all-at-once validation pass can flag: form fields plus
  * the file slots. One flat map — the two key sets don't collide. */
@@ -570,155 +567,5 @@ export default function ApplicationForm({
         </div>
       </FormCard>
     </form>
-  );
-}
-
-// !important — this appends after editInputClass, and two same-layer
-// border-color utilities otherwise resolve by stylesheet order, not by
-// class-list order, so the base border-ink-300 can silently win.
-const invalidInputClass = "!border-danger-500/60 !bg-danger-500/5";
-
-/** One of the five group cards — the Profile group-card chrome
- * (FieldGroupCard's look) plus what a live form needs on top: a step
- * number, a "N belum diisi" chip when submit flagged it, and a ref so the
- * failed-submit scroll can find it. Local to this form on purpose; the
- * Profile cards never carry any of that. */
-function FormCard({
-  step,
-  title,
-  suffix,
-  errorCount,
-  cardRef,
-  plain,
-  children,
-}: {
-  step: number;
-  title: string;
-  suffix?: React.ReactNode;
-  errorCount: number;
-  cardRef: React.Ref<HTMLDivElement>;
-  /** Skip the two-column field grid — the card lays out its own body
-   * (document tiles, the submit footer). */
-  plain?: boolean;
-  children: React.ReactNode;
-}) {
-  const invalid = errorCount > 0;
-  return (
-    <div
-      ref={cardRef}
-      className={`scroll-mt-24 rounded-2xl border bg-white p-6 shadow-sm ${
-        invalid ? "border-danger-500/40 ring-4 ring-danger-500/5" : "border-ink-100"
-      }`}
-    >
-      <div className="mb-4 flex items-center justify-between gap-3 border-b border-ink-100 pb-3.5">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span
-            aria-hidden
-            className="grid h-[21px] w-[21px] shrink-0 place-items-center rounded-full border border-brand-navy-100 bg-brand-navy-50 text-[11.5px] font-bold tabular-nums text-brand-navy-700"
-          >
-            {step}
-          </span>
-          <span className="text-xs font-bold uppercase tracking-wider text-ink-500">{title}</span>
-          {suffix}
-        </div>
-        {invalid && (
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-danger-500/30 bg-danger-500/10 px-2.5 py-1 text-xs font-semibold text-danger-500">
-            <span className="h-1.5 w-1.5 rounded-full bg-current" />
-            {errorCount} belum diisi
-          </span>
-        )}
-      </div>
-      {plain ? children : <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>}
-    </div>
-  );
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <span className="mt-1 text-xs font-medium text-danger-500">{message}</span>;
-}
-
-/** The tiles flag themselves red; the sentences live in one line under the
- * grid (a message per tile would crowd cells that are mostly icon). */
-function DocErrors({ errors }: { errors: FieldErrors }) {
-  const messages = [
-    ...new Set(
-      (["ktp", "selfie", "familyCard", "savings", "spouse"] as const)
-        .map((f) => errors[f])
-        .filter((m): m is string => Boolean(m)),
-    ),
-  ];
-  if (messages.length === 0) return null;
-  return (
-    <p className="mt-3 text-xs font-medium text-danger-500">{messages.join(" ")}</p>
-  );
-}
-
-// Tile icons — same drawings as the Profile page's Dokumen card
-// (IntakeFormFields.tsx's DOC_ICONS, which aren't exported; the applicant
-// field set is this form's own type, so it keeps its own record).
-function TileIcon({ children }: { children: React.ReactNode }) {
-  return (
-    <svg
-      aria-hidden
-      width="17"
-      height="17"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {children}
-    </svg>
-  );
-}
-
-function KtpIcon() {
-  return (
-    <TileIcon>
-      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
-      <circle cx="8.5" cy="11" r="2" />
-      <path d="M14 10h4M14 14h4M5 16c.9-1.6 2.1-2.4 3.5-2.4S11.1 14.4 12 16" />
-    </TileIcon>
-  );
-}
-
-function SelfieIcon() {
-  return (
-    <TileIcon>
-      <circle cx="12" cy="8.5" r="3.6" />
-      <path d="M4.5 20c0-3.6 3.4-5.8 7.5-5.8s7.5 2.2 7.5 5.8" />
-    </TileIcon>
-  );
-}
-
-function FamilyIcon() {
-  return (
-    <TileIcon>
-      <circle cx="8" cy="9" r="2.6" />
-      <circle cx="16" cy="9" r="2.6" />
-      <path d="M3 19c0-2.7 2.2-4.4 5-4.4s5 1.7 5 4.4M13.5 19c0-2.7 1.5-4.4 4-4.4s3.5 1.7 3.5 4.4" />
-    </TileIcon>
-  );
-}
-
-function SavingsIcon() {
-  return (
-    <TileIcon>
-      <path d="M3 8.5 12 4l9 4.5" />
-      <path d="M5 10.5v7M9.7 10.5v7M14.3 10.5v7M19 10.5v7" />
-      <path d="M3 20.5h18" />
-    </TileIcon>
-  );
-}
-
-function SpouseIcon() {
-  return (
-    <TileIcon>
-      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
-      <path d="M12 9.5v5M9.5 12h5" />
-    </TileIcon>
   );
 }

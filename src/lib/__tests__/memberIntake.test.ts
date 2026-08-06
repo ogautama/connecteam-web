@@ -4,16 +4,21 @@ const { findUnique: intakeFindUnique, upsert } = vi.hoisted(() => ({
   findUnique: vi.fn(),
   upsert: vi.fn(),
 }));
-const { findMany: userFindMany, findFirst: userFindFirst } = vi.hoisted(() => ({
+const {
+  findMany: userFindMany,
+  findFirst: userFindFirst,
+  findUnique: userFindUnique,
+} = vi.hoisted(() => ({
   findMany: vi.fn(),
   findFirst: vi.fn(),
+  findUnique: vi.fn(),
 }));
 const { createSignedUrl } = vi.hoisted(() => ({ createSignedUrl: vi.fn() }));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     memberIntake: { findUnique: intakeFindUnique, upsert },
-    user: { findMany: userFindMany, findFirst: userFindFirst },
+    user: { findMany: userFindMany, findFirst: userFindFirst, findUnique: userFindUnique },
   },
 }));
 vi.mock("@/lib/supabase-server", () => ({
@@ -24,6 +29,7 @@ vi.mock("@/lib/supabase-server", () => ({
 
 import {
   getMemberIntake,
+  getPengundangUnitForMember,
   getPengundangUnitOptions,
   resolvePengundangUnitLeaderId,
   upsertMemberIntake,
@@ -149,5 +155,54 @@ describe("resolvePengundangUnitLeaderId", () => {
     userFindFirst.mockResolvedValue(null);
 
     expect(await resolvePengundangUnitLeaderId("Nobody")).toBeNull();
+  });
+});
+
+describe("getPengundangUnitForMember", () => {
+  // The mock speaks the helper's two query shapes: a {recruiterId} select
+  // for the member/cursor and an {id,name,role} select for the recruiter.
+  function seedTree(users: Record<string, { recruiterId?: string | null; name?: string; role?: string }>) {
+    userFindUnique.mockImplementation(({ where, select }: { where: { id: string }; select: Record<string, boolean> }) => {
+      const user = users[where.id];
+      if (!user) return Promise.resolve(null);
+      if (select.recruiterId) return Promise.resolve({ recruiterId: user.recruiterId ?? null });
+      return Promise.resolve({ id: where.id, name: user.name, role: user.role });
+    });
+  }
+
+  test("returns the recruiter's name when the recruiter is a leader", async () => {
+    seedTree({
+      agent_1: { recruiterId: "leader_1" },
+      leader_1: { name: "Robert / Lini", role: "leader" },
+    });
+
+    expect(await getPengundangUnitForMember("agent_1")).toBe("Robert / Lini");
+  });
+
+  test("walks past an agent recruiter up to the unit's leader", async () => {
+    // The Pengundang/Unit ≠ recruiter distinction: an Add Member invite may
+    // name an agent as recruiter, but the unit is that agent's leader.
+    seedTree({
+      agent_2: { recruiterId: "agent_1" },
+      agent_1: { name: "Kak Sinta", role: "agent", recruiterId: "leader_1" },
+      leader_1: { name: "Robert / Lini", role: "leader" },
+    });
+
+    expect(await getPengundangUnitForMember("agent_2")).toBe("Robert / Lini");
+  });
+
+  test("returns null for the bootstrap root, who has no recruiter", async () => {
+    seedTree({ root: { recruiterId: null } });
+
+    expect(await getPengundangUnitForMember("root")).toBeNull();
+  });
+
+  test("a corrupt recruiter cycle returns null instead of hanging", async () => {
+    seedTree({
+      agent_1: { recruiterId: "agent_2", name: "A", role: "agent" },
+      agent_2: { recruiterId: "agent_1", name: "B", role: "agent" },
+    });
+
+    expect(await getPengundangUnitForMember("agent_1")).toBeNull();
   });
 });

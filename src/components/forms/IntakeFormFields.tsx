@@ -369,7 +369,7 @@ function EyeOffIcon() {
   );
 }
 
-function LockIcon() {
+export function LockIcon() {
   return (
     <svg aria-hidden width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="4" y="10.5" width="16" height="10" rx="2" />
@@ -869,7 +869,10 @@ const REQUIRED_DOC_FIELDS: { field: MemberIntakeFileField; label: string }[] = [
   { field: "savings", label: "Buku Tabungan" },
 ];
 
-const DOC_ICONS: Record<MemberIntakeFileField, React.ReactNode> = {
+/** Exported since Plan 20 — the /join and first-fill forms render their own
+ * pending-mode tile grids and want the same drawings. ApplicantFileField is
+ * the same five literals, so indexing with it type-checks. */
+export const DOC_ICONS: Record<MemberIntakeFileField, React.ReactNode> = {
   ktp: <KtpTileIcon />,
   selfie: <SelfieTileIcon />,
   familyCard: <FamilyTileIcon />,
@@ -929,6 +932,93 @@ export function DocumentsCard({
         />
       </div>
     </div>
+  );
+}
+
+/**
+ * One group card of a first-fill form (Plan 20 — the /join application and
+ * the Profile first-fill, which have no saved record to edit section by
+ * section): the FieldGroupCard chrome plus what a live form needs on top —
+ * a step number, a "N belum diisi" chip when a submit-time validation pass
+ * flagged it, and a ref so the failed-submit scroll can find it.
+ */
+export function FormCard({
+  step,
+  title,
+  suffix,
+  errorCount,
+  cardRef,
+  plain,
+  children,
+}: {
+  step: number;
+  title: string;
+  suffix?: React.ReactNode;
+  errorCount: number;
+  cardRef: React.Ref<HTMLDivElement>;
+  /** Skip the two-column field grid — the card lays out its own body
+   * (document tiles, the submit footer). */
+  plain?: boolean;
+  children: React.ReactNode;
+}) {
+  const invalid = errorCount > 0;
+  return (
+    <div
+      ref={cardRef}
+      className={`scroll-mt-24 rounded-2xl border bg-white p-6 shadow-sm ${
+        invalid ? "border-danger-500/40 ring-4 ring-danger-500/5" : "border-ink-100"
+      }`}
+    >
+      <div className="mb-4 flex items-center justify-between gap-3 border-b border-ink-100 pb-3.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span
+            aria-hidden
+            className="grid h-[21px] w-[21px] shrink-0 place-items-center rounded-full border border-brand-navy-100 bg-brand-navy-50 text-[11.5px] font-bold tabular-nums text-brand-navy-700"
+          >
+            {step}
+          </span>
+          <span className="text-xs font-bold uppercase tracking-wider text-ink-500">{title}</span>
+          {suffix}
+        </div>
+        {invalid && (
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-danger-500/30 bg-danger-500/10 px-2.5 py-1 text-xs font-semibold text-danger-500">
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            {errorCount} belum diisi
+          </span>
+        )}
+      </div>
+      {plain ? children : <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>}
+    </div>
+  );
+}
+
+// !important — appended after editInputClass, and two same-layer
+// border-color utilities otherwise resolve by stylesheet order, not by
+// class-list order, so the base border-ink-300 can silently win.
+export const invalidInputClass = "!border-danger-500/60 !bg-danger-500/5";
+
+export function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <span className="mt-1 text-xs font-medium text-danger-500">{message}</span>;
+}
+
+/** The tiles flag themselves red; the sentences live in one line under the
+ * grid (a message per tile would crowd cells that are mostly icon). */
+export function DocErrors({
+  errors,
+}: {
+  errors: Partial<Record<MemberIntakeFileField, string>>;
+}) {
+  const messages = [
+    ...new Set(
+      (["ktp", "selfie", "familyCard", "savings", "spouse"] as const)
+        .map((f) => errors[f])
+        .filter((m): m is string => Boolean(m)),
+    ),
+  ];
+  if (messages.length === 0) return null;
+  return (
+    <p className="mt-3 text-xs font-medium text-danger-500">{messages.join(" ")}</p>
   );
 }
 
