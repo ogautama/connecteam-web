@@ -2,7 +2,8 @@
 
 ## Status
 
-**Planned 2026-08-07.** Analysis + mockup in
+**Done** — [PR #48](https://github.com/ogautama/connecteam-web/pull/48).
+Analysis + mockup in
 [spec-disc-redesign.html](../design/spec-disc-redesign.html) (open in a
 browser — before/after phone frames for all three screens, the four edge
 states, and the decisions), merged with this doc via
@@ -10,6 +11,19 @@ states, and the decisions), merged with this doc via
 decisions were settled 2026-08-07, each on the recommendation — recorded in
 the mockup's "Decisions" section and repeated below where they bind this
 plan.
+
+Two deviations from the mockup, both decided while building:
+
+- **The test screen keeps the marketing header.** The mockup's screen-2
+  frame drops it. Everything fits above the fold at 375×812 without doing
+  that, and a full-screen overlay would leave no way out of the test — so
+  the test bar is `sticky top-0` and the header scrolls away on its own.
+- **On mobile the question footer bar is hidden until it has something in
+  it** (the "Tekan 1–4" hint is desktop-only), rather than rendering as an
+  empty rule under the options.
+
+The resolver landed as its own module, `src/lib/referrer.ts`, rather than
+inside `src/lib/leads.ts`.
 
 ## Goal
 
