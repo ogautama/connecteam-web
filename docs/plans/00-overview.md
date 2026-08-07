@@ -123,6 +123,7 @@ are captured inline in those docs so each can be picked up independently.
 | 19 | Profile page redesign (per-section editing, masked KTP) | 07, 07c | [19-profile-redesign.md](19-profile-redesign.md) | ✅ Done — [PR #35](https://github.com/ogautama/connecteam-web/pull/35); route moved to `/member/profile` in [PR #36](https://github.com/ogautama/connecteam-web/pull/36) |
 | 20 | Join Us redesign (five group cards, one Kirim, Diploma D1–D4) | 19 | [20-join-redesign.md](20-join-redesign.md) | ✅ Done — [PR #38](https://github.com/ogautama/connecteam-web/pull/38) (plan: [PR #37](https://github.com/ogautama/connecteam-web/pull/37)) |
 | 20b | Profile first-fill in the five group cards | 19, 20 | [20b-profile-first-fill-redesign.md](20b-profile-first-fill-redesign.md) | ✅ Done — [PR #39](https://github.com/ogautama/connecteam-web/pull/39) |
+| 21 | Marketing header responsive treatment | 01 | [21-marketing-header-responsive.md](21-marketing-header-responsive.md) | Planned 2026-08-07 — goes before Plan 22 by choice |
 
 § **2026-07-24, revised 2026-07-26**: after being shown a UX reference (a
 working "quest hub" prototype — gamified level tabs, progress bars,
@@ -291,14 +292,18 @@ Plan 06's nav.)*
   do. Note the field stays editable on the public `/join` form — an
   applicant has no account to pin it to — so `TextField`'s `readOnly` is
   opt-in per field rather than global.
-- **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01).
-  The four nav links (Home / Join Us / DISC Test / Income Calculator) wrap and
-  crowd the logo below ~400px wide — surfaced building Plan 03, left as-is
-  since it's shared chrome, not that plan's scope. Wants a responsive
-  treatment (hamburger/collapse). Still open after Plan 04: only three links
-  are live so far (the calculator stays gated until Plan 05), which keeps it
-  tolerable. Worth doing as its own small plan when `CALCULATOR_LIVE` flips
-  and the fourth link comes back.
+- **Marketing header nav is cramped on mobile** (`MarketingLayout`, Plan 01)
+  — **promoted to [Plan 21](21-marketing-header-responsive.md), 2026-08-07.**
+  Re-measured while analyzing the DISC page: with the two currently-live
+  links the row is *exactly* full at 375px (0px gaps — "CONNECTeamHome"
+  reads as one word) and broken below it ("Join Us" wraps and the Login
+  pill overruns the padding at 320px; 360px, the most common Android width,
+  is already −15px). Plan 21 does the small fix now (tighten spacing, hide
+  Home below `sm`, truncate `AccountMenu`); the hamburger/collapse stays
+  deferred until `CALCULATOR_LIVE` flips and the fourth link returns, as
+  originally noted. The original observation, for the record: the four nav
+  links wrap and crowd the logo below ~400px — surfaced building Plan 03,
+  left as-is since it's shared chrome, not that plan's scope.
 - ~~**Member sidebar is desktop-only**~~ — **resolved 2026-07-26** by Plan
   07's `MemberShell`. It was `hidden md:block`, leaving no way to reach a
   section on a phone except the dashboard's cards. The sidebar is now
