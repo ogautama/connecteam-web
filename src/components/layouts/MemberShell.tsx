@@ -59,7 +59,7 @@ export default function MemberShell({
         </Suspense>
       </aside>
 
-      <div className="flex min-h-full flex-1 flex-col">
+      <div className="flex min-h-full min-w-0 flex-1 flex-col">
         <header className="flex h-header items-center justify-between gap-4 border-b border-ink-100 bg-white px-6">
           <button
             type="button"

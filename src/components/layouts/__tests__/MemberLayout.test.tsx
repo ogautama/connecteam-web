@@ -44,4 +44,14 @@ describe("MemberLayout", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument();
   });
+
+  test("the content column has min-w-0, so a long unbreakable child (e.g. an invite link) can't force the page wider than the viewport", () => {
+    render(
+      <MemberLayout user={user}>
+        <p>Dashboard content</p>
+      </MemberLayout>,
+    );
+
+    expect(screen.getByRole("banner").parentElement).toHaveClass("min-w-0");
+  });
 });
