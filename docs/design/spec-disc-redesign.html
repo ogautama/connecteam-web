@@ -290,15 +290,17 @@
     padding: 6px 15px;
     white-space: nowrap;
   }
-  /* The 375px collision, drawn as it actually renders today. */
-  .apphead.collide { position: relative; }
-  .apphead.collide .navlinks {
-    position: absolute;
-    left: 132px;
-    top: 25px;
-    gap: 10px;
+  /* At 375 the header is exactly full: 24 + 139 + 111 + 77 + 24 = 375, so
+     justify-between has no free space left to distribute and the three
+     groups sit flush against each other. Drawn as measured, not as an
+     overlap — it isn't one, it's zero slack. */
+  .apphead.tight {
+    justify-content: flex-start;
+    gap: 0;
+    padding: 0 24px;
   }
-  .apphead.collide .loginpill { position: absolute; right: 16px; top: 20px; }
+  .apphead.tight .navlinks { gap: 24px; }
+  .apphead.tight .loginpill { margin-left: 0; }
 
   .screen {
     flex: 1;
@@ -869,10 +871,13 @@
         </span>
       </div>
       <div class="problem">
-        <b>The header collides at 375&nbsp;px</b>
+        <b>The header has zero slack at 375&nbsp;px</b>
         <span>
-          "CONNECTeam" and the nav links overlap on the exact screen size
-          almost every visitor arrives on. (<code>MarketingLayout</code>, not
+          Measured: 24 + 139 + 111 + 77 + 24 = 375 exactly, so
+          <code>justify-between</code> has nothing left to distribute and the
+          wordmark, nav and Login button sit flush — "CONNECTeamHome" reads as
+          one word. At 320&nbsp;px "Join Us" wraps to two lines and the Login
+          pill runs past the right padding. (<code>MarketingLayout</code>, not
           DISC-specific — but this is where it's seen.)
         </span>
       </div>
@@ -934,9 +939,9 @@
         <div class="phone-col">
           <span class="phone-tag before">Today</span>
           <div class="phone">
-            <div class="apphead collide">
+            <div class="apphead tight">
               <span class="logo">CONNECT<i>eam</i></span>
-              <span class="navlinks">Home&nbsp; Join Us</span>
+              <span class="navlinks">Home Join Us</span>
               <span class="loginpill">Login</span>
             </div>
             <div class="screen">
@@ -964,7 +969,7 @@
           </div>
           <p class="phone-cap">
             Zero of four options visible. The progress bar reads empty. The nav
-            overlaps the logo. Nothing says who sent the link.
+            sits flush against the wordmark. Nothing says who sent the link.
           </p>
         </div>
 
@@ -1036,9 +1041,9 @@
         <div class="phone-col">
           <span class="phone-tag before">Today</span>
           <div class="phone">
-            <div class="apphead collide">
+            <div class="apphead tight">
               <span class="logo">CONNECT<i>eam</i></span>
-              <span class="navlinks">Home&nbsp; Join Us</span>
+              <span class="navlinks">Home Join Us</span>
               <span class="loginpill">Login</span>
             </div>
             <div class="screen">
@@ -1163,9 +1168,9 @@
         <div class="phone-col">
           <span class="phone-tag before">Today</span>
           <div class="phone">
-            <div class="apphead collide">
+            <div class="apphead tight">
               <span class="logo">CONNECT<i>eam</i></span>
-              <span class="navlinks">Home&nbsp; Join Us</span>
+              <span class="navlinks">Home Join Us</span>
               <span class="loginpill">Login</span>
             </div>
             <div class="screen">
@@ -1512,8 +1517,11 @@
   <!-- ============================================================ -->
   <section>
     <div class="section-head">
-      <h2>Open decisions</h2>
-      <p>Each of these changes the build. My recommendation is stated; none of them is decided.</p>
+      <h2>Decisions</h2>
+      <p>
+        All five settled 2026-08-07 — each landed on the recommendation.
+        Recorded here as the input to the plan.
+      </p>
     </div>
     <div class="decisions">
       <div class="decision">
@@ -1524,7 +1532,7 @@
           <code>page.tsx</code> and passed down — a public page turning an
           invite code into a member's first name. Anyone can guess codes and
           enumerate names.
-          <span class="rec">Recommendation: first name only, never the full
+          <span class="rec">Decided: first name only, never the full
           name, email or photo; unknown codes fall back to the brand silently
           rather than erroring.</span>
         </p>
@@ -1535,7 +1543,7 @@
           The standard funnel move, and it would raise lead volume. It also
           makes the tool feel like bait, which is a poor first impression from
           someone the visitor knows personally.
-          <span class="rec">Recommendation: keep everything free, as it is
+          <span class="rec">Decided: keep everything free, as it is
           today. The ask is earned by naming Olivia, not by a paywall.</span>
         </p>
       </div>
@@ -1546,17 +1554,19 @@
           dynamic OG-image route (clean, but the result would have to be
           encoded in the URL — which puts a personality result in a shareable
           link).
-          <span class="rec">Recommendation: ship the redesign without it, and
+          <span class="rec">Decided: ship the redesign without it, and
           treat the share card as its own plan.</span>
         </p>
       </div>
       <div class="decision">
-        <b>The 375&nbsp;px header collision is not this plan's</b>
+        <b>The header's zero slack is not this plan's</b>
         <p>
-          It's <code>MarketingLayout</code>, so it also affects <code>/</code>
-          and <code>/join</code>.
-          <span class="rec">Recommendation: separate fix, but do it first —
-          it's the first thing a referred prospect sees.</span>
+          <code>MarketingLayout</code> has no responsive treatment at all — one
+          flex row, <code>justify-between</code>, no breakpoint. It fits at
+          375&nbsp;px with 0&nbsp;px to spare and breaks below that, and it
+          affects <code>/</code> and <code>/join</code> equally.
+          <span class="rec">Decided: separate fix, but do it first — it's the
+          first thing a referred prospect sees.</span>
         </p>
       </div>
       <div class="decision">
@@ -1565,7 +1575,7 @@
           <code>score.ts</code> rounds each trait independently, so a result can
           read 21 + 13 + 33 + 34. Invisible in four separate bars; visible in a
           single stacked one.
-          <span class="rec">Recommendation: keep the rounding, give the
+          <span class="rec">Decided: keep the rounding, give the
           spectrum's last segment the remainder so the bar always closes.</span>
         </p>
       </div>
