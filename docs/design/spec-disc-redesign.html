@@ -1,0 +1,1632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DISC test redesign — CONNECTeam</title>
+
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  /* ---- Page chrome tokens (theme-aware) ---------------------------- */
+  :root {
+    --page-bg: #ffffff;
+    --page-fg: #1b212d;
+    --page-muted: #6c7689;
+    --page-line: #e7eaf0;
+    --page-panel: #f7f8fb;
+    --page-accent: #183f87;
+    --page-badge-fg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page-bg: #10131a;
+      --page-fg: #e9ecf3;
+      --page-muted: #98a1b3;
+      --page-line: #262c39;
+      --page-panel: #171b25;
+      --page-accent: #9eaecd;
+      --page-badge-fg: #10131a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #10131a;
+    --page-fg: #e9ecf3;
+    --page-muted: #98a1b3;
+    --page-line: #262c39;
+    --page-panel: #171b25;
+    --page-accent: #9eaecd;
+    --page-badge-fg: #10131a;
+  }
+  :root[data-theme="light"] {
+    --page-bg: #ffffff;
+    --page-fg: #1b212d;
+    --page-muted: #6c7689;
+    --page-line: #e7eaf0;
+    --page-panel: #f7f8fb;
+    --page-accent: #183f87;
+    --page-badge-fg: #ffffff;
+  }
+
+  /* ---- App tokens (from src/app/globals.css — fixed, light-only) ---- */
+  :root {
+    --navy-50: #f3f5f9;
+    --navy-100: #e3e8f1;
+    --navy-200: #c3cde0;
+    --navy-300: #9eaecd;
+    --navy-700: #183f87;
+    --navy-800: #14346f;
+    --red-50: #fef6f8;
+    --red-100: #fde9ee;
+    --red-500: #f04975;
+    --red-600: #d34067;
+    --yellow-50: #fffcf2;
+    --yellow-100: #fef7e1;
+    --yellow-400: #f5ba01;
+    --yellow-700: #8e6c01;
+    --ink-50: #f9fafb;
+    --ink-100: #edeff2;
+    --ink-300: #aeb5c2;
+    --ink-500: #6c7689;
+    --ink-700: #3c4453;
+    --ink-900: #1b212d;
+    --green-500: #22c55e;
+    --green-600: #16a34a;
+    --green-50: #f0fdf4;
+    --green-200: #bbf7d0;
+    --danger: #ef4444;
+
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  body {
+    background: var(--page-bg);
+    color: var(--page-fg);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  /* ---- Document typography ----------------------------------------- */
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--page-accent);
+    margin: 0;
+  }
+  h1 {
+    font-size: clamp(30px, 4.4vw, 42px);
+    line-height: 1.12;
+    letter-spacing: -0.024em;
+    font-weight: 700;
+    text-wrap: balance;
+    margin: 10px 0 0;
+  }
+  h2 {
+    font-size: 22px;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    font-weight: 680;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .lede {
+    font-size: 17px;
+    color: var(--page-muted);
+    max-width: 64ch;
+    margin: 14px 0 0;
+  }
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+  .section-head p {
+    margin: 0;
+    color: var(--page-muted);
+    max-width: 68ch;
+    font-size: 15px;
+  }
+
+  /* ---- Diagnosis list ---------------------------------------------- */
+  .problems {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1px;
+    background: var(--page-line);
+    border: 1px solid var(--page-line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .problem {
+    background: var(--page-bg);
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .problem b {
+    font-size: 14.5px;
+    font-weight: 640;
+    letter-spacing: -0.005em;
+  }
+  .problem span {
+    font-size: 14px;
+    color: var(--page-muted);
+    line-height: 1.5;
+  }
+  .problem.lead b { color: var(--red-500); }
+
+  /* ---- Artboard (always light — the app itself is light-only) ------- */
+  .artboard {
+    background: var(--ink-50);
+    border: 1px solid var(--page-line);
+    border-radius: 16px;
+    padding: 26px 26px 30px;
+    overflow-x: auto;
+    color: var(--ink-900);
+    font-size: 15px;
+    line-height: 1.55;
+    color-scheme: light;
+  }
+  .artboard-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 650;
+    color: var(--ink-500);
+  }
+  .artboard-label em {
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    font-size: 13.5px;
+  }
+  .phones {
+    display: flex;
+    gap: 26px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .phone-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 375px;
+    flex: none;
+  }
+  .phone-tag {
+    font-size: 11.5px;
+    font-weight: 680;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+  }
+  .phone-tag.before { color: var(--danger); }
+  .phone-tag.after { color: var(--green-600); }
+  .phone-cap {
+    font-size: 13px;
+    color: var(--ink-500);
+    line-height: 1.45;
+  }
+  .phone {
+    width: 375px;
+    height: 720px;
+    flex: none;
+    background: #fff;
+    border: 1px solid var(--ink-300);
+    border-radius: 26px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 10px rgba(27, 33, 45, 0.06);
+  }
+  /* The "scrolled out" frame shows the whole column, so it grows instead. */
+  .phone.tall { height: auto; }
+  /* Anything past the frame is below the fold — the fade says so. */
+  .phone::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 46px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), #fff);
+    pointer-events: none;
+  }
+  .phone.nofade::after { display: none; }
+
+  /* ---- App header (MarketingLayout) -------------------------------- */
+  .apphead {
+    height: 72px;
+    flex: none;
+    border-bottom: 1px solid var(--ink-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    gap: 8px;
+  }
+  .logo {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--navy-700);
+    white-space: nowrap;
+  }
+  .logo i { font-style: normal; color: var(--red-500); }
+  .navlinks {
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--ink-700);
+    white-space: nowrap;
+  }
+  .loginpill {
+    background: var(--navy-700);
+    color: #fff;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 620;
+    padding: 6px 15px;
+    white-space: nowrap;
+  }
+  /* At 375 the header is exactly full: 24 + 139 + 111 + 77 + 24 = 375, so
+     justify-between has no free space left to distribute and the three
+     groups sit flush against each other. Drawn as measured, not as an
+     overlap — it isn't one, it's zero slack. */
+  .apphead.tight {
+    justify-content: flex-start;
+    gap: 0;
+    padding: 0 24px;
+  }
+  .apphead.tight .navlinks { gap: 24px; }
+  .apphead.tight .loginpill { margin-left: 0; }
+
+  .screen {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .pad { padding: 0 22px; }
+
+  /* ---- BEFORE: the permanent hero ---------------------------------- */
+  .hero {
+    padding: 64px 22px 64px;
+    text-align: center;
+    border-bottom: 1px solid var(--ink-100);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .hero-badge {
+    background: var(--yellow-100);
+    color: var(--yellow-700);
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 550;
+    padding: 4px 13px;
+  }
+  .hero h1 {
+    font-size: 34px;
+    line-height: 1.1;
+    letter-spacing: -0.028em;
+    font-weight: 700;
+    margin: 0;
+    color: var(--ink-900);
+  }
+  .hero p {
+    margin: 0;
+    color: var(--ink-500);
+    font-size: 17.5px;
+    line-height: 1.6;
+  }
+  /* Bottom edge of a "Today" frame — everything past it needs a scroll. */
+  .foldbar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    border-top: 2px dashed var(--danger);
+    background: rgba(255,255,255,0.9);
+    color: var(--danger);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 4px 0 6px;
+    z-index: 2;
+  }
+
+  /* ---- Question UI (shared kit) ------------------------------------ */
+  .qmeta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13.5px;
+    color: var(--ink-500);
+  }
+  .qmeta b { color: var(--ink-700); font-weight: 600; }
+  .bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--ink-100);
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .bar i { display: block; height: 100%; background: var(--navy-700); border-radius: 999px; }
+  .qtitle {
+    font-size: 21px;
+    line-height: 1.28;
+    letter-spacing: -0.018em;
+    font-weight: 700;
+    color: var(--ink-900);
+    margin: 0;
+  }
+  .qhelp {
+    font-size: 13px;
+    color: var(--ink-500);
+    margin: 8px 0 0;
+    line-height: 1.45;
+  }
+  .opts { display: flex; flex-direction: column; gap: 10px; list-style: none; padding: 0; margin: 0; }
+  .opt {
+    border: 1px solid var(--ink-100);
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: var(--ink-700);
+    line-height: 1.4;
+  }
+  .opt.picked {
+    border-color: var(--navy-700);
+    background: var(--navy-50);
+    color: var(--ink-900);
+  }
+
+  /* ---- AFTER: sticky test header ----------------------------------- */
+  .testbar {
+    flex: none;
+    padding: 12px 18px 14px;
+    border-bottom: 1px solid var(--ink-100);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .testbar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .backlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-700);
+  }
+  .backlink.off { color: var(--ink-300); }
+  .count {
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--ink-500);
+    font-variant-numeric: tabular-nums;
+  }
+  .count b { color: var(--navy-700); font-size: 15px; }
+  .ticks { display: flex; gap: 2px; }
+  .ticks i {
+    flex: 1;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--ink-100);
+  }
+  .ticks i.on { background: var(--navy-700); }
+  .ticks i.now { background: var(--red-500); }
+
+  /* fixed-height question well: the options never move between questions */
+  .qwell {
+    position: relative;
+    flex: none;
+    min-height: 148px;
+    padding: 22px 22px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .qwell-note {
+    position: absolute;
+    right: 22px;
+    bottom: 2px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--green-600);
+    background: var(--green-50);
+    border: 1px solid var(--green-200);
+    border-radius: 4px;
+    padding: 0 5px;
+  }
+  .opt2 {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 1px solid var(--ink-100);
+    background: #fff;
+    border-radius: 16px;
+    padding: 15px 16px;
+    font-size: 15.5px;
+    color: var(--ink-900);
+    line-height: 1.38;
+    min-height: 66px;
+  }
+  .opt2 .key {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--ink-100);
+    background: var(--ink-50);
+    color: var(--ink-500);
+    font-size: 12px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .opt2.picked {
+    border-color: var(--navy-700);
+    background: var(--navy-50);
+    box-shadow: 0 0 0 3px var(--navy-100);
+  }
+  .opt2.picked .key { background: var(--navy-700); border-color: var(--navy-700); color: #fff; }
+  .qfoot {
+    margin-top: auto;
+    flex: none;
+    padding: 14px 22px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--ink-100);
+  }
+  .qfoot .hint { font-size: 12.5px; color: var(--ink-300); }
+
+  /* ---- Referrer chrome --------------------------------------------- */
+  .fromrow {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border: 1px solid var(--ink-100);
+    background: #fff;
+    border-radius: 999px;
+    padding: 6px 16px 6px 6px;
+  }
+  .avatar {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--navy-700);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+  }
+  .avatar.sm { width: 28px; height: 28px; font-size: 12px; }
+  .fromrow .t { font-size: 13.5px; color: var(--ink-500); line-height: 1.35; }
+  .fromrow .t b { color: var(--ink-900); font-weight: 650; }
+
+  /* ---- Buttons ----------------------------------------------------- */
+  .btn {
+    border-radius: 999px;
+    background: var(--navy-700);
+    color: #fff;
+    font-weight: 640;
+    font-size: 15.5px;
+    padding: 13px 26px;
+    border: 0;
+    font-family: inherit;
+    line-height: 1.35;
+    text-align: center;
+    display: block;
+    width: 100%;
+  }
+  .btn.red { background: var(--red-500); }
+  .btn.ghost {
+    background: #fff;
+    color: var(--navy-700);
+    border: 1px solid var(--navy-200);
+  }
+  .btn.sm { font-size: 14.5px; padding: 10px 20px; width: auto; display: inline-block; }
+  .quiet {
+    display: block;
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--ink-500);
+    text-decoration: underline;
+  }
+
+  /* ---- Result card ------------------------------------------------- */
+  .card {
+    background: #fff;
+    border: 1px solid var(--ink-100);
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(27, 33, 45, 0.05);
+    overflow: hidden;
+  }
+  .brandbar {
+    height: 8px;
+    background: linear-gradient(90deg, var(--navy-700), var(--red-500) 58%, var(--yellow-400));
+  }
+  .rcard-body { padding: 20px 20px 22px; }
+  .rkicker {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--red-500);
+    margin: 0;
+  }
+  .rtitle {
+    font-size: 33px;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+    margin: 6px 0 0;
+    color: var(--ink-900);
+  }
+  .rblend { margin: 6px 0 0; font-size: 14.5px; color: var(--ink-500); }
+
+  /* the mix, as one bar */
+  .spectrum {
+    display: flex;
+    height: 34px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 18px;
+  }
+  .spectrum div {
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .sD { background: var(--red-500); }
+  .sI { background: var(--yellow-400); color: #6b5000 !important; }
+  .sS { background: var(--green-500); }
+  .sC { background: var(--navy-700); }
+  .spectrum div.dim { opacity: 0.42; }
+  .traits { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .trait {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+  }
+  .trait .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .trait .nm { color: var(--ink-700); }
+  .trait.on .nm { color: var(--ink-900); font-weight: 620; }
+  .trait .pc { margin-left: auto; color: var(--ink-500); font-variant-numeric: tabular-nums; font-size: 13.5px; }
+  .trait.on .pc { color: var(--ink-900); font-weight: 650; }
+  .pill-dom {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--navy-700);
+    background: var(--navy-50);
+    border: 1px solid var(--navy-100);
+    border-radius: 5px;
+    padding: 0 5px;
+    line-height: 1.55;
+  }
+  .rsum { margin: 18px 0 0; font-size: 15.5px; line-height: 1.55; color: var(--ink-700); }
+
+  .block { border-radius: 16px; padding: 16px 18px 18px; margin-top: 14px; border: 1px solid var(--ink-100); }
+  .block h4 { margin: 0; font-size: 15px; font-weight: 650; color: var(--ink-900); }
+  .block p { margin: 7px 0 0; font-size: 14.5px; color: var(--ink-700); line-height: 1.55; }
+  .block.work { background: var(--yellow-50); border-color: var(--yellow-100); }
+  .block.watch { background: var(--ink-50); }
+  .strengths { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .strengths li { display: flex; gap: 10px; font-size: 14.5px; color: var(--ink-700); line-height: 1.45; }
+  .strengths .tick { color: var(--green-600); flex: none; font-weight: 700; }
+
+  /* reply-to-referrer card */
+  .reply { border: 1px solid var(--navy-100); background: var(--navy-50); border-radius: 18px; padding: 18px; margin-top: 16px; }
+  .reply h4 { margin: 12px 0 0; font-size: 16.5px; font-weight: 680; color: var(--ink-900); }
+  .reply p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink-500); line-height: 1.5; }
+  .field { display: flex; flex-direction: column; gap: 3px; margin-top: 12px; }
+  .field .l { font-size: 12.5px; color: var(--ink-500); }
+  .input {
+    font-family: inherit;
+    font-size: 15.5px;
+    color: var(--ink-300);
+    background: #fff;
+    border: 1px solid var(--ink-300);
+    border-radius: 10px;
+    padding: 9px 12px;
+    width: 100%;
+    line-height: 1.4;
+  }
+  .privacy { font-size: 12px; color: var(--ink-500); margin: 10px 0 0; line-height: 1.45; }
+
+  /* ---- Share card -------------------------------------------------- */
+  .sharecard {
+    width: 320px;
+    aspect-ratio: 9 / 16;
+    border-radius: 20px;
+    background: linear-gradient(160deg, #14346f, #183f87 46%, #2b4e91);
+    color: #fff;
+    padding: 26px 24px;
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .sharecard .sc-logo { font-size: 14px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: auto; }
+  .sharecard .sc-logo i { font-style: normal; color: #f5809e; }
+  .sharecard .sc-kick { margin: 0; font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: #f5ba01; }
+  .sharecard .sc-title { font-size: 40px; line-height: 1.02; letter-spacing: -0.032em; font-weight: 700; margin: 8px 0 0; }
+  .sharecard .sc-blend { margin: 8px 0 0; font-size: 14px; color: #c3cde0; }
+  .sharecard .sc-spec { display: flex; height: 12px; border-radius: 999px; overflow: hidden; margin: 20px 0 0; }
+  .sharecard .sc-legend { display: flex; gap: 14px; margin: 12px 0 0; font-size: 12px; color: #c3cde0; }
+  .sharecard .sc-legend span { display: flex; align-items: center; gap: 5px; }
+  .sharecard .sc-legend i { width: 8px; height: 8px; border-radius: 2px; display: block; }
+  .sharecard .sc-foot { margin-top: 26px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.16); font-size: 12.5px; color: #9eaecd; }
+
+  /* ---- Legend / notes / states ------------------------------------- */
+  .legend {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 16px 30px;
+    counter-reset: legend;
+  }
+  /* Marker is absolutely placed rather than a grid cell: the body of each
+     item is a <b> plus a loose text node, and an anonymous grid item would
+     land in the 24px marker column and wrap one word per line. */
+  .legend li {
+    position: relative;
+    padding-left: 34px;
+    counter-increment: legend;
+    font-size: 14.5px;
+    color: var(--page-muted);
+    line-height: 1.5;
+  }
+  .legend li::before {
+    content: counter(legend);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--page-accent);
+    color: var(--page-badge-fg);
+    font-size: 12px;
+    font-weight: 680;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .legend b { color: var(--page-fg); font-weight: 640; display: block; font-size: 15px; margin-bottom: 1px; }
+
+  .state-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .state-tag {
+    font-size: 11.5px;
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-300);
+    display: block;
+    margin-bottom: 11px;
+  }
+  .state-box {
+    background: var(--ink-50);
+    border: 1px solid var(--page-line);
+    border-radius: 14px;
+    padding: 20px;
+    color-scheme: light;
+    color: var(--ink-900);
+  }
+
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 26px; }
+  .note h3 { font-size: 15px; font-weight: 650; margin: 0 0 8px; letter-spacing: -0.005em; }
+  .note p, .note li { margin: 0; font-size: 14.5px; color: var(--page-muted); line-height: 1.55; }
+  .note ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+  .note b { color: var(--page-fg); font-weight: 620; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.88em;
+    background: var(--page-panel);
+    border: 1px solid var(--page-line);
+    border-radius: 5px;
+    padding: 1px 5px;
+  }
+
+  .decisions { border: 1px solid var(--page-line); border-radius: 14px; overflow: hidden; }
+  .decision { padding: 16px 20px 18px; border-bottom: 1px solid var(--page-line); }
+  .decision:last-child { border-bottom: 0; }
+  .decision b { display: block; font-size: 15px; font-weight: 640; margin-bottom: 3px; }
+  .decision p { margin: 0; font-size: 14.5px; color: var(--page-muted); line-height: 1.55; max-width: 84ch; }
+  .decision .rec { color: var(--page-fg); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="wrap" style="padding-bottom:0">
+  <p style="margin:0;border:1px solid var(--page-line);background:var(--page-panel);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--page-muted)">
+    <b style="color:var(--page-fg)">Mockup 2026-08-07 — nothing built, no code changed.</b>
+    Redesign of the DISC test at
+    <span style="font-family:ui-monospace,Menlo,monospace;font-size:13px">src/app/tools/disc/</span>
+    (<span style="font-family:ui-monospace,Menlo,monospace;font-size:13px">page.tsx</span> +
+    <span style="font-family:ui-monospace,Menlo,monospace;font-size:13px">DiscTest.tsx</span>).
+    Question bank, scoring and profile copy are unchanged.
+  </p>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Public site · /tools/disc</p>
+    <h1>The DISC test, rebuilt around the person who sent the&nbsp;link</h1>
+    <p class="lede">
+      Since <a href="https://github.com/ogautama/connecteam-web/pull/41">PR&nbsp;#41</a> this page is
+      unlisted: nobody browses to it, they arrive on a member's
+      <code>?ref=</code> link, on a phone, from WhatsApp. The page still reads
+      like a page you found on a website — a marketing hero that never leaves,
+      a result laid out like a blog post, and a form asking a stranger for
+      their number on behalf of nobody in particular. This redesign makes the
+      referrer visible, gives each of the three screens the whole viewport, and
+      ends on one action instead of three.
+    </p>
+  </header>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="section-head">
+      <h2>What's wrong</h2>
+      <p>
+        Everything below was reproduced from the running page at 375&nbsp;×&nbsp;812.
+        The last one is the reason for the redesign; the rest are what makes it
+        worth doing at the same time.
+      </p>
+    </div>
+    <div class="problems">
+      <div class="problem">
+        <b>The hero never leaves</b>
+        <span>
+          The intro block is in <code>page.tsx</code>, above the client
+          component — so it sits over all 24 questions <em>and</em> over the
+          result. It eats 480 of 812 mobile pixels, permanently.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Question 1 is below the fold</b>
+        <span>
+          On a 375&nbsp;px screen not one of the four options is visible on
+          arrival. Every question needs a scroll, 24 times.
+        </span>
+      </div>
+      <div class="problem">
+        <b>The page moves under your thumb</b>
+        <span>
+          Statements vary in length, so answering reflows the page — measured
+          at up to 80&nbsp;px of shift. The next tap target isn't where the
+          last one was.
+        </span>
+      </div>
+      <div class="problem">
+        <b>The progress bar lies at both ends</b>
+        <span>
+          Width is <code>step / 24</code>: it reads 0&nbsp;% while you answer
+          question&nbsp;1, and the last answer jumps straight to the result at
+          96&nbsp;%. It never fills. <code>aria-valuenow</code> is off by one too.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Going back costs you the answer</b>
+        <span>
+          "← Sebelumnya" walks back, but there's no way forward except
+          re-answering. Checking what you picked means picking again.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Nothing is remembered</b>
+        <span>
+          A refresh, a phone call, an accidental back-swipe — 24 answers gone,
+          silently, with no way to resume.
+        </span>
+      </div>
+      <div class="problem">
+        <b>The header has zero slack at 375&nbsp;px</b>
+        <span>
+          Measured: 24 + 139 + 111 + 77 + 24 = 375 exactly, so
+          <code>justify-between</code> has nothing left to distribute and the
+          wordmark, nav and Login button sit flush — "CONNECTeamHome" reads as
+          one word. At 320&nbsp;px "Join Us" wraps to two lines and the Login
+          pill runs past the right padding. (<code>MarketingLayout</code>, not
+          DISC-specific — but this is where it's seen.)
+        </span>
+      </div>
+      <div class="problem">
+        <b>The result reads like a blog post</b>
+        <span>
+          A left-aligned 672&nbsp;px column under a stale hero still advertising
+          "24 pertanyaan · ~2 menit". The profile name is set no larger than a
+          section heading.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Nothing marks the dominant traits</b>
+        <span>
+          Four bars, four percentages, equal weight. The two traits that
+          actually produced "Sang Penata" are not distinguished from the two
+          that didn't.
+        </span>
+      </div>
+      <div class="problem">
+        <b>Three endings compete</b>
+        <span>
+          Navy "Simpan hasil saya", then red "Gabung Sekarang", then "Ulangi
+          tes" — stacked, in three different visual weights. There is no
+          identifiable primary action.
+        </span>
+      </div>
+      <div class="problem">
+        <b>The ask comes after the payoff</b>
+        <span>
+          The full result is already on screen when the form appears. Nothing
+          is withheld, and nothing is offered — so there's no reason left to
+          type a phone number.
+        </span>
+      </div>
+      <div class="problem lead">
+        <b>The referrer is invisible</b>
+        <span>
+          <code>?ref=</code> is read on line 20 and used for lead ownership —
+          and never shown. A member sends this link personally; the page
+          greets their prospect as an anonymous visitor and asks for a WhatsApp
+          number with no name attached to the request.
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="section-head">
+      <h2>Arrival</h2>
+      <p>Both frames are 375&nbsp;×&nbsp;720 — a phone viewport minus browser chrome. Anything past the frame edge is a scroll away.</p>
+    </div>
+    <div class="artboard">
+      <div class="artboard-label">Screen 1 <em>— the first thing a referred prospect sees</em></div>
+      <div class="phones">
+
+        <!-- BEFORE -->
+        <div class="phone-col">
+          <span class="phone-tag before">Today</span>
+          <div class="phone">
+            <div class="apphead tight">
+              <span class="logo">CONNECT<i>eam</i></span>
+              <span class="navlinks">Home Join Us</span>
+              <span class="loginpill">Login</span>
+            </div>
+            <div class="screen">
+              <div class="hero">
+                <span class="hero-badge">Gratis · 24 pertanyaan · ~2 menit</span>
+                <h1>Kenalan sama dirimu dulu</h1>
+                <p>
+                  Gak ada jawaban benar atau salah. Pilih yang paling mirip sama
+                  kamu sehari-hari, dan kamu bakal lihat gaya kerjamu — plus
+                  gimana itu kepake buat jualan dan bangun tim.
+                </p>
+              </div>
+              <div class="pad" style="padding-top:48px">
+                <div class="qmeta"><span>Pertanyaan 1 dari 24</span></div>
+                <div class="bar"><i style="width:0%"></i></div>
+                <h2 class="qtitle" style="margin-top:40px;font-size:24px">Pas dapat tugas baru yang arahannya belum jelas, aku…</h2>
+                <p class="qhelp">Pilih satu yang paling mirip sama kamu — bukan yang paling ideal.</p>
+                <ul class="opts" style="margin-top:24px">
+                  <li class="opt">Ambil keputusan sendiri dan jalan duluan.</li>
+                  <li class="opt">Ajak orang ngobrol biar ide-idenya ngalir.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="foldbar">batas layar — sisanya harus di-scroll</div>
+          </div>
+          <p class="phone-cap">
+            Zero of four options visible. The progress bar reads empty. The nav
+            sits flush against the wordmark. Nothing says who sent the link.
+          </p>
+        </div>
+
+        <!-- AFTER -->
+        <div class="phone-col">
+          <span class="phone-tag after">Proposed</span>
+          <div class="phone nofade">
+            <div class="apphead">
+              <span class="logo">CONNECT<i>eam</i></span>
+              <span class="loginpill" style="background:#fff;color:var(--ink-500);border:1px solid var(--ink-100)">Login</span>
+            </div>
+            <div class="screen" style="padding:26px 22px 22px;gap:0">
+              <div class="fromrow" style="align-self:flex-start">
+                <span class="avatar">O</span>
+                <span class="t"><b>Olivia</b> ngajak kamu ikut tes ini</span>
+              </div>
+              <h1 style="font-size:34px;line-height:1.08;letter-spacing:-0.03em;font-weight:700;margin:22px 0 0;color:var(--ink-900)">
+                Kenalan sama gaya kerjamu
+              </h1>
+              <p style="margin:12px 0 0;color:var(--ink-500);font-size:15.5px;line-height:1.55">
+                24 pertanyaan, gak ada jawaban benar atau salah. Di akhir kamu
+                lihat gaya kerjamu — dan gimana itu kepake buat jualan dan
+                bangun tim.
+              </p>
+              <div class="spectrum" style="margin-top:26px;height:10px;border-radius:999px">
+                <div class="sD" style="width:25%"></div>
+                <div class="sI" style="width:25%"></div>
+                <div class="sS" style="width:25%"></div>
+                <div class="sC" style="width:25%"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 12px;margin-top:12px;font-size:12.5px;color:var(--ink-500)">
+                <span>D · Dominance</span><span>I · Influence</span>
+                <span>S · Steadiness</span><span>C · Conscientiousness</span>
+              </div>
+              <ul class="strengths" style="margin-top:26px;padding-top:20px;border-top:1px solid var(--ink-100)">
+                <li><span class="tick">✓</span>Gaya kerjamu, dijelasin pakai bahasa sehari-hari</li>
+                <li><span class="tick">✓</span>Kekuatan kamu dan hal yang perlu dijaga</li>
+                <li><span class="tick">✓</span>Gimana itu kepake buat jualan dan bangun tim</li>
+              </ul>
+              <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+                <span class="btn">Mulai tes</span>
+                <p style="margin:0;text-align:center;font-size:12.5px;color:var(--ink-500)">
+                  ~2 menit · gratis · hasilnya langsung kelihatan
+                </p>
+              </div>
+            </div>
+          </div>
+          <p class="phone-cap">
+            One screen, one action, nothing below the fold. Olivia is named
+            before anything is asked of the visitor.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="section-head">
+      <h2>Answering</h2>
+      <p>Question 7 of 24, mid-test, on both.</p>
+    </div>
+    <div class="artboard">
+      <div class="artboard-label">Screen 2 <em>— repeated 24 times, so every pixel of it is spent 24 times</em></div>
+      <div class="phones">
+
+        <!-- BEFORE -->
+        <div class="phone-col">
+          <span class="phone-tag before">Today</span>
+          <div class="phone">
+            <div class="apphead tight">
+              <span class="logo">CONNECT<i>eam</i></span>
+              <span class="navlinks">Home Join Us</span>
+              <span class="loginpill">Login</span>
+            </div>
+            <div class="screen">
+              <div class="hero">
+                <span class="hero-badge">Gratis · 24 pertanyaan · ~2 menit</span>
+                <h1>Kenalan sama dirimu dulu</h1>
+                <p>
+                  Gak ada jawaban benar atau salah. Pilih yang paling mirip sama
+                  kamu sehari-hari, dan kamu bakal lihat gaya kerjamu — plus
+                  gimana itu kepake buat jualan dan bangun tim.
+                </p>
+              </div>
+              <div class="pad" style="padding-top:48px">
+                <div class="qmeta">
+                  <span>Pertanyaan 7 dari 24</span>
+                  <span style="font-weight:600;color:var(--ink-700)">← Sebelumnya</span>
+                </div>
+                <div class="bar"><i style="width:25%"></i></div>
+                <h2 class="qtitle" style="margin-top:40px;font-size:24px">Kalau ada anggota tim yang kerjanya melenceng, aku…</h2>
+                <p class="qhelp">Pilih satu yang paling mirip sama kamu — bukan yang paling ideal.</p>
+              </div>
+            </div>
+            <div class="foldbar">batas layar — sisanya harus di-scroll</div>
+          </div>
+          <p class="phone-cap">
+            Still the same hero, on question 7. Still no options above the
+            fold. The bar says 25&nbsp;% after six of 24 answers.
+          </p>
+        </div>
+
+        <!-- AFTER -->
+        <div class="phone-col">
+          <span class="phone-tag after">Proposed</span>
+          <div class="phone nofade">
+            <div class="testbar">
+              <div class="testbar-row">
+                <span class="backlink">← Sebelumnya</span>
+                <span class="count"><b>7</b> / 24</span>
+              </div>
+              <div class="ticks">
+                <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+                <i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+            </div>
+            <div class="qwell">
+              <h2 class="qtitle">Kalau ada anggota tim yang kerjanya melenceng, aku…</h2>
+              <p class="qhelp">Pilih yang paling mirip sama kamu — bukan yang paling ideal.</p>
+              <span class="qwell-note">tinggi tetap</span>
+            </div>
+            <div style="padding:16px 22px 0">
+              <ul class="opts">
+                <li class="opt2"><span class="key">1</span>Langsung tegur dan minta dibetulin hari itu juga.</li>
+                <li class="opt2 picked"><span class="key">2</span>Ajak ngobrol santai dulu biar dia gak defensif.</li>
+                <li class="opt2"><span class="key">3</span>Tunggu momen yang pas, jangan sampai dia malu.</li>
+                <li class="opt2"><span class="key">4</span>Tunjukin datanya dulu, baru bahas solusinya.</li>
+              </ul>
+            </div>
+            <div class="qfoot">
+              <span class="hint">Tekan 1–4 di keyboard</span>
+              <span style="font-size:13px;font-weight:650;color:var(--navy-700)">Lanjut →</span>
+            </div>
+          </div>
+          <p class="phone-cap">
+            Question and all four options fit. The well has a fixed height, so
+            the options sit in the same place on every question.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <ul class="legend">
+      <li>
+        <b>The hero is gone from screens 2 and 3</b>
+        It belongs to the intro. Moving it into the client component's
+        <code>step === "intro"</code> branch frees 480&nbsp;px on every other
+        screen.
+      </li>
+      <li>
+        <b>24 ticks, not a bar</b>
+        A continuous bar at 25&nbsp;% is abstract; six filled ticks out of 24 is
+        countable. Fill counts <em>answered</em> questions, so the last answer
+        lands on 24/24 instead of 96&nbsp;%.
+      </li>
+      <li>
+        <b>A fixed-height question well</b>
+        Sized to the longest prompt in the bank. Prompts differ by two lines
+        at most; pinning the well stops the options moving between questions.
+      </li>
+      <li>
+        <b>"Lanjut →" appears once answered</b>
+        Auto-advance stays for a fresh question. Going back now shows your
+        pick <em>and</em> a way forward, so review is free.
+      </li>
+      <li>
+        <b>1–4 keys, and a visible selected state</b>
+        The keys are the desktop path; the badge doubles as the marker that
+        holds for ~150&nbsp;ms before advancing, so a tap is acknowledged.
+      </li>
+      <li>
+        <b>Semantics, fixed</b>
+        The four options become a <code>radiogroup</code>, focus moves to the
+        new prompt, a polite live region reads "Pertanyaan 7 dari 24", and
+        <code>aria-valuenow</code> matches what's drawn.
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="section-head">
+      <h2>The result</h2>
+      <p>Top of the result screen. Same profile copy from <code>src/content/disc-profiles.ts</code>, same percentages.</p>
+    </div>
+    <div class="artboard">
+      <div class="artboard-label">Screen 3 <em>— the payoff, and the only place an ask is earned</em></div>
+      <div class="phones">
+
+        <!-- BEFORE -->
+        <div class="phone-col">
+          <span class="phone-tag before">Today</span>
+          <div class="phone">
+            <div class="apphead tight">
+              <span class="logo">CONNECT<i>eam</i></span>
+              <span class="navlinks">Home Join Us</span>
+              <span class="loginpill">Login</span>
+            </div>
+            <div class="screen">
+              <div class="hero">
+                <span class="hero-badge">Gratis · 24 pertanyaan · ~2 menit</span>
+                <h1>Kenalan sama dirimu dulu</h1>
+                <p>
+                  Gak ada jawaban benar atau salah. Pilih yang paling mirip sama
+                  kamu sehari-hari, dan kamu bakal lihat gaya kerjamu — plus
+                  gimana itu kepake buat jualan dan bangun tim.
+                </p>
+              </div>
+              <div class="pad" style="padding-top:24px">
+                <p class="rkicker">Hasil tes kamu</p>
+                <p style="font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:6px 0 0;color:var(--ink-900)">Sang Penata</p>
+                <p class="rblend">Steadiness + Conscientiousness</p>
+                <ul class="traits" style="margin-top:16px">
+                  <li style="display:block">
+                    <div style="display:flex;justify-content:space-between;font-size:13.5px"><span style="font-weight:550">D · Dominance</span><span style="color:var(--ink-500)">21%</span></div>
+                    <div class="bar" style="margin-top:4px;height:11px"><i style="width:21%;background:var(--red-500)"></i></div>
+                  </li>
+                  <li style="display:block">
+                    <div style="display:flex;justify-content:space-between;font-size:13.5px"><span style="font-weight:550">I · Influence</span><span style="color:var(--ink-500)">13%</span></div>
+                    <div class="bar" style="margin-top:4px;height:11px"><i style="width:13%;background:var(--yellow-400)"></i></div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="foldbar">batas layar — sisanya harus di-scroll</div>
+          </div>
+          <p class="phone-cap">
+            The badge above your finished result still says "24 pertanyaan ·
+            ~2 menit". Two of four bars visible; the profile name is set
+            smaller than the hero it sits under.
+          </p>
+        </div>
+
+        <!-- AFTER -->
+        <div class="phone-col">
+          <span class="phone-tag after">Proposed</span>
+          <div class="phone">
+            <div class="apphead">
+              <span class="logo">CONNECT<i>eam</i></span>
+              <span class="loginpill" style="background:#fff;color:var(--ink-500);border:1px solid var(--ink-100)">Login</span>
+            </div>
+            <div class="screen" style="padding:18px 18px 0;background:var(--ink-50)">
+              <div class="card">
+                <div class="brandbar"></div>
+                <div class="rcard-body">
+                  <p class="rkicker">Hasil kamu</p>
+                  <p class="rtitle">Sang Penata</p>
+                  <p class="rblend">Steadiness + Conscientiousness</p>
+
+                  <div class="spectrum">
+                    <div class="sD dim" style="width:21%"></div>
+                    <div class="sI dim" style="width:13%"></div>
+                    <div class="sS" style="width:33%">S 33%</div>
+                    <div class="sC" style="width:33%">C 33%</div>
+                  </div>
+
+                  <ul class="traits">
+                    <li class="trait on"><span class="sw" style="background:var(--green-500)"></span><span class="nm">S · Steadiness</span><span class="pill-dom">dominan</span><span class="pc">33%</span></li>
+                    <li class="trait on"><span class="sw" style="background:var(--navy-700)"></span><span class="nm">C · Conscientiousness</span><span class="pill-dom">dominan</span><span class="pc">33%</span></li>
+                    <li class="trait"><span class="sw" style="background:var(--red-500)"></span><span class="nm">D · Dominance</span><span class="pc">21%</span></li>
+                    <li class="trait"><span class="sw" style="background:var(--yellow-400)"></span><span class="nm">I · Influence</span><span class="pc">13%</span></li>
+                  </ul>
+
+                  <p class="rsum">
+                    Kamu tenang, teliti, dan konsisten. Kerjaanmu jarang bocor,
+                    dan orang lain sering bergantung sama kerapianmu tanpa sadar.
+                  </p>
+                </div>
+              </div>
+
+              <div class="block" style="background:#fff">
+                <h4>Kekuatan kamu</h4>
+                <ul class="strengths">
+                  <li><span class="tick">✓</span>Rapi dan disiplin tanpa perlu diawasi</li>
+                  <li><span class="tick">✓</span>Sabar ngurus hal yang butuh ketelitian</li>
+                  <li><span class="tick">✓</span>Dipercaya megang data dan dokumen penting</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <p class="phone-cap">
+            The whole mix in one bar, dominant traits ranked first and marked.
+            The card is the screenshot people take.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="section-head">
+      <h2>The result, scrolled out</h2>
+      <p>
+        Everything below the card, in order. The profile copy is untouched —
+        what changes is that the page now ends on one action, addressed from
+        the person who sent the link.
+      </p>
+    </div>
+    <div class="artboard">
+      <div class="artboard-label">Screen 3, full <em>— the whole 375&nbsp;px column, unclipped</em></div>
+      <div class="phones">
+        <div class="phone-col">
+          <div class="phone tall nofade">
+            <div class="screen" style="padding:18px;background:var(--ink-50);overflow:visible">
+              <div class="card">
+                <div class="brandbar"></div>
+                <div class="rcard-body" style="padding-bottom:18px">
+                  <p class="rkicker">Hasil kamu</p>
+                  <p class="rtitle">Sang Penata</p>
+                  <p class="rblend">Steadiness + Conscientiousness</p>
+                  <div class="spectrum">
+                    <div class="sD dim" style="width:21%"></div>
+                    <div class="sI dim" style="width:13%"></div>
+                    <div class="sS" style="width:33%">S 33%</div>
+                    <div class="sC" style="width:33%">C 33%</div>
+                  </div>
+                  <ul class="traits">
+                    <li class="trait on"><span class="sw" style="background:var(--green-500)"></span><span class="nm">S · Steadiness</span><span class="pill-dom">dominan</span><span class="pc">33%</span></li>
+                    <li class="trait on"><span class="sw" style="background:var(--navy-700)"></span><span class="nm">C · Conscientiousness</span><span class="pill-dom">dominan</span><span class="pc">33%</span></li>
+                    <li class="trait"><span class="sw" style="background:var(--red-500)"></span><span class="nm">D · Dominance</span><span class="pc">21%</span></li>
+                    <li class="trait"><span class="sw" style="background:var(--yellow-400)"></span><span class="nm">I · Influence</span><span class="pc">13%</span></li>
+                  </ul>
+                  <p class="rsum" style="margin-top:16px">
+                    Kamu tenang, teliti, dan konsisten. Kerjaanmu jarang bocor,
+                    dan orang lain sering bergantung sama kerapianmu tanpa sadar.
+                  </p>
+                </div>
+              </div>
+
+              <div class="block" style="background:#fff">
+                <h4>Kekuatan kamu</h4>
+                <ul class="strengths">
+                  <li><span class="tick">✓</span>Rapi dan disiplin tanpa perlu diawasi</li>
+                  <li><span class="tick">✓</span>Sabar ngurus hal yang butuh ketelitian</li>
+                  <li><span class="tick">✓</span>Dipercaya megang data dan dokumen penting</li>
+                </ul>
+              </div>
+
+              <div class="block work">
+                <h4>Gimana ini kepake di kerjaan</h4>
+                <p>
+                  Di penjualan, klien percaya karena kamu gak pernah asal
+                  ngomong dan berkasnya selalu beres. Di rekrutmen, kamu yang
+                  bikin proses onboarding tim jadi rapi dan gak ada yang kelewat.
+                </p>
+              </div>
+
+              <div class="block watch">
+                <h4>Yang perlu dijaga</h4>
+                <p>
+                  Kamu jarang nyeritain hasil kerjamu sendiri. Belajar ngomong
+                  duluan — peluang sering datang ke orang yang keliatan.
+                </p>
+              </div>
+
+              <div class="reply">
+                <div class="fromrow" style="background:#fff;align-self:flex-start;display:inline-flex">
+                  <span class="avatar sm">O</span>
+                  <span class="t"><b>Olivia</b> · yang ngirim link ini</span>
+                </div>
+                <h4>Mau Olivia bahas hasilnya bareng kamu?</h4>
+                <p>
+                  Dia bakal chat kamu di WhatsApp buat ngobrolin gaya kerjamu.
+                  Gratis, gak ada kewajiban apa-apa.
+                </p>
+                <div class="field">
+                  <span class="l">Nama</span>
+                  <span class="input">Nama kamu</span>
+                </div>
+                <div class="field">
+                  <span class="l">Nomor WhatsApp</span>
+                  <span class="input">08…</span>
+                </div>
+                <p class="privacy">
+                  Nomor kamu cuma dipakai Olivia buat ngehubungi kamu lewat
+                  WhatsApp. Gak dibagi ke siapa-siapa.
+                </p>
+                <span class="btn" style="margin-top:14px">Kirim hasil ke Olivia</span>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid var(--ink-100)">
+                <span class="btn ghost">Simpan gambar hasilnya</span>
+                <span class="quiet">Ulangi tes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-col" style="width:340px">
+          <span class="phone-tag" style="color:var(--ink-500)">Optional — "Simpan gambar hasilnya"</span>
+          <div class="sharecard">
+            <span class="sc-logo">CONNECT<i>eam</i></span>
+            <span class="sc-kick">Hasil tes DISC</span>
+            <p class="sc-title">Sang<br>Penata</p>
+            <p class="sc-blend">Steadiness + Conscientiousness</p>
+            <div class="sc-spec">
+              <div class="sD" style="width:21%;opacity:.45"></div>
+              <div class="sI" style="width:13%;opacity:.45"></div>
+              <div class="sS" style="width:33%"></div>
+              <div class="sC" style="width:33%"></div>
+            </div>
+            <div class="sc-legend">
+              <span><i style="background:var(--red-500)"></i>D 21%</span>
+              <span><i style="background:var(--yellow-400)"></i>I 13%</span>
+              <span><i style="background:var(--green-500)"></i>S 33%</span>
+              <span><i style="background:var(--navy-300)"></i>C 33%</span>
+            </div>
+            <p class="sc-foot">Ikut tesnya di connecteam.id/disc</p>
+          </div>
+          <p class="phone-cap">
+            9:16, sized for a WhatsApp status. A personality result is the most
+            naturally shareable thing this org publishes, and right now there's
+            nothing to share. Marked optional because it's the one item here
+            that needs new machinery (canvas render or an OG image route).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <ul class="legend">
+      <li>
+        <b>One primary action, and it has a name on it</b>
+        "Kirim hasil ke Olivia" replaces "Simpan hasil saya". Same server
+        action, same <code>createLead</code> — but the visitor is replying to a
+        person, not filing a form.
+      </li>
+      <li>
+        <b>"Gabung Sekarang" comes off the result</b>
+        On a referral the next step is Olivia's message, not a self-serve
+        application. It moves to the confirmation state, after the number is in.
+      </li>
+      <li>
+        <b>The privacy line names the recipient</b>
+        "Nomor kamu cuma dipakai <em>Olivia</em>" is both truer and more
+        reassuring than the current impersonal version, and it matches what
+        <code>resolveRecruiter()</code> actually does with the lead.
+      </li>
+      <li>
+        <b>The four bars become one bar plus a ranked list</b>
+        The stacked spectrum answers "what's my mix" at a glance; the list
+        below answers "which two are mine", ranked, with the other two dimmed.
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="section-head">
+      <h2>The states this has to cover</h2>
+      <p>
+        Three of these exist in the code today and are unstyled or unhandled.
+      </p>
+    </div>
+    <div class="state-grid">
+
+      <div>
+        <span class="state-tag">No ref, or an unknown code</span>
+        <div class="state-box">
+          <div class="fromrow" style="display:inline-flex">
+            <span class="avatar" style="background:var(--ink-100);color:var(--ink-500)">C</span>
+            <span class="t"><b>CONNECTeam</b> · tes gaya kerja</span>
+          </div>
+          <p style="margin:14px 0 0;font-size:14px;color:var(--ink-700);line-height:1.5">
+            The whole referrer treatment falls back to the brand. The result's
+            ask becomes "Mau tim kami bahas hasilnya bareng kamu?" — every
+            other pixel is identical. <code>resolveRecruiter()</code> already
+            falls back to the root leader for ownership, so nothing changes
+            server-side.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <span class="state-tag">Returning mid-test</span>
+        <div class="state-box">
+          <div style="background:#fff;border:1px solid var(--ink-100);border-radius:14px;padding:16px">
+            <p style="margin:0;font-size:15.5px;font-weight:650;color:var(--ink-900)">Lanjutin dari pertanyaan 12?</p>
+            <p style="margin:6px 0 0;font-size:13.5px;color:var(--ink-500);line-height:1.5">
+              Jawaban kamu masih kesimpen di HP ini.
+            </p>
+            <div style="display:flex;gap:10px;margin-top:14px">
+              <span class="btn sm">Lanjutin</span>
+              <span class="btn sm ghost">Mulai dari awal</span>
+            </div>
+          </div>
+          <p style="margin:14px 0 0;font-size:14px;color:var(--ink-700);line-height:1.5">
+            Answers and step in <code>localStorage</code>, cleared on submit or
+            on "Ulangi tes". Today a refresh throws away 24 answers with no
+            warning.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <span class="state-tag">Signed-in member (onboarding link)</span>
+        <div class="state-box">
+          <div style="background:#fff;border:1px solid var(--green-200);border-radius:14px;padding:16px">
+            <p style="margin:0;font-size:15px;font-weight:650;color:var(--ink-900)">
+              <span style="color:var(--green-600)">✓</span> Hasilnya tersimpan di akun kamu
+            </p>
+            <p style="margin:6px 0 0;font-size:13.5px;color:var(--ink-500)">Olivia Gautama · olivia@contoh.com</p>
+          </div>
+          <p style="margin:14px 0 0;font-size:14px;color:var(--ink-700);line-height:1.5">
+            Members reach the same page from <code>onboarding.ts</code>. No
+            referrer chrome, no form, no "Gabung Sekarang" — just the result
+            and the saved confirmation. That branch exists today; it only needs
+            the new card around it.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <span class="state-tag">Sent</span>
+        <div class="state-box">
+          <div style="background:#fff;border:1px solid var(--green-200);border-radius:14px;padding:16px">
+            <p style="margin:0;font-size:15.5px;font-weight:650;color:var(--ink-900)">
+              <span style="color:var(--green-600)">✓</span> Kekirim ke Olivia
+            </p>
+            <p style="margin:6px 0 0;font-size:13.5px;color:var(--ink-500);line-height:1.5">
+              Dia bakal chat kamu lewat WhatsApp. Sambil nunggu, hasil kamu tetap
+              bisa dilihat di halaman ini.
+            </p>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+              <span class="btn sm ghost">Simpan gambar</span>
+              <span class="btn sm red">Lihat cara gabung</span>
+            </div>
+          </div>
+          <p style="margin:14px 0 0;font-size:14px;color:var(--ink-700);line-height:1.5">
+            This is where "Gabung Sekarang" belongs — offered to someone who
+            has already said yes to a conversation, not competing with the ask.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="section-head">
+      <h2>Decisions</h2>
+      <p>
+        All five settled 2026-08-07 — each landed on the recommendation.
+        Recorded here as the input to the plan.
+      </p>
+    </div>
+    <div class="decisions">
+      <div class="decision">
+        <b>Naming the referrer means resolving <code>?ref=</code> for display</b>
+        <p>
+          Today <code>resolveRecruiter()</code> runs server-side inside the
+          action and returns an id. Showing "Olivia" needs the name resolved in
+          <code>page.tsx</code> and passed down — a public page turning an
+          invite code into a member's first name. Anyone can guess codes and
+          enumerate names.
+          <span class="rec">Decided: first name only, never the full
+          name, email or photo; unknown codes fall back to the brand silently
+          rather than erroring.</span>
+        </p>
+      </div>
+      <div class="decision">
+        <b>Withhold the result until the number is given?</b>
+        <p>
+          The standard funnel move, and it would raise lead volume. It also
+          makes the tool feel like bait, which is a poor first impression from
+          someone the visitor knows personally.
+          <span class="rec">Decided: keep everything free, as it is
+          today. The ask is earned by naming Olivia, not by a paywall.</span>
+        </p>
+      </div>
+      <div class="decision">
+        <b>The share card needs rendering machinery</b>
+        <p>
+          Either client-side canvas (no new route, awkward font loading) or a
+          dynamic OG-image route (clean, but the result would have to be
+          encoded in the URL — which puts a personality result in a shareable
+          link).
+          <span class="rec">Decided: ship the redesign without it, and
+          treat the share card as its own plan.</span>
+        </p>
+      </div>
+      <div class="decision">
+        <b>The header's zero slack is not this plan's</b>
+        <p>
+          <code>MarketingLayout</code> has no responsive treatment at all — one
+          flex row, <code>justify-between</code>, no breakpoint. It fits at
+          375&nbsp;px with 0&nbsp;px to spare and breaks below that, and it
+          affects <code>/</code> and <code>/join</code> equally.
+          <span class="rec">Decided: separate fix, but do it first — it's the
+          first thing a referred prospect sees.</span>
+        </p>
+      </div>
+      <div class="decision">
+        <b>Percentages don't always sum to 100</b>
+        <p>
+          <code>score.ts</code> rounds each trait independently, so a result can
+          read 21 + 13 + 33 + 34. Invisible in four separate bars; visible in a
+          single stacked one.
+          <span class="rec">Decided: keep the rounding, give the
+          spectrum's last segment the remainder so the bar always closes.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="section-head">
+      <h2>What this does not change</h2>
+    </div>
+    <div class="notes">
+      <div class="note">
+        <h3>The instrument</h3>
+        <p>
+          All 24 questions, their shuffled statement order, the tally in
+          <code>score.ts</code>, <code>BLEND_MARGIN</code>, and all ten profile
+          keys stay exactly as they are. This is a redesign of the surface, not
+          of the test.
+        </p>
+      </div>
+      <div class="note">
+        <h3>Attribution and scoping</h3>
+        <p>
+          <code>saveDiscLead()</code> keeps re-scoring server-side, keeps
+          ignoring a client-supplied result, and keeps resolving ownership from
+          <code>?ref=</code> — a signed-in member still owns their own result
+          regardless of the link they arrived on. <code>/member/leads</code> is
+          untouched.
+        </p>
+      </div>
+      <div class="note">
+        <h3>Visibility</h3>
+        <p>
+          The route stays public and unlisted. <code>DISC_LISTED</code> stays
+          false, the nav link and home-page teaser stay gone, and the member
+          onboarding link stays.
+        </p>
+      </div>
+      <div class="note">
+        <h3>The copy</h3>
+        <p>
+          Every profile's <b>summary</b>, <b>strengths</b>, <b>atWork</b> and
+          <b>watchOut</b> string is used verbatim. Only the page's own framing
+          copy — hero, helper lines, the ask, the confirmation — is rewritten.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>
