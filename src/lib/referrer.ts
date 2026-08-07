@@ -31,3 +31,54 @@ export async function getReferrerFirstName(
   const firstName = user?.name?.trim().split(/\s+/)[0];
   return firstName || null;
 }
+
+// Recruiter chains are short (it's an org tree); the cap turns hypothetical
+// cycle corruption into a null instead of a hang. Same reasoning, same number
+// as `getPengundangUnitForMember`.
+const MAX_HOPS = 20;
+
+/**
+ * The "Pengundang / Unit" a prospect referred by `inviteCode` should name on
+ * the join form — printed on the DISC share card (Plan 23) next to the plain
+ * URL, so someone who types the link instead of scanning the QR still lands in
+ * the right unit.
+ *
+ * Full name, not a first name, and deliberately so: the value has to match a
+ * `/join` picklist entry exactly, and that picklist
+ * (`getPengundangUnitOptions`) already publishes every leader's full name on a
+ * public page. This widens nothing — it just saves the visitor from guessing
+ * which of those names is theirs.
+ *
+ * "At or above" the referrer, which is where this differs from
+ * `getPengundangUnitForMember` (that one starts at the *recruiter*, because a
+ * member's own unit is never themselves). A leader who shares their own link
+ * is their own unit.
+ */
+export async function getReferrerUnitName(
+  inviteCode?: string
+): Promise<string | null> {
+  if (!inviteCode) return null;
+
+  const referrer = await prisma.user.findUnique({
+    where: { inviteCode },
+    select: { id: true, name: true, role: true, recruiterId: true },
+  });
+  if (!referrer) return null;
+
+  let current: { name: string; role: string; recruiterId: string | null } =
+    referrer;
+
+  for (let hop = 0; hop < MAX_HOPS; hop++) {
+    if (current.role === "leader") return current.name.trim() || null;
+    if (!current.recruiterId) return null;
+
+    const next = await prisma.user.findUnique({
+      where: { id: current.recruiterId },
+      select: { name: true, role: true, recruiterId: true },
+    });
+    if (!next) return null;
+    current = next;
+  }
+
+  return null;
+}
