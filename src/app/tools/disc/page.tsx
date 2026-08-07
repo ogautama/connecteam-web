@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
-import { DISC_QUESTIONS } from "@/lib/disc/questions";
 import { getCurrentUser } from "@/lib/auth";
+import { getReferrerFirstName } from "@/lib/referrer";
 import DiscTest from "./DiscTest";
 
 export const metadata: Metadata = {
@@ -14,28 +14,31 @@ export const metadata: Metadata = {
 // Public page (also linked from /member/onboarding) — getCurrentUser() is a
 // no-redirect lookup, so a signed-in member is recognized here without
 // gating the page for anonymous visitors the way requireMember() would.
-export default async function DiscPage() {
-  const user = await getCurrentUser();
+//
+// No hero here any more (Plan 22): the intro belongs to the first of the
+// three screens the client component owns, not above all 24 questions and
+// the result.
+export default async function DiscPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string | string[] }>;
+}) {
+  const [user, params] = await Promise.all([getCurrentUser(), searchParams]);
+
+  // Display resolution only — `saveDiscLead` still resolves *ownership* from
+  // the same code, server-side, on its own. A repeated `?ref=` gives an
+  // array; a link that malformed doesn't get to name anyone.
+  const ref = typeof params.ref === "string" ? params.ref : undefined;
+  const referrerName = await getReferrerFirstName(ref);
 
   return (
     <MarketingLayout user={user}>
-      <section className="mx-auto flex w-full max-w-content flex-col items-center gap-4 border-b border-ink-100 px-6 py-16 text-center">
-        <span className="rounded-full bg-brand-yellow-100 px-4 py-1 text-sm font-medium text-brand-yellow-700">
-          {`Gratis · ${DISC_QUESTIONS.length} pertanyaan · ~2 menit`}
-        </span>
-        <h1 className="max-w-2xl text-display-sm font-bold tracking-tight text-ink-900">
-          Kenalan sama dirimu dulu
-        </h1>
-        <p className="max-w-xl text-lg text-ink-500">
-          Gak ada jawaban benar atau salah. Pilih yang paling mirip sama kamu
-          sehari-hari, dan kamu bakal lihat gaya kerjamu — plus gimana itu
-          kepake buat jualan dan bangun tim.
-        </p>
-      </section>
-
       {/* useSearchParams (reading ?ref=) needs a Suspense boundary above it. */}
       <Suspense fallback={null}>
-        <DiscTest user={user ? { name: user.name, email: user.email } : null} />
+        <DiscTest
+          user={user ? { name: user.name, email: user.email } : null}
+          referrerName={referrerName}
+        />
       </Suspense>
     </MarketingLayout>
   );
