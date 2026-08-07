@@ -42,10 +42,10 @@ export default function AccountMenu({
         aria-haspopup="menu"
         className="flex items-center gap-2 rounded-full border border-ink-100 py-1 pl-1 pr-3 text-sm font-medium text-ink-700 hover:bg-ink-50"
       >
-        <span className="flex size-7 items-center justify-center rounded-full bg-brand-red-100 text-xs font-semibold text-brand-red-700">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-red-100 text-xs font-semibold text-brand-red-700">
           {initialOf(name)}
         </span>
-        {name}
+        <span className="max-w-[6.5rem] truncate sm:max-w-none">{name}</span>
       </button>
 
       {open && (

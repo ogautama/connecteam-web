@@ -10,7 +10,7 @@ export default function HeaderLoginButton() {
     <button
       type="button"
       onClick={() => signInWithGoogle()}
-      className="rounded-full bg-brand-navy-700 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-navy-800"
+      className="rounded-full bg-brand-navy-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-navy-800 sm:px-5"
     >
       Login
     </button>

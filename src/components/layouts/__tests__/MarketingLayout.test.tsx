@@ -30,6 +30,18 @@ describe("MarketingLayout", () => {
     expect(screen.getByRole("button", { name: "Login" })).toBeInTheDocument();
   });
 
+  test("Home stays in the DOM for crawlers/screen readers, hidden responsively below sm", () => {
+    render(
+      <MarketingLayout>
+        <p>Page content</p>
+      </MarketingLayout>,
+    );
+
+    const homeLink = screen.getByRole("link", { name: "Home" });
+    expect(homeLink).toBeInTheDocument();
+    expect(homeLink.closest("li")).toHaveClass("hidden", "sm:block");
+  });
+
   test("shows the signed-in member instead of a Login button when a user is passed", () => {
     render(
       <MarketingLayout

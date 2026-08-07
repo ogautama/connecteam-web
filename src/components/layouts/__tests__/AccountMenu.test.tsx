@@ -38,6 +38,13 @@ describe("AccountMenu", () => {
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 
+  test("truncates a long name below sm instead of squeezing the header", () => {
+    render(<AccountMenu name="Christantus Alexander Situmorang" role="agent" />);
+
+    const nameSpan = screen.getByText("Christantus Alexander Situmorang");
+    expect(nameSpan).toHaveClass("truncate", "max-w-[6.5rem]", "sm:max-w-none");
+  });
+
   test("links to the member space", () => {
     render(<AccountMenu name="Rani Putri" role="agent" />);
 
