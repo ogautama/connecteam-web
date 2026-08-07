@@ -2,14 +2,14 @@
 
 ## Status
 
-**Planned 2026-08-07.** Not started. This is the "marketing header nav is
-cramped on mobile" item from the overview's Known deferred issues, promoted
-to its own plan — re-measured 2026-08-07 while analyzing the DISC page
-(where it's most visible, since [PR #41](https://github.com/ogautama/connecteam-web/pull/41)
-made `?ref=` links the page's whole audience), and worse than the original
-note said. Ordered **before**
-[Plan 22](22-disc-test-redesign.md) (the DISC redesign) by decision: this
-header is the first thing a referred prospect sees.
+**Done** — [PR #46](https://github.com/ogautama/connecteam-web/pull/46).
+This is the "marketing header nav is cramped on mobile" item from the
+overview's Known deferred issues, promoted to its own plan — re-measured
+2026-08-07 while analyzing the DISC page (where it's most visible, since
+[PR #41](https://github.com/ogautama/connecteam-web/pull/41) made `?ref=`
+links the page's whole audience), and worse than the original note said.
+Ordered **before** [Plan 22](22-disc-test-redesign.md) (the DISC redesign)
+by decision: this header is the first thing a referred prospect sees.
 
 ## The problem, measured
 
