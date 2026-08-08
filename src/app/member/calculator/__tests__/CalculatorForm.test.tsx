@@ -1,11 +1,13 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 
-const { requestPremium } = vi.hoisted(() => ({
+const { requestPremium, saveQuoteAndRenderPdf } = vi.hoisted(() => ({
   requestPremium: vi.fn(),
+  saveQuoteAndRenderPdf: vi.fn(),
 }));
 
 vi.mock("@/lib/premium/pricing", () => ({ requestPremium }));
+vi.mock("@/lib/premium/quote", () => ({ saveQuoteAndRenderPdf }));
 
 import CalculatorForm from "../CalculatorForm";
 
@@ -257,5 +259,161 @@ describe("CalculatorForm", () => {
     fireEvent.click(screen.getByRole("tab", { name: /Kritis/ }));
 
     expect(screen.getByText(/Input berubah/)).toBeInTheDocument();
+  });
+});
+
+describe("CalculatorForm — Simpan & buat PDF (Plan 05c)", () => {
+  /**
+   * jsdom implements neither of these. `createObjectURL` records the Blob so a
+   * test can check what was handed to the browser; the anchor click is
+   * neutered because jsdom treats it as a navigation it can't perform.
+   */
+  const created: Blob[] = [];
+  let clickSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    created.length = 0;
+    URL.createObjectURL = vi.fn((blob: Blob) => {
+      created.push(blob);
+      return "blob:test";
+    }) as unknown as typeof URL.createObjectURL;
+    URL.revokeObjectURL = vi.fn();
+    clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => {});
+
+    requestPremium.mockResolvedValue(pricedResponse());
+    saveQuoteAndRenderPdf.mockResolvedValue({
+      ok: true,
+      leadId: "lead_9",
+      fileName: "Ilustrasi-Kontribusi-Dewi-2026-08-08.pdf",
+      // "%PDF" — enough to prove the bytes reach the Blob unmangled.
+      pdfBase64: "JVBERg==",
+    });
+  });
+
+  afterEach(() => {
+    clickSpy.mockRestore();
+  });
+
+  async function priceThenFillClient() {
+    render(<CalculatorForm />);
+    fillDob("1992-08-17");
+    submit();
+    await screen.findByText(/28\.930\.000/);
+
+    fireEvent.change(screen.getByLabelText("Nama klien"), {
+      target: { value: "Dewi Anggraini" },
+    });
+    fireEvent.change(screen.getByLabelText("Nomor WhatsApp"), {
+      target: { value: "081234567890" },
+    });
+  }
+
+  function save() {
+    fireEvent.click(
+      screen.getByRole("button", { name: "Simpan & buat PDF" })
+    );
+  }
+
+  test("the save step only appears once there is a price to save", () => {
+    render(<CalculatorForm />);
+
+    expect(screen.queryByLabelText("Nama klien")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Simpan & buat PDF" })
+    ).not.toBeInTheDocument();
+  });
+
+  test("sends the pricing inputs, not the shown price, alongside the client details", async () => {
+    await priceThenFillClient();
+    save();
+
+    await screen.findByText(/Penawaran tersimpan/);
+    expect(saveQuoteAndRenderPdf).toHaveBeenCalledWith({
+      productType: "life_PHE",
+      planType: "Essential",
+      dateOfBirth: "1992-08-17",
+      gender: "Pria",
+      smokingStatus: "Non Smoker",
+      sumAssured: 1_000_000_000,
+      paymentTerm: 10,
+      clientName: "Dewi Anggraini",
+      phone: "081234567890",
+      email: "",
+    });
+    // No premium of any kind on the wire — the server prices it again.
+    const sent = saveQuoteAndRenderPdf.mock.calls[0][0];
+    expect(Object.keys(sent)).not.toContain("annualPremium");
+    expect(Object.keys(sent)).not.toContain("premi");
+  });
+
+  test("downloads the returned PDF and links to the saved lead", async () => {
+    await priceThenFillClient();
+    save();
+
+    expect(await screen.findByText(/PDF terunduh/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Lihat di Leads" })).toHaveAttribute(
+      "href",
+      "/member/leads/lead_9"
+    );
+
+    expect(created).toHaveLength(1);
+    expect(created[0].type).toBe("application/pdf");
+    // 4 bytes, not the 8 characters of "JVBERg==" — the base64 was decoded
+    // rather than dropped into the Blob as text. (jsdom's Blob has no
+    // `.text()`, so size is the assertion available here.)
+    expect(created[0].size).toBe(4);
+    expect(clickSpy).toHaveBeenCalled();
+  });
+
+  test("says so when the lead saved but the PDF didn't render", async () => {
+    saveQuoteAndRenderPdf.mockResolvedValue({
+      ok: true,
+      leadId: "lead_9",
+      fileName: "x.pdf",
+      pdfBase64: null,
+    });
+    await priceThenFillClient();
+    save();
+
+    expect(
+      await screen.findByText(/PDF-nya gagal dibuat/)
+    ).toBeInTheDocument();
+    expect(created).toHaveLength(0);
+    // The lead is still there to open — the failure is the document, not the row.
+    expect(screen.getByRole("link", { name: "Lihat di Leads" })).toBeInTheDocument();
+  });
+
+  test("renders a failure code as Indonesian copy, with nothing downloaded", async () => {
+    saveQuoteAndRenderPdf.mockResolvedValue({
+      ok: false,
+      code: "CONTACT_REQUIRED",
+    });
+    await priceThenFillClient();
+    save();
+
+    expect(
+      await screen.findByText("Isi nomor WhatsApp atau email klien.")
+    ).toBeInTheDocument();
+    expect(created).toHaveLength(0);
+    expect(
+      screen.queryByRole("link", { name: "Lihat di Leads" })
+    ).not.toBeInTheDocument();
+  });
+
+  test("editing an input after saving hides the step and the confirmation", async () => {
+    await priceThenFillClient();
+    save();
+    await screen.findByText(/Penawaran tersimpan/);
+
+    fireEvent.click(screen.getByRole("button", { name: "Wanita" }));
+
+    // Stale price → the save step is gone, and so is a confirmation that
+    // would now be pointing at a different quote.
+    expect(screen.queryByText(/Penawaran tersimpan/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Simpan & buat PDF" })
+    ).not.toBeInTheDocument();
   });
 });

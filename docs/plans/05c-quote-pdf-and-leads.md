@@ -2,10 +2,52 @@
 
 ## Status
 
-**Proposed (2026-08-08)**, not yet built. Third of three sub-plans
-replacing [Plan 05](05-calculator-tool.md)'s original scope — see
+**Implemented 2026-08-08.** Third of three sub-plans replacing
+[Plan 05](05-calculator-tool.md)'s original scope — see
 [Plan 05a](05a-premium-engine-integration.md) for the full pivot rationale
 and what `premium-engine` provides.
+
+Four things came out differently from what's written below, each because
+the shipped `premium-engine@0.1.0` didn't match what the plan assumed.
+They're recorded here rather than silently absorbed into the code:
+
+1. **`handlePremiumRequest`, not `handleQuoteRequest`.** The quote entry
+   point can't serve this flow: `makeQuoteInputSchema` pins `sumAssured`
+   to `def.sumAssuredOptions` (four fixed amounts), which contradicts
+   05b's shipped free-form sum assured, and `handleQuoteRequest` ignores
+   `paymentTerm` entirely — it always prices the product default, so an
+   agent who quoted "sampai usia 99" would have "10 tahun" saved against
+   their client's name. `quote.ts` prices through
+   `handlePremiumRequest` (as `pricing.ts` already does) and builds the
+   `LeadRecord` shape app-side instead. The honeypot question is moot:
+   this action is member-only, so there is no anonymous path to protect
+   and no honeypot field.
+2. **One action, not two.** The plan sketched separate `quote.ts` and
+   `pdf.ts` actions and then flagged the hazard itself — two pricings
+   seconds apart can straddle midnight and disagree across an
+   insurance-age boundary. `saveQuoteAndRenderPdf` prices once and feeds
+   both the stored `Lead` and the document from that single result, which
+   removes the failure mode instead of guarding against it (the plan
+   explicitly allowed "or generate both in one action"). `pdf.ts` remains
+   a module, not an action — one fewer action endpoint exposed.
+3. **No logo in the theme.** `PdfTheme.logo` is declared on the type but
+   engine 0.1.0's renderer never reads it (verified against
+   `dist/pdf.js`); the header it draws is `brandName` in `colors.brand`.
+   Setting it would mean carrying ~120 KB of base64 PNG for something
+   nothing renders, so `theme.ts` omits it with a note, and a test guards
+   the omission so a future engine bump surfaces the decision. Colors and
+   brand name do apply — verification below is against those, not a logo.
+4. **`outputFileTracingIncludes`, not `vercel.json`'s `includeFiles`.**
+   Vercel doesn't apply `functions.includeFiles` to Next.js builds; the
+   Next-native equivalent is `outputFileTracingIncludes` in
+   `next.config.ts`, keyed on the route (`/member/calculator`). The
+   package also had to join `serverExternalPackages` — bundled, `/pdf`'s
+   `import.meta.url`-relative `readFileSync` calls resolve into
+   `.next/server/**` and miss regardless of what's traced. Both were
+   verified against a real `next build`: the route's `.nft.json` lists
+   all seven font/content/locale files with the rule and zero without it,
+   so the trap the plan describes is confirmed *and* confirmed fixed
+   without waiting on a Preview deploy.
 
 ## Depends on
 
@@ -166,6 +208,18 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
   price embedded in the output (proves the server recomputes rather than
   trusting the client, same guard `examples/vercel/premium-pdf.ts`
   documents).
+
+## Open question for a future plan
+
+The engine's `id` locale mostly uses this repo's sharia wording
+("Kontribusi Anda", "Santunan meninggal") — but two strings in the
+rendered document still don't: the page-1 eyebrow reads **"ILUSTRASI
+PREMI"**, and one `critical_PCA` checkmark reads **"Manfaat meninggal
+100% UP cair"**. Both are `premium-engine`'s copy, not this repo's, so
+neither is fixable from here — they need a change to the package's
+`locales/id.json` and `content/critical_PCA.md`. Noted rather than
+worked around, since both products priced today are syariah (see the
+per-product terminology decision, 2026-08-08).
 
 ## Verification
 

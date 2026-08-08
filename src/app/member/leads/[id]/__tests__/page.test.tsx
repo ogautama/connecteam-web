@@ -81,3 +81,94 @@ describe("/member/leads/[id]", () => {
     expect(notFound).toHaveBeenCalled();
   });
 });
+
+/**
+ * A calculator lead's id has always been reachable here — `getLeadForViewer`
+ * doesn't filter by source — and before Plan 05c this page cast every lead to
+ * a DiscResult regardless. This fixture is the case that used to crash: no
+ * `profileKey`, so the old `DISC_PROFILES[result.profileKey].title` threw on
+ * undefined. Rendering it at all is the regression guard.
+ */
+const calculatorLead = {
+  id: "lead_9",
+  source: "calculator",
+  name: "Dewi Anggraini",
+  contact: "0812-3456-7890",
+  inputs: {
+    productType: "critical_PCA",
+    planType: "Basic",
+    dateOfBirth: "1998-08-09",
+    gender: "Wanita",
+    smokingStatus: "Non Smoker",
+    sumAssured: 1_000_000_000,
+    paymentTerm: 10,
+  },
+  result: {
+    name: "Dewi Anggraini",
+    gender: "Wanita",
+    dateOfBirth: "1998-08-09",
+    phone: "0812-3456-7890",
+    smokingStatus: "Non Smoker",
+    productType: "critical_PCA",
+    productDisplayName: "Pru Critical Amanah",
+    planType: "Basic",
+    sumAssured: 1_000_000_000,
+    premi: 14_190_000,
+    monthlyPremium: 1_290_000,
+    paymentTerm: 10,
+    insuranceAge: 28,
+    discount: 0,
+    annualPremiumBeforeDiscount: 14_190_000,
+    monthlyPremiumBeforeDiscount: 1_290_000,
+    source: "member-calculator",
+    quotedAt: "2026-08-08T03:00:00.000Z",
+  },
+  createdAt: new Date("2026-08-08T03:00:00Z"),
+  ownerId: "agent_1",
+  owner: { id: "agent_1", name: "Budi Santoso" },
+  takerUserId: null,
+};
+
+describe("/member/leads/[id] — calculator lead (Plan 05c)", () => {
+  beforeEach(() => {
+    getLeadForViewer.mockResolvedValue(calculatorLead);
+  });
+
+  test("renders the quote instead of a DISC profile, without touching DISC_PROFILES", async () => {
+    render(await LeadDetailPage({ params: Promise.resolve({ id: "lead_9" }) }));
+
+    expect(
+      screen.getByRole("heading", { name: /Dewi Anggraini/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Pru Critical Amanah · Basic"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Rp 1.290.000")).toBeInTheDocument();
+    expect(screen.getByText("Rp 14.190.000")).toBeInTheDocument();
+    expect(screen.getByText("Rp 1.000.000.000")).toBeInTheDocument();
+    expect(screen.getByText("10 tahun")).toBeInTheDocument();
+    expect(screen.getByText("28 tahun")).toBeInTheDocument();
+    expect(screen.getByText("Penawaran oleh Budi Santoso", { exact: false })).toBeInTheDocument();
+
+    // Nothing DISC-shaped leaked through.
+    expect(screen.queryByText("D · Dominance")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Lembar jawaban/)).not.toBeInTheDocument();
+  });
+
+  test("is display only — no PDF regeneration, just the recompute-in-the-calculator note", async () => {
+    render(await LeadDetailPage({ params: Promise.resolve({ id: "lead_9" }) }));
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.getByText(/Butuh PDF-nya lagi/)).toHaveTextContent(
+      /Hitung\s+ulang di kalkulator/,
+    );
+  });
+
+  test("still offers WhatsApp for a non-member client", async () => {
+    render(await LeadDetailPage({ params: Promise.resolve({ id: "lead_9" }) }));
+
+    expect(
+      screen.getByRole("link", { name: "Chat di WhatsApp" }),
+    ).toHaveAttribute("href", "https://wa.me/6281234567890");
+  });
+});

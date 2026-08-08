@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import {
   MAX_SUM_ASSURED,
   UNTIL_AGE_TERMS,
@@ -14,6 +15,10 @@ import {
   type BenefitCategory,
 } from "@/lib/premium/categories";
 import { requestPremium } from "@/lib/premium/pricing";
+import {
+  saveQuoteAndRenderPdf,
+  type SaveQuoteFailure,
+} from "@/lib/premium/quote";
 
 /** The single-term success shape of requestPremium's `body.data` — single-term
  * because this form always sends a `paymentTerm` (the multi-term shape only
@@ -76,6 +81,41 @@ const SERVER_ERROR_MESSAGES: Record<string, string> = {
 };
 const GENERIC_ERROR_MESSAGE = "Gagal menghitung kontribusi. Coba lagi.";
 
+/** `saveQuoteAndRenderPdf`'s failure codes, in Indonesian (Plan 05c). */
+const SAVE_ERROR_MESSAGES: Record<SaveQuoteFailure, string> = {
+  NAME_REQUIRED: "Isi nama klien dulu.",
+  CONTACT_REQUIRED: "Isi nomor WhatsApp atau email klien.",
+  TERM_UNAVAILABLE:
+    "Masa pembayaran ini tidak tersedia untuk usia klien. Pilih yang lain.",
+  AGE_OUT_OF_RANGE: "Usia di luar ketentuan produk ini.",
+  RATE_NOT_AVAILABLE: "Tarif untuk kombinasi ini belum tersedia.",
+  UNKNOWN_PLAN: "Plan ini tidak tersedia untuk produk ini.",
+  UNKNOWN_PRODUCT: "Produk ini belum bisa dihitung.",
+  VALIDATION_FAILED: "Input belum valid — cek lagi isianmu.",
+};
+const GENERIC_SAVE_ERROR_MESSAGE = "Gagal menyimpan penawaran. Coba lagi.";
+
+/**
+ * Hands the rendered PDF to the browser as a download. Base64 rather than a
+ * URL because the document is never stored anywhere (Plan 05c): the Server
+ * Action returns the bytes, the agent saves them, and that copy is the only
+ * one that exists.
+ */
+function downloadPdf(base64: string, fileName: string) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+
+  const url = URL.createObjectURL(
+    new Blob([bytes], { type: "application/pdf" })
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 /** "YYYY-MM-DD" (the date input's value) → local Date. Never `new
  * Date(string)` — that parses as UTC and can shift the DOB by a day. */
 function parseLocalDob(value: string): Date | undefined {
@@ -132,11 +172,29 @@ export default function CalculatorForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  // The client-quote step (Plan 05c) — only reachable once a price is on
+  // screen, since a quote is the thing being saved.
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<{
+    leadId: string;
+    /** The lead stored but the PDF didn't render — worth saying out loud
+     * rather than letting a silent no-download look like a dead button. */
+    pdfFailed: boolean;
+  } | null>(null);
+  const [saving, startSaving] = useTransition();
+
   /** Every input edit after a priced result marks it stale — an agent must
    * never read an old premium against new inputs (Plan 05b decision). */
   function touch() {
     if (result) setStale(true);
     setError(null);
+    // A saved-quote confirmation belongs to the price that produced it. Once
+    // the inputs move it would be pointing at a different quote.
+    setSaved(null);
+    setSaveError(null);
   }
 
   function selectCategory(next: BenefitCategory) {
@@ -199,6 +257,47 @@ export default function CalculatorForm({
         }
       } catch {
         setError(GENERIC_ERROR_MESSAGE);
+      }
+    });
+  }
+
+  function handleSave(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!product || !productFields || !result || stale) return;
+    setSaveError(null);
+    setSaved(null);
+
+    startSaving(async () => {
+      try {
+        // Deliberately re-sends the pricing inputs, not `result` — the action
+        // prices again server-side and ignores any number a client could put
+        // on the wire (Plan 05c).
+        const response = await saveQuoteAndRenderPdf({
+          productType: product.id,
+          planType: productFields.planType,
+          dateOfBirth: dob,
+          gender,
+          smokingStatus,
+          sumAssured: sumAssured === "" ? undefined : Number(sumAssured),
+          paymentTerm: productFields.paymentTerm,
+          clientName,
+          phone: clientPhone,
+          email: clientEmail,
+        });
+
+        if (!response.ok) {
+          setSaveError(SAVE_ERROR_MESSAGES[response.code]);
+          return;
+        }
+        if (response.pdfBase64) {
+          downloadPdf(response.pdfBase64, response.fileName);
+        }
+        setSaved({
+          leadId: response.leadId,
+          pdfFailed: response.pdfBase64 === null,
+        });
+      } catch {
+        setSaveError(GENERIC_SAVE_ERROR_MESSAGE);
       }
     });
   }
@@ -441,6 +540,103 @@ export default function CalculatorForm({
                 </p>
               )}
             </div>
+
+            {/* Hidden while the price is stale: the saved lead and the PDF
+                must record the quote the agent is looking at, not the inputs
+                they have since edited. */}
+            {!stale && (
+              <form
+                onSubmit={handleSave}
+                className="mt-6 flex flex-col gap-4 border-t border-ink-100 pt-6"
+              >
+                <div>
+                  <h2 className="font-bold text-ink-900">
+                    Simpan &amp; buat PDF
+                  </h2>
+                  <p className="mt-0.5 text-sm text-ink-500">
+                    Penawaran tersimpan di Leads, dan PDF-nya langsung terunduh
+                    untuk kamu kirim ke klien.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="clientName" className={labelClass}>
+                      Nama klien
+                    </label>
+                    <input
+                      id="clientName"
+                      type="text"
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="clientPhone" className={labelClass}>
+                      Nomor WhatsApp
+                    </label>
+                    <input
+                      id="clientPhone"
+                      type="tel"
+                      inputMode="tel"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="clientEmail" className={labelClass}>
+                      Email{" "}
+                      <span className="font-normal text-ink-500">
+                        (kalau tidak ada WhatsApp)
+                      </span>
+                    </label>
+                    <input
+                      id="clientEmail"
+                      type="email"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+
+                {saveError && (
+                  <p
+                    aria-live="polite"
+                    className="text-sm font-medium text-brand-red-600"
+                  >
+                    {saveError}
+                  </p>
+                )}
+
+                {saved ? (
+                  <p
+                    aria-live="polite"
+                    className="rounded-lg border border-brand-navy-200 bg-brand-navy-50 px-3 py-2 text-sm text-ink-700"
+                  >
+                    {saved.pdfFailed
+                      ? "Penawaran tersimpan, tapi PDF-nya gagal dibuat. Coba tekan tombolnya lagi."
+                      : "Penawaran tersimpan dan PDF terunduh."}{" "}
+                    <Link
+                      href={`/member/leads/${saved.leadId}`}
+                      className="font-semibold text-brand-navy-700 hover:underline"
+                    >
+                      Lihat di Leads
+                    </Link>
+                  </p>
+                ) : null}
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="self-start rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
+                >
+                  {saving ? "Menyimpan…" : "Simpan & buat PDF"}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
