@@ -63,8 +63,7 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
   calculator layout (client name/contact, product + plan, sum assured,
   premium breakdown, quoting agent, date — display only, no "download PDF
   again" button; see the recompute-every-time rule under `pdf.ts` below).
-  The
-  page intro copy ("Hasil tes DISC dari link referral kamu…") and the
+  The page intro copy ("Hasil tes DISC dari link referral kamu…") and the
   `Leads` nav description in `src/lib/member/nav.ts` both get updated to
   stop implying DISC-only.
 - **`src/lib/premium/theme.ts`** — a `PdfTheme` built from this repo's
@@ -106,7 +105,12 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
     complexity a live calculator doesn't need), wanting the PDF again
     simply means running the calculator again — a fresh quote at
     today's rates, honestly. The `Lead` row remains the historical
-    record of what was quoted and when.
+    record of what was quoted and when. One implementation note:
+    `quote.ts` and `pdf.ts` each price independently, seconds apart in
+    the same flow — pass the same quote date from the quote step into
+    the PDF step (or generate both in one action) so a midnight
+    rollover that crosses an insurance-age boundary can't make the PDF
+    disagree with the stored `Lead`.
   - Pulls agent identity from the signed-in member's `MemberIntake`
     (`fullName`, `activePhone`) rather than having the agent type it in
     per quote.
