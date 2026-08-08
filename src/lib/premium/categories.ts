@@ -49,6 +49,13 @@ export const BENEFIT_CATEGORIES: BenefitCategory[] = [
     benefit: "Biaya rawat inap sesuai wilayah pertanggungan",
     // Not in premium-engine@0.1.0 — the tab shows "Segera hadir" until the
     // engine ships PruWell Medical and this id matches its ProductId.
+    //
+    // TERMINOLOGY (2026-08-08): PruWell Medical is konvensional — its copy
+    // uses "Premi"/"UP", unlike the two syariah products above whose copy
+    // must say "Kontribusi"/"Santunan Asuransi". The form's labels are
+    // currently hardcoded to the syariah terms because only syariah products
+    // are priceable; whoever lights this tab up must make the terminology
+    // per-product (see spec-calculator.html State A2).
     productId: "medical_PWM",
     productName: "PruWell Medical",
   },
