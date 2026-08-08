@@ -27,6 +27,20 @@ const PAD_X = 24 * S;
 const PAD_Y = 26 * S;
 const CONTENT_WIDTH = CARD_WIDTH - PAD_X * 2;
 
+/**
+ * The mockup's own proportions leave roughly a third of the card empty
+ * between the wordmark and the kicker — unremarkable in a 320px frame, a
+ * conspicuous void at 1920. Everything below the wordmark is drawn a quarter
+ * larger, which closes most of that band and makes the card easier to read at
+ * status size; the frame margins stay exactly where the mockup put them.
+ *
+ * Growing the block is the fix rather than moving it up: the layout is
+ * bottom-anchored, so translating it would only shift the same void beneath
+ * the footer, where it would read as a mistake instead of as breathing room.
+ */
+const CONTENT_SCALE = 1.25;
+const C = S * CONTENT_SCALE;
+
 // Brand tokens, copied from globals.css. Canvas can't read CSS custom
 // properties, so these are the one place in the app where the palette is
 // duplicated — hex values, named, so a mismatch is greppable.
@@ -74,12 +88,16 @@ export type ShareCardData = {
   dominant: readonly DiscTrait[];
   /** What the QR encodes: the test link, carrying `?ref=` when there is one. */
   qrMatrix: QrMatrix;
-  /** Printed under the caption — the landing page, host only, no scheme. */
+  /**
+   * Printed under the wordmark as identity, not instruction (revised
+   * 2026-08-08 — see the plan doc) — the landing page, host only, no scheme.
+   */
   siteHost: string;
   /**
-   * The leader a joiner should pick as "Pengundang / Unit", or null when no
-   * referrer resolved. Printed so someone who types the URL instead of
-   * scanning the QR still lands in the right unit.
+   * The leader a joiner should pick as "Pengundang / Unit" on `/join`, or
+   * null when no referrer resolved. Printed in the footer, labelled just
+   * "Unit", so someone who types the URL instead of scanning the QR still
+   * lands in the right unit.
    */
   unitName: string | null;
   /** Resolved CSS font stack — canvas needs a real family name, not a var(). */
@@ -176,9 +194,10 @@ function wrapText(ctx: Ctx, text: string, maxWidth: number): string[] {
 }
 
 /**
- * Shrinks the font until `text` fits `maxWidth`, down to `min`. Names and
- * hostnames are user data — a long unit name has to get smaller rather than
- * run off the card.
+ * Shrinks the font until `text` fits `maxWidth`, down to `min`, leaves it set
+ * on the context, and returns the size it settled on. Names and hostnames are
+ * user data — a long unit name has to get smaller rather than run off the
+ * card.
  */
 function fitFont(
   ctx: Ctx,
@@ -188,13 +207,14 @@ function fitFont(
   weight: number,
   size: number,
   min: number,
-): void {
+): number {
   let current = size;
   setFont(ctx, family, weight, current);
   while (current > min && ctx.measureText(text).width > maxWidth) {
     current -= 1;
     setFont(ctx, family, weight, current);
   }
+  return current;
 }
 
 function roundRectPath(
@@ -243,10 +263,12 @@ function brandGradient(ctx: Ctx): CanvasGradient {
 /* The draw                                                            */
 /* ------------------------------------------------------------------ */
 
-const QR_SIZE = 300;
-const QR_QUIET = 22;
-const QR_GAP = 36;
-const FOOTER_RULE_GAP = 16 * S;
+const CAPTION = "Scan buat ikut tesnya";
+
+const QR_SIZE = 300 * CONTENT_SCALE;
+const QR_QUIET = 22 * CONTENT_SCALE;
+const QR_GAP = 36 * CONTENT_SCALE;
+const FOOTER_RULE_GAP = 16 * C;
 
 /**
  * Draws the whole card into `ctx`, which must be sized `CARD_WIDTH ×
@@ -265,35 +287,48 @@ export function drawShareCard(ctx: Ctx, data: ShareCardData): void {
   ctx.textBaseline = "top";
   ctx.textAlign = "left";
 
-  drawWordmark(ctx, data.fontFamily);
+  drawWordmark(ctx, data);
 
   let bottom = CARD_HEIGHT - PAD_Y;
   bottom = drawFooter(ctx, data, bottom);
-  bottom = drawLegend(ctx, data, bottom - 26 * S);
-  bottom = drawSpectrum(ctx, data, bottom - 12 * S);
-  bottom = drawBlend(ctx, data, bottom - 20 * S);
-  bottom = drawTitle(ctx, data, bottom - 8 * S);
-  drawKicker(ctx, data.fontFamily, bottom - 8 * S);
+  bottom = drawLegend(ctx, data, bottom - 26 * C);
+  bottom = drawSpectrum(ctx, data, bottom - 12 * C);
+  bottom = drawBlend(ctx, data, bottom - 20 * C);
+  bottom = drawTitle(ctx, data, bottom - 8 * C);
+  drawKicker(ctx, data.fontFamily, bottom - 8 * C);
 }
 
-function drawWordmark(ctx: Ctx, family: string): void {
-  setFont(ctx, family, 800, 14 * S, -0.02 * 14 * S);
+/**
+ * The wordmark, plus — as of the 2026-08-08 revision — the site's own
+ * address underneath it. The URL used to live in the footer, next to "Scan
+ * buat ikut tesnya," where it read as a second way into the test; it isn't
+ * one (it carries no `?ref=`, only the QR does). Under the wordmark it reads
+ * as identity instead, the way a poster prints a brand's address, and the
+ * footer is left holding exactly one call to action.
+ */
+function drawWordmark(ctx: Ctx, data: ShareCardData): void {
+  const wordmarkSize = 14 * S;
+  setFont(ctx, data.fontFamily, 800, wordmarkSize, -0.02 * wordmarkSize);
   const connect = "CONNECT";
   ctx.fillStyle = WHITE;
   ctx.fillText(connect, PAD_X, PAD_Y);
   ctx.fillStyle = RED_400;
   ctx.fillText("eam", PAD_X + ctx.measureText(connect).width, PAD_Y);
+
+  fitFont(ctx, data.siteHost, CONTENT_WIDTH, data.fontFamily, 400, 9.5 * C, 9 * C);
+  ctx.fillStyle = NAVY_300;
+  ctx.fillText(data.siteHost, PAD_X, PAD_Y + wordmarkSize * 1.2);
 }
 
 function drawKicker(ctx: Ctx, family: string, bottom: number): void {
-  const size = 11.5 * S;
+  const size = 11.5 * C;
   setFont(ctx, family, 700, size, 0.12 * size);
   ctx.fillStyle = YELLOW_400;
   ctx.fillText("HASIL TES DISC", PAD_X, bottom - size * 1.2);
 }
 
 function drawTitle(ctx: Ctx, data: ShareCardData, bottom: number): number {
-  const size = 40 * S;
+  const size = 40 * C;
   const lineHeight = size * 1.02;
   setFont(ctx, data.fontFamily, 700, size, -0.032 * size);
 
@@ -307,7 +342,7 @@ function drawTitle(ctx: Ctx, data: ShareCardData, bottom: number): number {
 }
 
 function drawBlend(ctx: Ctx, data: ShareCardData, bottom: number): number {
-  const size = 14 * S;
+  const size = 14 * C;
   const lineHeight = size * 1.35;
   setFont(ctx, data.fontFamily, 400, size);
 
@@ -321,7 +356,7 @@ function drawBlend(ctx: Ctx, data: ShareCardData, bottom: number): number {
 }
 
 function drawSpectrum(ctx: Ctx, data: ShareCardData, bottom: number): number {
-  const height = 12 * S;
+  const height = 12 * C;
   const top = bottom - height;
 
   ctx.save();
@@ -337,45 +372,58 @@ function drawSpectrum(ctx: Ctx, data: ShareCardData, bottom: number): number {
   return top;
 }
 
+/**
+ * Four swatch-and-label pairs on one row. The row is the only place on the
+ * card where four independent strings share a line, so its gap is fitted
+ * rather than fixed: at `CONTENT_SCALE` the mockup's 14px gap no longer
+ * leaves the four items room, and a legend that wrapped or ran off would be a
+ * worse trade than one sitting slightly tighter.
+ */
 function drawLegend(ctx: Ctx, data: ShareCardData, bottom: number): number {
-  const size = 12 * S;
-  const swatch = 8 * S;
-  const gap = 14 * S;
+  const size = 12 * C;
+  const swatch = 8 * C;
+  const pad = 5 * C;
   const top = bottom - size * 1.2;
 
   setFont(ctx, data.fontFamily, 400, size);
 
+  const labels = DISC_TRAITS.map(
+    (trait) => `${trait} ${data.percentages[trait]}%`,
+  );
+  const items = labels.reduce(
+    (sum, label) => sum + swatch + pad + ctx.measureText(label).width,
+    0,
+  );
+  const gap = Math.max(
+    6 * C,
+    Math.min(14 * C, (CONTENT_WIDTH - items) / (labels.length - 1)),
+  );
+
   let x = PAD_X;
-  for (const trait of DISC_TRAITS) {
-    const label = `${trait} ${data.percentages[trait]}%`;
+  DISC_TRAITS.forEach((trait, index) => {
+    const label = labels[index];
 
     // Full strength, unlike the bar: the legend is the key, and a swatch
     // dimmer than the segment it names is just harder to match up. Dominance
     // is the bar's job to show.
     ctx.fillStyle = TRAIT_FILL[trait];
-    roundRectPath(
-      ctx,
-      x,
-      top + (size * 1.2 - swatch) / 2,
-      swatch,
-      swatch,
-      2 * S,
-    );
+    roundRectPath(ctx, x, top + (size * 1.2 - swatch) / 2, swatch, swatch, 2 * C);
     ctx.fill();
 
     ctx.fillStyle = NAVY_200;
-    ctx.fillText(label, x + swatch + 5 * S, top);
-    x += swatch + 5 * S + ctx.measureText(label).width + gap;
-  }
+    ctx.fillText(label, x + swatch + pad, top);
+    x += swatch + pad + ctx.measureText(label).width + gap;
+  });
 
   return top;
 }
 
 /**
- * The referral surface. Everything a stranger seeing this in someone's status
- * needs: a QR straight to the referrer's link, the plain landing-page URL for
- * anyone who'd rather type it, and the unit to name on the join form so the
- * typed route credits the same people the scanned one does.
+ * The referral surface's one job: get someone to scan. The site's own
+ * address moved under the wordmark (2026-08-08 revision — it was reading as
+ * a second way into the test, sitting right here), so what's left is the QR,
+ * the "scan" caption, and the unit to name if the visitor follows up on
+ * `/join` instead of scanning.
  */
 function drawFooter(ctx: Ctx, data: ShareCardData, bottom: number): number {
   const qrTop = bottom - QR_SIZE;
@@ -385,58 +433,70 @@ function drawFooter(ctx: Ctx, data: ShareCardData, bottom: number): number {
   const textX = PAD_X + QR_SIZE + QR_GAP;
   const textWidth = CARD_WIDTH - PAD_X - textX;
 
-  const captionSize = 13 * S;
-  const hostSize = 12 * S;
-  const labelSize = 9 * S;
-  const unitSize = 12.5 * S;
-  const blockGap = 8 * S;
+  const captionSize = 13 * C;
+  const labelSize = 9 * C;
+  const unitSize = 12.5 * C;
+  const blockGap = 8 * C;
 
-  const rows = data.unitName
-    ? captionSize * 1.35 +
-      hostSize * 1.35 +
-      blockGap +
-      labelSize * 1.4 +
-      unitSize * 1.35
-    : captionSize * 1.35 + hostSize * 1.35;
-
-  let y = qrTop + (QR_SIZE - rows) / 2;
-
-  setFont(ctx, data.fontFamily, 600, captionSize);
-  ctx.fillStyle = WHITE;
-  ctx.fillText("Scan buat ikut tesnya", textX, y);
-  y += captionSize * 1.35;
-
-  fitFont(
-    ctx,
-    data.siteHost,
-    textWidth,
-    data.fontFamily,
-    400,
-    hostSize,
-    9 * S,
-  );
-  ctx.fillStyle = NAVY_300;
-  ctx.fillText(data.siteHost, textX, y);
-  y += hostSize * 1.35;
-
+  // The unit is a person's name, so it gets both escape hatches: shrink to a
+  // floor, then wrap what's still too wide. Every real leader name fits on one
+  // line at full size — this is for the one that doesn't.
+  let unitLines: string[] = [];
+  let unitFitted = unitSize;
   if (data.unitName) {
-    y += blockGap;
-    setFont(ctx, data.fontFamily, 700, labelSize, 0.1 * labelSize);
-    ctx.fillStyle = NAVY_300;
-    ctx.fillText("PENGUNDANG / UNIT", textX, y);
-    y += labelSize * 1.4;
-
-    fitFont(
+    unitFitted = fitFont(
       ctx,
       data.unitName,
       textWidth,
       data.fontFamily,
       600,
       unitSize,
-      9 * S,
+      9 * C,
     );
+    unitLines = wrapText(ctx, data.unitName, textWidth);
+  }
+
+  // Fixed copy, but the column narrowed when the QR grew — fitted like the
+  // rest rather than left to run past the card edge.
+  const captionFitted = fitFont(
+    ctx,
+    CAPTION,
+    textWidth,
+    data.fontFamily,
+    600,
+    captionSize,
+    9 * C,
+  );
+
+  const rows =
+    captionFitted * 1.35 +
+    (unitLines.length
+      ? blockGap + labelSize * 1.4 + unitLines.length * unitFitted * 1.35
+      : 0);
+
+  let y = qrTop + (QR_SIZE - rows) / 2;
+
+  setFont(ctx, data.fontFamily, 600, captionFitted);
+  ctx.fillStyle = WHITE;
+  ctx.fillText(CAPTION, textX, y);
+  y += captionFitted * 1.35;
+
+  if (unitLines.length) {
+    y += blockGap;
+    setFont(ctx, data.fontFamily, 700, labelSize, 0.1 * labelSize);
+    ctx.fillStyle = NAVY_300;
+    // Shortened from "Pengundang / Unit" (2026-08-08): the footer already
+    // reads as belonging to the DISC test, so the full /join field name was
+    // redundant here, and it was the only string competing with the caption
+    // once the URL moved out.
+    ctx.fillText("UNIT", textX, y);
+    y += labelSize * 1.4;
+
+    setFont(ctx, data.fontFamily, 600, unitFitted);
     ctx.fillStyle = WHITE;
-    ctx.fillText(data.unitName, textX, y);
+    unitLines.forEach((line, index) => {
+      ctx.fillText(line, textX, y + index * unitFitted * 1.35);
+    });
   }
 
   const ruleY = qrTop - FOOTER_RULE_GAP;
@@ -459,7 +519,7 @@ function drawQr(
   size: number,
 ): void {
   ctx.fillStyle = WHITE;
-  roundRectPath(ctx, x, y, size, size, 6 * S);
+  roundRectPath(ctx, x, y, size, size, 6 * C);
   ctx.fill();
 
   const count = matrix.length;

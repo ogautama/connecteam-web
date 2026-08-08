@@ -186,15 +186,35 @@ describe("drawShareCard", () => {
     });
   });
 
-  test("carries the referral footer: caption, host and unit", () => {
+  test("prints the site's own address under the wordmark, not the footer", () => {
+    // Revised 2026-08-08: the URL used to sit next to "Scan buat ikut
+    // tesnya," where it read as a second way into the test. It moved under
+    // the wordmark — drawn first, so it lands before every footer string.
+    const { ctx, calls } = recordingContext();
+    drawShareCard(ctx, cardData());
+    const fillTexts = calls.filter((c) => c.op === "fillText");
+
+    const hostIndex = fillTexts.findIndex(
+      (c) => c.args[0] === "connecteam-web.vercel.app",
+    );
+    const captionIndex = fillTexts.findIndex(
+      (c) => c.args[0] === "Scan buat ikut tesnya",
+    );
+    expect(hostIndex).toBeGreaterThan(-1);
+    expect(hostIndex).toBeLessThan(captionIndex);
+  });
+
+  test("carries the referral footer: caption and unit, labelled just \"Unit\"", () => {
     const { ctx, calls } = recordingContext();
     drawShareCard(ctx, cardData());
     const written = texts(calls);
 
     expect(written).toContain("Scan buat ikut tesnya");
-    expect(written).toContain("connecteam-web.vercel.app");
-    expect(written).toContain("PENGUNDANG / UNIT");
+    expect(written).toContain("UNIT");
     expect(written).toContain("Robert Hartono");
+    // Shortened from "Pengundang / Unit" — the full /join field name was
+    // redundant once the footer held nothing but referral content.
+    expect(written).not.toContain("Pengundang / Unit");
   });
 
   test("drops the unit block when no referrer resolved", () => {
@@ -203,7 +223,7 @@ describe("drawShareCard", () => {
     const written = texts(calls);
 
     expect(written).toContain("connecteam-web.vercel.app");
-    expect(written).not.toContain("PENGUNDANG / UNIT");
+    expect(written).not.toContain("UNIT");
   });
 
   test("never prints the invite code — the QR is what carries it", () => {
@@ -235,26 +255,40 @@ describe("drawShareCard", () => {
     }
   });
 
-  test("shrinks a long unit name instead of running it off the card", () => {
+  test("shrinks then wraps a long unit name instead of running it off", () => {
     const short = "Robert";
     const long = "Bartholomew Kusumaningrat Wicaksono";
 
+    /** Every line drawn for `unitName`, with the size it was drawn at. */
     const drawn = (unitName: string) => {
       const { ctx, calls } = recordingContext();
       drawShareCard(ctx, cardData({ unitName }));
-      const call = calls.find(
-        (c) => c.op === "fillText" && c.args[0] === unitName,
-      );
-      const [, x] = call!.args as [string, number, number];
-      const size = Number(/(\d+(?:\.\d+)?)px/.exec(call!.font ?? "")![1]);
-      return { x, size, right: x + unitName.length * size * 0.55 };
+      const words = new Set(unitName.split(" "));
+      return calls
+        .filter(
+          (c) =>
+            c.op === "fillText" &&
+            String(c.args[0])
+              .split(" ")
+              .every((word) => words.has(word)),
+        )
+        .map((c) => {
+          const [text, x] = c.args as [string, number, number];
+          const size = Number(/(\d+(?:\.\d+)?)px/.exec(c.font ?? "")![1]);
+          return { text, size, right: x + text.length * size * 0.55 };
+        });
     };
 
     const brief = drawn(short);
     const wordy = drawn(long);
 
-    expect(wordy.size).toBeLessThan(brief.size);
-    expect(wordy.right).toBeLessThanOrEqual(CARD_WIDTH);
+    expect(brief).toHaveLength(1);
+    expect(wordy.length).toBeGreaterThan(1);
+    expect(wordy[0].size).toBeLessThan(brief[0].size);
+    // Both escape hatches together have to keep every line on the card.
+    wordy.forEach((line) => expect(line.right).toBeLessThanOrEqual(CARD_WIDTH));
+    // And the whole name still gets printed.
+    expect(wordy.map((l) => l.text).join(" ")).toBe(long);
   });
 
   test("draws the QR plate and its dark modules", () => {

@@ -33,6 +33,44 @@ Two deviations from the mockup, both decided while building:
   C-dominant profile's biggest segment would have vanished. The mockup's
   legend made the same substitution.
 
+### Follow-up revision (2026-08-08)
+
+Two problems found by using the shipped card, worked through in a round of
+throwaway HTML mockups (not committed — the decided result is
+[spec-disc-share-card.html](../design/spec-disc-share-card.html), all ten
+profiles at real `scoreDisc` percentages) before touching code:
+
+- **The empty band between the wordmark and the kicker was too large** — the
+  mockup's own proportions, unremarkable at a 320px frame, read as roughly a
+  third of dead space at 1080×1920. **Decided: scale everything below the
+  wordmark up 1.25×** (`CONTENT_SCALE` in `shareCard.ts`), rather than
+  translating the block upward — translating would only move the same void
+  beneath the footer. Growing the block instead of relocating it also means
+  every one of the ten profile titles now wraps to two lines, so the band is
+  the same (~15%) on all ten rather than varying by title length. Two knock-on
+  fits were needed at the larger scale: the four-item legend row and the
+  footer caption both stopped fitting the mockup's fixed gap/size at 1.25×,
+  so both are now measured and fitted to their available width rather than
+  hardcoded.
+- **The printed website URL read as a second way into the test.** It sat
+  directly under "Scan buat ikut tesnya," inside the same block, so typing it
+  looked equivalent to scanning. It isn't — the printed URL is the landing
+  page and carries no `?ref=`; only the QR goes to the referrer's actual
+  link. Three placements were mocked (URL under the wordmark as identity;
+  URL kept at the bottom but labelled "Tentang kami" and ruled off; the
+  wordmark/URL lockup floated to split the empty band instead of moving the
+  URL at all) and compared side by side, including against the real printed
+  host (`connecteam-web.vercel.app` today, vs. the shorter `connecteam.id`
+  the mockups assumed). **Decided: the URL moves under the wordmark**, styled
+  as identity rather than instruction — the way a poster prints a brand's
+  address, not a second call to action. The footer is left holding exactly
+  one thing to do (scan the QR) plus the unit to name if the visitor follows
+  up on `/join` instead. **The unit label is shortened to "Unit"** — the
+  footer already reads as belonging to the DISC test, so "Pengundang / Unit"
+  was redundant with the referral context around it, and it was the only
+  string in the footer competing with the caption for a reader's attention
+  once the URL left.
+
 ## Goal
 
 A personality result is the most naturally shareable thing this org
