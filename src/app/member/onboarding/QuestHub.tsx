@@ -233,18 +233,6 @@ const SECTIONS: Record<LeafSectionId, PlaceholderGroup[]> = {
       ],
     },
   ],
-  calculator: [
-    {
-      items: [
-        {
-          icon: "🧮",
-          title: "Kalkulator Income",
-          tag: "Segera hadir",
-          note: "Tool-nya belum dibangun (Plan 05, ditunda). Begitu jadi, bagian ini yang jadi pintu masuknya.",
-        },
-      ],
-    },
-  ],
 };
 
 function KnowYourselfDetail({

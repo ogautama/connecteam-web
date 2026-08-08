@@ -23,7 +23,6 @@ export type HubSectionId =
   | "selling-learning-center"
   | "selling-bank-form"
   | "selling-sales-tools"
-  | "calculator"
   | "references"
   | "references-recording"
   | "references-commission"
@@ -116,10 +115,13 @@ export const MEMBER_NAV: MemberNavItem[] = [
       },
     ],
   },
+  // Not a hub section since Plan 05b — a real route, like Leads/Add Member
+  // below: an interactive tool, not a content page. Keeps its long-standing
+  // sidebar slot between Selling and References.
   {
     label: "Calculator",
-    section: "calculator",
-    description: "Hitung potensi income",
+    href: "/member/calculator",
+    description: "Hitung premi produk untuk calon klienmu",
   },
   {
     label: "References",
@@ -254,15 +256,13 @@ export function showsLeaderBadge(item: MemberNavItem, role: Role): boolean {
 /**
  * The dashboard's quick-link cards — top-level hub sections only (Onboarding,
  * Recruiting, Selling, References, Directory). Filtering on `.section` drops
- * both route-only items (Dashboard, Add Member carry no `section`) in one
- * go; Calculator is excluded explicitly since it isn't a real destination yet
- * (Plan 05, deferred behind `CALCULATOR_LIVE`). No children flattened in —
- * unlike the sidebar, the dashboard doesn't drill into a section's own items.
+ * every route-only item (Dashboard, Calculator, Leads, Add Member carry no
+ * `section`) in one go — by design, tools don't get a card. No children
+ * flattened in — unlike the sidebar, the dashboard doesn't drill into a
+ * section's own items.
  */
 export function memberSections(role: Role): MemberNavItem[] {
-  return visibleNavItems(role).filter(
-    (item) => item.section !== undefined && item.section !== "calculator"
-  );
+  return visibleNavItems(role).filter((item) => item.section !== undefined);
 }
 
 export function isValidSection(value: string | undefined): value is HubSectionId {
