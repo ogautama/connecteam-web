@@ -205,11 +205,12 @@ export const MEMBER_NAV: MemberNavItem[] = [
     separatorBefore: true,
   },
   // Leads: open to every role (Plan 16) — an agent sees only the leads
-  // their own referral link brought in, a leader their whole downline.
+  // their own referral link and their own quotes brought in, a leader their
+  // whole downline. Two sources since Plan 05c, hence the source-neutral copy.
   {
     label: "Leads",
     href: "/member/leads",
-    description: "Hasil tes DISC dari link referral kamu",
+    description: "Hasil tes DISC dan penawaran kalkulator",
   },
   // Not a hub section — a leader-only tool on its own route, kept last so it
   // sits apart from the sections in both the nav and the dashboard cards.
