@@ -17,7 +17,11 @@ type Status = "idle" | "working" | "error";
  * "Simpan gambar hasilnya" — produces the 9:16 card (Plan 23) and hands it
  * over: the native share sheet where the browser has one with file support
  * (which is where this is used — a phone, on the way to a WhatsApp status),
- * a plain download everywhere else.
+ * a plain download everywhere else, and the download again if the share
+ * sheet was offered but failed for any reason other than the visitor
+ * cancelling it (`deliver`) — `navigator.share()` has to run inside the
+ * click's transient activation window, and the QR/font prep ahead of it can
+ * eat into that on a slow connection.
  *
  * Everything browser-shaped lives here so `lib/disc/shareCard` stays a
  * function of a canvas context: the QR encoder, font loading, `toBlob`, and
@@ -49,12 +53,7 @@ export default function ShareCardButton({
       const blob = await renderCard({ result, title, blend, refCode, unitName });
       await deliver(blob, shareCardFileName(title));
       setStatus("idle");
-    } catch (error) {
-      // An aborted share sheet is the user changing their mind, not a failure.
-      if (error instanceof DOMException && error.name === "AbortError") {
-        setStatus("idle");
-        return;
-      }
+    } catch {
       setStatus("error");
     }
   }
@@ -207,8 +206,20 @@ async function deliver(blob: Blob, fileName: string): Promise<void> {
   // Chrome has a share sheet that refuses files, and calling it would throw
   // after the visitor already picked a target.
   if (navigator.canShare?.({ files: [file] })) {
-    await navigator.share({ files: [file] });
-    return;
+    try {
+      await navigator.share({ files: [file] });
+      return;
+    } catch (error) {
+      // A dismissed share sheet is the user changing their mind — leave it
+      // there, don't force a download on them. Any other failure falls
+      // through to the download below instead of leaving the visitor with
+      // nothing: `share()` needs to run inside the click's transient
+      // activation window, and `renderCard` awaits a dynamic import and
+      // font loading first — on a slow connection that's enough for the
+      // window to close and `share()` to reject for a reason that has
+      // nothing to do with whether a download would still work fine.
+      if (error instanceof DOMException && error.name === "AbortError") return;
+    }
   }
 
   const url = URL.createObjectURL(blob);

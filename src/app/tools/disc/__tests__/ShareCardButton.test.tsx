@@ -156,7 +156,8 @@ describe("ShareCardButton", () => {
     );
   });
 
-  test("a dismissed share sheet is not an error", async () => {
+  test("a dismissed share sheet is not an error, and doesn't fall back to a download", async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
     Object.defineProperty(navigator, "canShare", {
       configurable: true,
       value: vi.fn(() => true),
@@ -172,6 +173,38 @@ describe("ShareCardButton", () => {
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "Simpan gambar hasilnya" })).toBeEnabled(),
     );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    // The visitor cancelled on purpose — forcing a download afterwards would
+    // be doing the opposite of what they just said.
+    expect(click).not.toHaveBeenCalled();
+  });
+
+  test("any other share failure falls back to a download instead of giving up", async () => {
+    // The most likely real cause: `share()` has to run inside the click's
+    // transient activation window, and `renderCard` awaits a dynamic import
+    // plus font loading first — on a slow connection that budget can run out
+    // before `share()` is even called, and it rejects for a reason that has
+    // nothing to do with whether a plain download would still work.
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: vi.fn(() => true),
+    });
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: vi
+        .fn()
+        .mockRejectedValue(
+          new DOMException("Must be handling a user gesture", "NotAllowedError"),
+        ),
+    });
+
+    renderButton();
+    fireEvent.click(screen.getByRole("button", { name: "Simpan gambar hasilnya" }));
+
+    await waitFor(() => expect(click).toHaveBeenCalled());
+    const anchor = click.mock.instances[0] as unknown as HTMLAnchorElement;
+    expect(anchor.download).toBe("disc-sang-penjaga.png");
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
