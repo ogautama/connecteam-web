@@ -26,16 +26,23 @@ describe("visibleNavItems", () => {
   it("shows an agent the dashboard plus every top-level section", () => {
     const labels = visibleNavItems("agent").map((item) => item.label);
 
+    // Content sections first, then the tools cluster (Calculator, Leads) —
+    // Calculator moved out of the Selling/References slot on 2026-08-08.
     expect(labels).toEqual([
       "Dashboard",
       "Onboarding",
       "Recruiting",
       "Selling",
-      "Calculator",
       "References",
       "Directory",
+      "Calculator",
       "Leads",
     ]);
+  });
+
+  it("draws the tools divider above Calculator, and only there", () => {
+    const withSeparator = MEMBER_NAV.filter((item) => item.separatorBefore);
+    expect(withSeparator.map((item) => item.label)).toEqual(["Calculator"]);
   });
 
   it("shows Leads to an agent too — it's not role-gated", () => {

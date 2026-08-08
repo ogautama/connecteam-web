@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import {
+  MAX_SUM_ASSURED,
   UNTIL_AGE_TERMS,
   makePremiumInputSchema,
   type PaymentTerm,
@@ -54,6 +55,11 @@ const VALIDATION_MESSAGES: Record<string, string> = {
   "validation.dateOfBirth.required": "Isi tanggal lahir klien dulu.",
   "validation.dateOfBirth.future": "Tanggal lahir tidak boleh di masa depan.",
   "validation.dateOfBirth.ageOutOfRange": "Usia di luar ketentuan produk ini.",
+  "validation.sumAssured.required": "Isi uang pertanggungan dulu.",
+  "validation.sumAssured.notPositive": "Uang pertanggungan harus lebih dari 0.",
+  "validation.sumAssured.tooLarge": `Uang pertanggungan maksimum ${rupiah.format(
+    MAX_SUM_ASSURED
+  )}.`,
 };
 const FALLBACK_VALIDATION_MESSAGE = "Input belum valid — cek lagi isianmu.";
 
@@ -76,16 +82,24 @@ function parseLocalDob(value: string): Date | undefined {
 /** Fields owned by the selected product — reset whenever the tab changes. */
 type ProductFields = {
   planType: string;
-  sumAssured: number;
   paymentTerm: number;
 };
 
 function defaultFieldsFor(def: ProductDefinition): ProductFields {
   return {
     planType: def.plans[0],
-    sumAssured: def.sumAssuredOptions[0],
     paymentTerm: def.defaultPaymentTerm,
   };
+}
+
+/** Free-form by decision (2026-08-08): the premium schema prices any positive
+ * amount — that's the point of the agent surface — so this isn't a picklist.
+ * State keeps digits only; the input displays them id-ID-grouped ("1.000.000").
+ */
+const DEFAULT_SUM_ASSURED = "1000000000"; // Rp 1 miliar
+
+function groupDigits(digits: string): string {
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 export default function CalculatorForm({
@@ -103,6 +117,7 @@ export default function CalculatorForm({
   const [dob, setDob] = useState("");
   const [gender, setGender] = useState("Pria");
   const [smokingStatus, setSmokingStatus] = useState("Non Smoker");
+  const [sumAssured, setSumAssured] = useState(DEFAULT_SUM_ASSURED);
   const [productFields, setProductFields] = useState<ProductFields | null>(
     product ? defaultFieldsFor(product) : null
   );
@@ -131,6 +146,10 @@ export default function CalculatorForm({
     if (!product || !productFields) return;
     setError(null);
 
+    // State holds digits only, so this is a plain int (or undefined when
+    // empty, which the schema reports as sumAssured.required).
+    const sumAssuredNumber = sumAssured === "" ? undefined : Number(sumAssured);
+
     // Same schema the server applies (minus the rates) — an invalid input
     // renders inline without paying the Server Action round trip.
     const parsed = makePremiumInputSchema(product).safeParse({
@@ -139,7 +158,7 @@ export default function CalculatorForm({
       dateOfBirth: parseLocalDob(dob),
       gender,
       smokingStatus,
-      sumAssured: productFields.sumAssured,
+      sumAssured: sumAssuredNumber,
       paymentTerm: productFields.paymentTerm,
     });
     if (!parsed.success) {
@@ -159,7 +178,7 @@ export default function CalculatorForm({
           dateOfBirth: dob,
           gender,
           smokingStatus,
-          sumAssured: productFields.sumAssured,
+          sumAssured: sumAssuredNumber,
           paymentTerm: productFields.paymentTerm,
         });
         if (response.httpStatus === 200) {
@@ -279,24 +298,20 @@ export default function CalculatorForm({
                 <label htmlFor="sumAssured" className={labelClass}>
                   Uang pertanggungan
                 </label>
-                <select
-                  id="sumAssured"
-                  value={productFields.sumAssured}
-                  onChange={(e) => {
-                    setProductFields({
-                      ...productFields,
-                      sumAssured: Number(e.target.value),
-                    });
-                    touch();
-                  }}
-                  className={inputClass}
-                >
-                  {product.sumAssuredOptions.map((amount) => (
-                    <option key={amount} value={amount}>
-                      {rupiah.format(amount)}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2 rounded-lg border border-ink-100 bg-white px-3 py-2">
+                  <span className="text-ink-500">Rp</span>
+                  <input
+                    id="sumAssured"
+                    type="text"
+                    inputMode="numeric"
+                    value={groupDigits(sumAssured)}
+                    onChange={(e) => {
+                      setSumAssured(e.target.value.replace(/\D/g, ""));
+                      touch();
+                    }}
+                    className="w-full text-ink-900 outline-none"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col gap-1">
@@ -354,19 +369,13 @@ export default function CalculatorForm({
               </p>
             )}
 
-            <div className="flex flex-wrap items-center gap-4">
-              <button
-                type="submit"
-                disabled={pending}
-                className="rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
-              >
-                {pending ? "Menghitung…" : "Hitung Premi"}
-              </button>
-              <p className="text-xs text-ink-300">
-                Harga dihitung di server saat kamu menekan tombol — bukan per
-                ketikan.
-              </p>
-            </div>
+            <button
+              type="submit"
+              disabled={pending}
+              className="self-start rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
+            >
+              {pending ? "Menghitung…" : "Hitung Premi"}
+            </button>
           </form>
         )}
       </div>

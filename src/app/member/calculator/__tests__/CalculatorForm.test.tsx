@@ -20,7 +20,7 @@ function pricedResponse(overrides: Record<string, unknown> = {}) {
         planType: "Essential",
         gender: "Pria",
         smokingStatus: "Non Smoker",
-        sumAssured: 500_000_000,
+        sumAssured: 1_000_000_000,
         insuranceAge: 35,
         paymentTerm: 10,
         annualPremium: 28_930_000,
@@ -127,9 +127,45 @@ describe("CalculatorForm", () => {
       dateOfBirth: "1992-08-17",
       gender: "Pria",
       smokingStatus: "Non Smoker",
-      sumAssured: 500_000_000,
+      // The free-form field's pre-fill: Rp 1 miliar.
+      sumAssured: 1_000_000_000,
       paymentTerm: 10,
     });
+  });
+
+  test("sum assured is free-form: pre-filled grouped, edits reprice at any amount", async () => {
+    requestPremium.mockResolvedValue(pricedResponse());
+    render(<CalculatorForm />);
+
+    const sumAssured = screen.getByLabelText("Uang pertanggungan");
+    expect(sumAssured).toHaveValue("1.000.000.000");
+
+    // Not one of the old picklist options — any number goes through.
+    fireEvent.change(sumAssured, { target: { value: "750000123" } });
+    expect(sumAssured).toHaveValue("750.000.123");
+
+    fillDob("1992-08-17");
+    submit();
+
+    await screen.findByText(/28\.930\.000/);
+    expect(requestPremium).toHaveBeenCalledWith(
+      expect.objectContaining({ sumAssured: 750_000_123 })
+    );
+  });
+
+  test("an empty sum assured renders inline and never calls the pricing action", async () => {
+    render(<CalculatorForm />);
+
+    fillDob("1992-08-17");
+    fireEvent.change(screen.getByLabelText("Uang pertanggungan"), {
+      target: { value: "" },
+    });
+    submit();
+
+    expect(
+      await screen.findByText("Isi uang pertanggungan dulu.")
+    ).toBeInTheDocument();
+    expect(requestPremium).not.toHaveBeenCalled();
   });
 
   test("shows the discount only when the engine applied one", async () => {

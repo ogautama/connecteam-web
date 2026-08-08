@@ -51,6 +51,9 @@ export type MemberNavItem = {
   description?: string;
   /** Whole item is leader-only — hidden outright from agents. */
   leaderOnly?: boolean;
+  /** Sidebar draws a divider above this item — marks where the content
+   * sections end and the tools (Calculator, Leads, Add Member) begin. */
+  separatorBefore?: boolean;
   /** Nested beneath a parent in the sidebar (one level only). */
   children?: MemberNavItem[];
 };
@@ -114,14 +117,6 @@ export const MEMBER_NAV: MemberNavItem[] = [
         description: "Tabel premi, medical, dan alat bantu jualan lain",
       },
     ],
-  },
-  // Not a hub section since Plan 05b — a real route, like Leads/Add Member
-  // below: an interactive tool, not a content page. Keeps its long-standing
-  // sidebar slot between Selling and References.
-  {
-    label: "Calculator",
-    href: "/member/calculator",
-    description: "Hitung premi produk untuk calon klienmu",
   },
   {
     label: "References",
@@ -197,10 +192,20 @@ export const MEMBER_NAV: MemberNavItem[] = [
       },
     ],
   },
-  // Not a hub section — its own route, open to every role (Plan 16): an
-  // agent sees only the leads their own referral link brought in, a leader
-  // their whole downline. Kept apart from the hub sections, same as Add
-  // Member below it.
+  // The tools cluster — real routes, not hub sections, set apart from the
+  // content sections above by a sidebar divider (separatorBefore).
+  //
+  // Calculator: a hub placeholder until Plan 05b made it a real route;
+  // moved from its old slot between Selling and References down here with
+  // the other tools (user's call, 2026-08-08).
+  {
+    label: "Calculator",
+    href: "/member/calculator",
+    description: "Hitung premi produk untuk calon klienmu",
+    separatorBefore: true,
+  },
+  // Leads: open to every role (Plan 16) — an agent sees only the leads
+  // their own referral link brought in, a leader their whole downline.
   {
     label: "Leads",
     href: "/member/leads",

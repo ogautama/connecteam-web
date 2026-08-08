@@ -112,6 +112,12 @@ export default function MemberNav({
 
           return (
             <li key={item.label}>
+              {item.separatorBefore && (
+                <div
+                  role="separator"
+                  className="mx-3 mt-2 mb-3 border-t border-ink-100"
+                />
+              )}
               <div className="flex items-center gap-1">
                 <NavLink
                   item={item}
