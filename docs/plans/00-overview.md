@@ -125,7 +125,7 @@ are captured inline in those docs so each can be picked up independently.
 | 20b | Profile first-fill in the five group cards | 19, 20 | [20b-profile-first-fill-redesign.md](20b-profile-first-fill-redesign.md) | ✅ Done — [PR #39](https://github.com/ogautama/connecteam-web/pull/39) |
 | 21 | Marketing header responsive treatment | 01 | [21-marketing-header-responsive.md](21-marketing-header-responsive.md) | ✅ Done — [PR #46](https://github.com/ogautama/connecteam-web/pull/46) |
 | 22 | DISC test redesign (referrer-first, three screens) | 04, 16; 21 first¶ | [22-disc-test-redesign.md](22-disc-test-redesign.md) | ✅ Done — [PR #48](https://github.com/ogautama/connecteam-web/pull/48) |
-| 23 | DISC share card (9:16 result image) | 22 | [23-disc-share-card.md](23-disc-share-card.md) | Proposed 2026-08-07 — split out of Plan 22, not scheduled |
+| 23 | DISC share card (9:16 result image) | 22 | [23-disc-share-card.md](23-disc-share-card.md) | ✅ Done — [PR #49](https://github.com/ogautama/connecteam-web/pull/49) |
 
 § **2026-07-24, revised 2026-07-26**: after being shown a UX reference (a
 working "quest hub" prototype — gamified level tabs, progress bars,

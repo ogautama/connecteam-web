@@ -17,8 +17,10 @@ import {
   type DiscTrait,
 } from "@/lib/disc/questions";
 import { scoreDisc, type DiscResult } from "@/lib/disc/score";
+import { spectrumWidths } from "@/lib/disc/spectrum";
 import { DISC_PROFILES, TRAIT_META } from "@/content/disc-profiles";
 import { saveDiscLead } from "./actions";
+import ShareCardButton from "./ShareCardButton";
 
 // Three screens, each owning the viewport (Plan 22): intro → test → result.
 // `result` stays derived from a complete answer sheet; `intro` is explicit so
@@ -129,10 +131,17 @@ function referrerCopy(name: string | null) {
 export default function DiscTest({
   user = null,
   referrerName = null,
+  referrerUnit = null,
 }: {
   user?: DiscMember | null;
   /** First name only, resolved server-side. Null falls back to the brand. */
   referrerName?: string | null;
+  /**
+   * The referrer's "Pengundang / Unit" leader, resolved server-side. Printed
+   * on the share card only (Plan 23) — never in the page's own chrome, which
+   * keeps to a first name.
+   */
+  referrerUnit?: string | null;
 }) {
   // Read once — attribution for the whole session's saves rides on
   // whichever referral link the visitor arrived through, not on whatever
@@ -244,6 +253,7 @@ export default function DiscTest({
         onRestart={restart}
         user={user}
         referrerName={referrerName}
+        referrerUnit={referrerUnit}
         refCode={ref}
       />
     );
@@ -664,36 +674,13 @@ const SPECTRUM_LABEL: Record<DiscTrait, string> = {
   C: "text-white",
 };
 
-/**
- * Segment widths for the stacked spectrum. `score.ts` rounds each trait
- * independently, so the four can sum to 99 or 101 — invisible in four
- * separate bars, visible in one stacked one. The last segment absorbs the
- * remainder so the bar always closes at 100%; the *printed* percentages stay
- * exactly what scoring produced.
- *
- * Exported for its own test — it's the one piece of the result screen with
- * arithmetic in it.
- */
-export function spectrumWidths(percentages: Record<DiscTrait, number>) {
-  const widths = {} as Record<DiscTrait, number>;
-  let used = 0;
-  DISC_TRAITS.forEach((trait, index) => {
-    if (index === DISC_TRAITS.length - 1) {
-      widths[trait] = Math.max(0, 100 - used);
-      return;
-    }
-    widths[trait] = percentages[trait];
-    used += percentages[trait];
-  });
-  return widths;
-}
-
 function Results({
   result,
   answers,
   onRestart,
   user,
   referrerName,
+  referrerUnit,
   refCode,
 }: {
   result: DiscResult;
@@ -701,6 +688,7 @@ function Results({
   onRestart: () => void;
   user: DiscMember | null;
   referrerName: string | null;
+  referrerUnit: string | null;
   refCode?: string;
 }) {
   const profile = DISC_PROFILES[result.profileKey];
@@ -816,16 +804,28 @@ function Results({
 
         <LeadCapture
           answers={answers}
+          result={result}
           user={user}
           referrerName={referrerName}
+          referrerUnit={referrerUnit}
           refCode={refCode}
         />
 
-        <div className="mt-5 border-t border-ink-100 pt-5 text-center">
+        {/* The result is the most naturally shareable thing here, so the card
+            is offered whatever the visitor did about the ask — above "Ulangi
+            tes", which stays the quiet last link. */}
+        <div className="mt-5 flex flex-col gap-3 border-t border-ink-100 pt-5">
+          <ShareCardButton
+            result={result}
+            title={profile.title}
+            blend={profile.blend}
+            refCode={refCode}
+            unitName={referrerUnit}
+          />
           <button
             type="button"
             onClick={onRestart}
-            className="text-sm text-ink-500 underline hover:text-ink-700"
+            className="text-center text-sm text-ink-500 underline hover:text-ink-700"
           >
             Ulangi tes
           </button>
@@ -841,15 +841,20 @@ function Results({
 
 function LeadCapture({
   answers,
+  result,
   user,
   referrerName,
+  referrerUnit,
   refCode,
 }: {
   answers: DiscTrait[];
+  result: DiscResult;
   user: DiscMember | null;
   referrerName: string | null;
+  referrerUnit: string | null;
   refCode?: string;
 }) {
+  const profile = DISC_PROFILES[result.profileKey];
   const { who, they } = referrerCopy(referrerName);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -944,12 +949,23 @@ function LeadCapture({
         <p className="mt-1.5 text-sm text-ink-500">
           {`${they} bakal chat kamu lewat WhatsApp. Sambil nunggu, hasil kamu tetap bisa dilihat di halaman ini.`}
         </p>
-        <Link
-          href="/join"
-          className="mt-4 inline-block rounded-full bg-brand-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-red-600"
-        >
-          Lihat cara gabung
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-2.5">
+          <ShareCardButton
+            result={result}
+            title={profile.title}
+            blend={profile.blend}
+            refCode={refCode}
+            unitName={referrerUnit}
+            variant="inline"
+            label="Simpan gambar"
+          />
+          <Link
+            href="/join"
+            className="rounded-full bg-brand-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-red-600"
+          >
+            Lihat cara gabung
+          </Link>
+        </div>
       </div>
     );
   }

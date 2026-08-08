@@ -10,8 +10,8 @@ const { saveDiscLead, useSearchParams } = vi.hoisted(() => ({
 vi.mock("../actions", () => ({ saveDiscLead }));
 vi.mock("next/navigation", () => ({ useSearchParams }));
 
-import DiscTest, { spectrumWidths } from "../DiscTest";
-import { DISC_QUESTIONS, DISC_TRAITS, type DiscTrait } from "@/lib/disc/questions";
+import DiscTest from "../DiscTest";
+import { DISC_QUESTIONS, type DiscTrait } from "@/lib/disc/questions";
 import { DISC_PROFILES } from "@/content/disc-profiles";
 import { scoreDisc } from "@/lib/disc/score";
 
@@ -324,34 +324,6 @@ describe("the result", () => {
   });
 });
 
-describe("spectrumWidths", () => {
-  test("closes the bar at 100 even when the rounding doesn't", () => {
-    // 21 + 13 + 33 + 33 = 100 only because the last segment absorbs it —
-    // score.ts rounds each trait independently.
-    const widths = spectrumWidths({ D: 21, I: 13, S: 33, C: 34 });
-
-    expect(widths.D + widths.I + widths.S + widths.C).toBe(100);
-    expect(widths.D).toBe(21);
-    expect(widths.I).toBe(13);
-    expect(widths.S).toBe(33);
-  });
-
-  test("every real answer sheet produces a bar that closes", () => {
-    for (const trait of DISC_TRAITS) {
-      const result = scoreDisc(DISC_QUESTIONS.map(() => trait));
-      const widths = spectrumWidths(result.percentages);
-      const total = DISC_TRAITS.reduce((sum, t) => sum + widths[t], 0);
-      expect(total).toBe(100);
-    }
-  });
-
-  test("never goes negative when the rounding overshoots", () => {
-    const widths = spectrumWidths({ D: 34, I: 34, S: 34, C: 0 });
-
-    expect(widths.C).toBe(0);
-  });
-});
-
 describe("the ask", () => {
   test("is addressed from the referrer, by name", () => {
     render(<DiscTest referrerName="Olivia" />);
@@ -470,6 +442,44 @@ describe("the ask", () => {
     });
     expect(
       await screen.findByText(/Hasilnya tersimpan di akun kamu/),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("the share card (Plan 23)", () => {
+  test("is offered on the result whatever the visitor did about the ask", () => {
+    render(<DiscTest />);
+    completeTest("D");
+
+    expect(
+      screen.getByRole("button", { name: "Simpan gambar hasilnya" }),
+    ).toBeInTheDocument();
+  });
+
+  test("is offered again in the sent state, next to /join", async () => {
+    render(<DiscTest referrerName="Olivia" />);
+    completeTest("D");
+
+    fillLeadForm();
+    fireEvent.click(screen.getByRole("button", { name: /Kirim hasil ke/ }));
+    await screen.findByText(/Kekirim ke Olivia/);
+
+    expect(
+      screen.getByRole("button", { name: "Simpan gambar" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Simpan gambar hasilnya" }),
+    ).toBeInTheDocument();
+  });
+
+  test("a signed-in member can save the image too", () => {
+    render(
+      <DiscTest user={{ name: "Rani Putri", email: "rani@example.com" }} />,
+    );
+    completeTest("D");
+
+    expect(
+      screen.getByRole("button", { name: "Simpan gambar hasilnya" }),
     ).toBeInTheDocument();
   });
 });

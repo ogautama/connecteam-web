@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import MarketingLayout from "@/components/layouts/MarketingLayout";
 import { getCurrentUser } from "@/lib/auth";
-import { getReferrerFirstName } from "@/lib/referrer";
+import { getReferrerFirstName, getReferrerUnitName } from "@/lib/referrer";
 import DiscTest from "./DiscTest";
 
 export const metadata: Metadata = {
@@ -29,7 +29,12 @@ export default async function DiscPage({
   // the same code, server-side, on its own. A repeated `?ref=` gives an
   // array; a link that malformed doesn't get to name anyone.
   const ref = typeof params.ref === "string" ? params.ref : undefined;
-  const referrerName = await getReferrerFirstName(ref);
+  // The unit is for the share card only (Plan 23) — the page's own chrome
+  // still names nobody but the referrer's first name.
+  const [referrerName, referrerUnit] = await Promise.all([
+    getReferrerFirstName(ref),
+    getReferrerUnitName(ref),
+  ]);
 
   return (
     <MarketingLayout user={user}>
@@ -38,6 +43,7 @@ export default async function DiscPage({
         <DiscTest
           user={user ? { name: user.name, email: user.email } : null}
           referrerName={referrerName}
+          referrerUnit={referrerUnit}
         />
       </Suspense>
     </MarketingLayout>
