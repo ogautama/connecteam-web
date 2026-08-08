@@ -2,9 +2,21 @@
 
 ## Status
 
-Deferred (2026-07-21). Nothing depends on this plan and `CALCULATOR_LIVE`
-keeps `/tools/calculator` unlinked, so it can be picked up whenever. See the
-overview's ‡ note for what stays open while it's parked.
+**Superseded (2026-08-08).** The public/unauthenticated "income projection"
+tool described below was never built (it was still ⏸ Deferred, per the note
+directly above) and is now replaced outright rather than resumed: the user
+has a real premium-pricing engine
+([`ogautama/premium-engine`](https://github.com/ogautama/premium-engine))
+and wants CONNECTeam's calculator built on it instead — a **member-only**
+tool that prices real Prudential products for an agent's own client and
+produces a branded PDF quotation, not an illustrative earning estimate for
+prospects.
+
+**Everything below this point is kept only as a historical record** of the
+original idea, in case a public income-estimator is ever wanted as a
+*separate*, later tool — nothing below is being built. The new source of
+truth starts at [Plan 05a](05a-premium-engine-integration.md), which also
+carries the full rationale for the pivot.
 
 ## Goal
 

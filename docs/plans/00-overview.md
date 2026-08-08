@@ -104,7 +104,10 @@ are captured inline in those docs so each can be picked up independently.
 | 03 | Public site pages (`/`, `/join`, `/login`) | 01, 02b\* | [03-public-site.md](03-public-site.md) | ✅ Done — [PR #8](https://github.com/ogautama/connecteam-web/pull/8) |
 | 03b | Staging deployment (public site) | 03 | [03b-staging-deploy.md](03b-staging-deploy.md) | Code gating done (PR #9); deploy = manual checklist |
 | 04 | DISC test tool (`/tools/disc`) | 01, 02b\* | [04-disc-tool.md](04-disc-tool.md) | ✅ Done — [PR #10](https://github.com/ogautama/connecteam-web/pull/10) |
-| 05 | Calculator tool (`/tools/calculator`) | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | ⏸ Deferred‡ |
+| 05 | ~~Calculator tool (`/tools/calculator`)~~ | 01, 02b\* | [05-calculator-tool.md](05-calculator-tool.md) | Superseded‡ — see 05a–05c |
+| 05a | Premium calculator: engine integration + pricing action | 06 | [05a-premium-engine-integration.md](05a-premium-engine-integration.md) | Proposed 2026-08-08 |
+| 05b | Premium calculator: `/member/calculator` page + nav | 05a | [05b-premium-calculator-ui.md](05b-premium-calculator-ui.md) | Proposed 2026-08-08 |
+| 05c | Premium calculator: client quote capture + branded PDF | 05b | [05c-quote-pdf-and-leads.md](05c-quote-pdf-and-leads.md) | Proposed 2026-08-08 |
 | 06 | Member space shell (`/member` dashboard + nav + gating) | 01, 02b | [06-member-shell.md](06-member-shell.md) | ✅ Done — [PR #12](https://github.com/ogautama/connecteam-web/pull/12); nav reworked 2026-07-26§ |
 | 07 | Member: Quest Hub (`/member/onboarding`, all member sections) | 06 | [07-member-onboarding.md](07-member-onboarding.md) | ✅ Merged 2026-08-05 — [PR #18](https://github.com/ogautama/connecteam-web/pull/18) (supersedes [PR #17](https://github.com/ogautama/connecteam-web/pull/17))§; non-Onboarding sections stay placeholders by design |
 | 07c | Join Us → Profile: link an existing member's email (no auto-invite) | 07, 02b | [07c-join-existing-member-linking.md](07c-join-existing-member-linking.md) | ✅ Done — [PR #26](https://github.com/ogautama/connecteam-web/pull/26), merged into the Plan 07 branch; landed on `main` 2026-08-05 with [PR #18](https://github.com/ogautama/connecteam-web/pull/18) |
@@ -170,15 +173,27 @@ milestone (flipping `CALCULATOR_LIVE`) and the mobile-nav issue below, which
 only bites once the fourth nav link returns. Plan 16 notes calculator leads
 as future scope but works on DISC leads alone.
 
+**Revised 2026-08-08**: superseded, not resumed. The public income-estimator
+idea above is replaced outright by a member-only real premium/quotation
+calculator built on `ogautama/premium-engine`, split into
+[05a](05a-premium-engine-integration.md)/[05b](05b-premium-calculator-ui.md)/[05c](05c-quote-pdf-and-leads.md).
+It never goes on the public site, so `CALCULATOR_LIVE`/`DISC_LISTED`-style
+nav gating and the mobile-nav "fourth link returns" concern above no longer
+apply to it — the calculator now lives at `/member/calculator`, gated the
+same as the rest of the member area. See [Plan 05a](05a-premium-engine-integration.md)
+for the full rationale.
+
 ¶ **2026-08-07**: Plan 22 doesn't technically depend on Plan 21 (separate
 files, separate PRs), but 21 goes first by choice — the marketing header is
 the first thing a referred prospect sees, and it has zero layout slack at
 375px. Plan 21's row lands with its own PR.
 
-\* Plans 03/04/05 depend on Plan 02b's *interfaces* (e.g. `getCurrentUser()`,
+\* Plans 03/04 depend on Plan 02b's *interfaces* (e.g. `getCurrentUser()`,
 a `createLead()` function) but each plan's implementation stubs/mocks those
 where Plan 02b hasn't merged yet, so they don't block on merge order in
-practice — see each doc's "Independence notes."
+practice — see each doc's "Independence notes." (Plan 05's original scope
+also depended this way; its 2026-08-08 replacement, 05a–05c, depends on
+Plan 06 directly instead — already merged, so no stubbing story is needed.)
 
 Plans 07–14 (the eight member-space sections) are content-independent of
 each other — each owns its own `src/content/*.ts` module and can be sourced
@@ -214,12 +229,16 @@ Plan 06's nav.)*
   dropped) and scoped [Plan 18](18-content-admin.md) for admin-editable
   "living document" pages and content shared across multiple nav positions
   (e.g. Product Details under both Selling and References).
-- **`Calculator` is a placeholder section, not the tool** (Plans 05 + 07).
-  The 2026-07-26 menu added a Calculator item, but `/tools/calculator`
-  doesn't exist (Plan 05 deferred, `CALCULATOR_LIVE` off), so it renders a
-  "Segera hadir" placeholder rather than linking to a 404. When Plan 05
-  ships, decide whether that section embeds the tool or links out — and
-  whether the member-area entry point changes Plan 05's public-page scope.
+- ~~**`Calculator` is a placeholder section, not the tool**~~ — **scoped
+  2026-08-08.** The 2026-07-26 menu added a Calculator item, but
+  `/tools/calculator` didn't exist (Plan 05 deferred, `CALCULATOR_LIVE`
+  off), so it rendered a "Segera hadir" placeholder rather than linking to
+  a 404. Resolved by superseding Plan 05 with
+  [05a](05a-premium-engine-integration.md)/[05b](05b-premium-calculator-ui.md)/[05c](05c-quote-pdf-and-leads.md):
+  the member-area entry point *is* the answer — Calculator becomes a real
+  top-level route (`/member/calculator`, own nav entry, not a hub
+  `?section=`) once 05b ships, and there's no public-page version of it at
+  all. Still open until those sub-plans actually land.
 - ~~**Onboarding checklist should shrink from 7 items to 4**~~ — **built
   2026-08-05.** Two calls made 2026-08-05, both mocked up in
   [spec-profile-menu.html](../design/spec-profile-menu.html), both now
