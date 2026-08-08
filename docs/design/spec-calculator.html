@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONNECTeam — Premium calculator (Plans 05b/05c)</title>
+<style>
+  :root {
+    --page-bg: #f9fafb;
+    --page-surface: #ffffff;
+    --page-border: #edeff2;
+    --page-text: #1b212d;
+    --page-text-muted: #6c7689;
+    --page-text-faint: #aeb5c2;
+    --accent: #183f87;
+    --accent-soft: #f3f5f9;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    /* brand tokens, lifted from src/app/globals.css */
+    --brand-navy: #183f87;
+    --brand-navy-800: #14346f;
+    --brand-navy-50: #f3f5f9;
+    --brand-navy-100: #e3e8f1;
+    --brand-navy-200: #c3cde0;
+    --brand-red: #f04975;
+    --brand-red-50: #fef6f8;
+    --brand-gold: #f5ba01;
+    --brand-gold-700: #8e6c01;
+    --brand-gold-100: #fef7e1;
+    --brand-gold-50: #fffcf2;
+    --ink-100: #edeff2;
+    --ink-50: #f9fafb;
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #1b212d; --page-surface: #232a38; --page-border: #3c4453;
+    --page-text: #f5f6f8; --page-text-muted: #b7bdc9; --page-text-faint: #6c7689;
+    --accent: #7088b5; --accent-soft: #232c42;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page-bg: #1b212d; --page-surface: #232a38; --page-border: #3c4453;
+      --page-text: #f5f6f8; --page-text-muted: #b7bdc9; --page-text-faint: #6c7689;
+      --accent: #7088b5; --accent-soft: #232c42;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--page-bg);
+    color: var(--page-text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    padding: 2.5rem 1.25rem 5rem;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+
+  .banner {
+    border: 1px solid var(--brand-navy-200);
+    background: var(--accent-soft);
+    border-radius: 12px;
+    padding: .8rem 1.1rem;
+    font-size: .85rem;
+    color: var(--page-text-muted);
+    margin-bottom: 2rem;
+  }
+  .banner strong { color: var(--page-text); }
+
+  h1 { font-size: 1.45rem; letter-spacing: -.02em; margin-bottom: .3rem; }
+  .sub { color: var(--page-text-muted); font-size: .92rem; margin-bottom: 2rem; }
+
+  h2.state {
+    font-size: .8rem; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--page-text-faint); margin: 3rem 0 .35rem;
+  }
+  .state-note { font-size: .88rem; color: var(--page-text-muted); margin-bottom: 1rem; max-width: 64ch; }
+  .state-note code { font-family: var(--mono); font-size: .82em; background: var(--accent-soft); padding: .1em .35em; border-radius: 4px; }
+
+  /* ============ app frame ============ */
+  .frame {
+    border: 1px solid var(--page-border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--page-surface);
+    box-shadow: 0 10px 30px rgba(15,23,42,.07);
+  }
+  .frame-inner { display: flex; min-height: 560px; }
+
+  /* sidebar (existing MemberShell, unchanged — context only) */
+  .side {
+    width: 210px; flex: none;
+    border-right: 1px solid var(--page-border);
+    padding: 1.1rem .8rem;
+    font-size: .82rem;
+    background: var(--page-surface);
+  }
+  .side .logo { font-weight: 800; font-size: .95rem; margin: 0 .4rem 1.1rem; }
+  .side .logo .a { color: var(--brand-navy); } .side .logo .b { color: #f2404e; }
+  :root[data-theme="dark"] .side .logo .a { color: #9eaecd; }
+  .side a, .side .navitem {
+    display: block; padding: .42rem .6rem; border-radius: 8px;
+    color: var(--page-text-muted); text-decoration: none;
+  }
+  .side .active {
+    background: var(--accent-soft); color: var(--accent); font-weight: 700;
+  }
+  .side .sep { border-top: 1px solid var(--page-border); margin: .6rem .4rem; }
+
+  .main { flex: 1; padding: 1.6rem 1.9rem 2.2rem; min-width: 0; }
+  .main h3 { font-size: 1.25rem; letter-spacing: -.01em; }
+  .main .pagesub { color: var(--page-text-muted); font-size: .86rem; margin: .2rem 0 1.4rem; }
+
+  /* product cards */
+  .products { display: flex; gap: .8rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+  .pcard {
+    flex: 1 1 200px; max-width: 250px;
+    border: 1.5px solid var(--page-border); border-radius: 14px;
+    padding: .85rem 1rem; cursor: default;
+  }
+  .pcard .pname { font-weight: 700; font-size: .92rem; }
+  .pcard .ptag  { font-size: .74rem; color: var(--page-text-muted); margin-top: .15rem; }
+  .pcard.sel { border-color: var(--brand-navy); background: var(--accent-soft); position: relative; }
+  .pcard.sel::after {
+    content: "✓"; position: absolute; top: .6rem; right: .8rem;
+    color: var(--accent); font-weight: 800; font-size: .85rem;
+  }
+  .pcard.ghost { border-style: dashed; opacity: .65; }
+  .pcard.ghost .pname { color: var(--page-text-faint); }
+
+  /* form */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: .95rem 1.1rem; max-width: 620px; }
+  .field label { display: block; font-size: .78rem; font-weight: 600; color: var(--page-text-muted); margin-bottom: .3rem; }
+  .control {
+    border: 1px solid var(--page-border); border-radius: 10px;
+    padding: .55rem .75rem; font-size: .88rem; background: var(--page-surface);
+    color: var(--page-text);
+    display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  }
+  .control .chev { color: var(--page-text-faint); font-size: .7rem; }
+  .seg { display: flex; border: 1px solid var(--page-border); border-radius: 10px; overflow: hidden; }
+  .seg span { flex: 1; text-align: center; padding: .55rem 0; font-size: .85rem; color: var(--page-text-muted); }
+  .seg .on { background: var(--brand-navy); color: #fff; font-weight: 600; }
+  :root[data-theme="dark"] .seg .on { background: var(--accent); color: #10131b; }
+
+  .btnrow { margin-top: 1.3rem; display: flex; align-items: center; gap: 1rem; }
+  .btn {
+    display: inline-block; border-radius: 999px; padding: .6rem 1.7rem;
+    font-size: .9rem; font-weight: 700; color: #fff; background: var(--brand-navy);
+  }
+  :root[data-theme="dark"] .btn { background: var(--accent); color: #10131b; }
+  .btn.secondary { background: transparent; color: var(--accent); border: 1.5px solid var(--brand-navy-200); }
+  .btn.gold { background: var(--brand-gold); color: #3a2d00; }
+  .hint { font-size: .78rem; color: var(--page-text-faint); }
+
+  /* result panel */
+  .result {
+    margin-top: 1.6rem; max-width: 620px;
+    border: 1px solid var(--page-border); border-radius: 16px; overflow: hidden;
+  }
+  .result .bar { height: 4px; background: linear-gradient(90deg, var(--brand-navy) 0%, var(--brand-red) 55%, var(--brand-gold) 100%); }
+  .result .body { padding: 1.1rem 1.3rem 1.3rem; }
+  .result .meta { font-size: .78rem; color: var(--page-text-muted); display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .8rem; }
+  .result .meta .chip {
+    border: 1px solid var(--brand-navy-200); background: var(--brand-navy-50);
+    color: var(--brand-navy); border-radius: 999px; padding: .05rem .6rem; font-weight: 600;
+  }
+  :root[data-theme="dark"] .result .meta .chip { background: var(--accent-soft); color: var(--accent); border-color: var(--page-border); }
+  .prem { display: flex; gap: 2.2rem; flex-wrap: wrap; }
+  .prem .cell .cap { font-size: .74rem; color: var(--page-text-muted); text-transform: uppercase; letter-spacing: .05em; }
+  .prem .cell .val { font-size: 1.45rem; font-weight: 800; letter-spacing: -.02em; }
+  .prem .cell .was { font-size: .78rem; color: var(--page-text-faint); text-decoration: line-through; }
+  .disc {
+    margin-top: .8rem; font-size: .78rem; font-weight: 600;
+    color: var(--brand-gold-700); background: var(--brand-gold-100);
+    display: inline-block; border-radius: 999px; padding: .15rem .7rem;
+  }
+  :root[data-theme="dark"] .disc { background: #3a3320; color: var(--brand-gold); }
+  .result .cta { margin-top: 1.2rem; padding-top: 1.1rem; border-top: 1px solid var(--page-border); display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
+
+  /* stale state */
+  .result.stale .body > *:not(.stalenote) { opacity: .38; }
+  .stalenote {
+    margin: 0 0 .9rem; font-size: .8rem; font-weight: 600;
+    color: var(--brand-gold-700); background: var(--brand-gold-50);
+    border: 1px solid var(--brand-gold-100);
+    border-radius: 10px; padding: .5rem .8rem;
+  }
+  :root[data-theme="dark"] .stalenote { background: #2e2a1c; border-color: #4a4128; color: var(--brand-gold); }
+
+  /* quote capture card (05c) */
+  .quote {
+    margin-top: 1.6rem; max-width: 620px;
+    border: 1px solid var(--page-border); border-radius: 16px; padding: 1.1rem 1.3rem 1.3rem;
+    background: var(--page-surface);
+  }
+  .quote h4 { font-size: .95rem; margin-bottom: .2rem; }
+  .quote .qsub { font-size: .8rem; color: var(--page-text-muted); margin-bottom: .9rem; }
+
+  .callout {
+    max-width: 64ch; margin-top: 1rem; font-size: .82rem; color: var(--page-text-muted);
+    border-left: 3px solid var(--brand-navy-200); padding: .1rem 0 .1rem .9rem;
+  }
+
+  @media (max-width: 760px) {
+    .side { display: none; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <strong>Proposal mockup — Plans 05b/05c, not yet built.</strong>
+    Layout &amp; copy proposal for <code>/member/calculator</code>. Product names, plans,
+    sum-assured options and payment terms are real (from <code>premium-engine@0.1.0</code>'s
+    registry); <strong>all premium figures are illustrative placeholders</strong>, not engine output.
+  </div>
+
+  <h1>Premium calculator — <span style="font-family:var(--mono);font-size:.85em">/member/calculator</span></h1>
+  <p class="sub">Member-only, inside the existing MemberShell. Calculator becomes a real top-level
+  route (like Leads / Add Member), replacing the "Segera hadir" hub placeholder.</p>
+
+  <!-- ============================================================ STATE A -->
+  <h2 class="state">State A — form, product selected, before first submit</h2>
+  <p class="state-note">Product cards are rendered from <code>PRODUCTS</code> — a third product added to the
+  engine later shows up with zero UI changes. The dashed card is a static hint, not a real entry.
+  Fields swap per product: Pru Heritage Essential has one plan (Essential) and "until age" payment
+  terms; Pru Critical Amanah has Basic/Plus and no discount.</p>
+
+  <div class="frame"><div class="frame-inner">
+    <aside class="side">
+      <div class="logo"><span class="a">CONNECT</span><span class="b">eam</span></div>
+      <span class="navitem">Dashboard</span>
+      <span class="navitem">Onboarding</span>
+      <span class="navitem">Recruiting</span>
+      <span class="navitem">Selling</span>
+      <span class="navitem active">Calculator</span>
+      <span class="navitem">References</span>
+      <span class="navitem">Directory</span>
+      <div class="sep"></div>
+      <span class="navitem">Leads</span>
+      <span class="navitem">Add Member</span>
+    </aside>
+    <div class="main">
+      <h3>Calculator</h3>
+      <p class="pagesub">Hitung premi produk untuk calon klienmu, lalu simpan sebagai quotation PDF.</p>
+
+      <div class="products">
+        <div class="pcard sel">
+          <div class="pname">Pru Heritage Essential</div>
+          <div class="ptag">Asuransi jiwa · plan Essential</div>
+        </div>
+        <div class="pcard">
+          <div class="pname">Pru Critical Amanah</div>
+          <div class="ptag">Penyakit kritis · Basic / Plus</div>
+        </div>
+        <div class="pcard ghost">
+          <div class="pname">Produk lain</div>
+          <div class="ptag">Segera hadir</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Tanggal lahir klien</label>
+          <div class="control"><span>17/08/1992</span><span class="chev">📅</span></div>
+        </div>
+        <div class="field">
+          <label>Jenis kelamin</label>
+          <div class="seg"><span class="on">Pria</span><span>Wanita</span></div>
+        </div>
+        <div class="field">
+          <label>Status merokok</label>
+          <div class="seg"><span class="on">Non Smoker</span><span>Smoker</span></div>
+        </div>
+        <div class="field">
+          <label>Uang pertanggungan</label>
+          <div class="control"><span>Rp 1.000.000.000</span><span class="chev">▾</span></div>
+        </div>
+        <div class="field">
+          <label>Plan</label>
+          <div class="control"><span>Essential</span><span class="chev">▾</span></div>
+        </div>
+        <div class="field">
+          <label>Masa pembayaran</label>
+          <div class="control"><span>10 tahun</span><span class="chev">▾</span></div>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <span class="btn">Hitung Premi</span>
+        <span class="hint">Harga dihitung di server saat kamu menekan tombol — bukan per ketikan.</span>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- ============================================================ STATE B -->
+  <h2 class="state">State B — priced result (after submit)</h2>
+  <p class="state-note">Submit-triggered by decision (server-only rates + Singapore-region latency).
+  Discount row only appears for Pru Heritage Essential — Critical Amanah has no discount bands.
+  "Simpan &amp; buat PDF" opens State D's capture card. <strong>Angka di bawah ilustratif.</strong></p>
+
+  <div class="frame"><div class="frame-inner" style="min-height:0">
+    <div class="main">
+      <div class="result">
+        <div class="bar"></div>
+        <div class="body">
+          <div class="meta">
+            <span class="chip">Pru Heritage Essential</span>
+            <span>Essential · UP Rp 1 M · 10 tahun · usia asuransi 34 · Non Smoker</span>
+          </div>
+          <div class="prem">
+            <div class="cell">
+              <div class="cap">Premi tahunan</div>
+              <div class="val">Rp 28.930.000</div>
+              <div class="was">Rp 30.450.000</div>
+            </div>
+            <div class="cell">
+              <div class="cap">Premi bulanan</div>
+              <div class="val">Rp 2.460.000</div>
+              <div class="was">Rp 2.590.000</div>
+            </div>
+          </div>
+          <span class="disc">Diskon 5% diterapkan</span>
+          <div class="cta">
+            <span class="btn">Simpan &amp; buat PDF</span>
+            <span class="hint">Simpan data klien &amp; download ilustrasi PDF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- ============================================================ STATE C -->
+  <h2 class="state">State C — stale result (input edited after submit)</h2>
+  <p class="state-note">Any input change dims the shown price and blocks the quotation CTA until the
+  next "Hitung Premi" — an agent must never read an old premium against new inputs.</p>
+
+  <div class="frame"><div class="frame-inner" style="min-height:0">
+    <div class="main">
+      <div class="result stale">
+        <div class="bar"></div>
+        <div class="body">
+          <div class="stalenote">⚠︎ Input berubah — tekan "Hitung Premi" lagi untuk harga terbaru.</div>
+          <div class="meta">
+            <span class="chip">Pru Heritage Essential</span>
+            <span>Essential · UP Rp 1 M · 10 tahun · usia asuransi 34 · Non Smoker</span>
+          </div>
+          <div class="prem">
+            <div class="cell">
+              <div class="cap">Premi tahunan</div>
+              <div class="val">Rp 28.930.000</div>
+            </div>
+            <div class="cell">
+              <div class="cap">Premi bulanan</div>
+              <div class="val">Rp 2.460.000</div>
+            </div>
+          </div>
+          <div class="cta">
+            <span class="btn" style="opacity:.5">Simpan &amp; buat PDF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- ============================================================ STATE D -->
+  <h2 class="state">State D — client capture + PDF (Plan 05c)</h2>
+  <p class="state-note">Appears below the priced result. Saving creates the
+  <code>Lead</code> row (<code>source: "calculator"</code>, visible on /member/leads' Calculator tab)
+  and downloads the PDF in one action. The PDF is never stored — regenerating means a fresh quote.
+  Agent name/phone on the PDF come from the signed-in member's profile, not typed per quote.</p>
+
+  <div class="frame"><div class="frame-inner" style="min-height:0">
+    <div class="main">
+      <div class="quote">
+        <h4>Data calon klien</h4>
+        <p class="qsub">Dipakai di PDF quotation dan tersimpan sebagai lead kamu.</p>
+        <div class="grid">
+          <div class="field">
+            <label>Nama lengkap klien</label>
+            <div class="control"><span>Budi Santoso</span></div>
+          </div>
+          <div class="field">
+            <label>No. WhatsApp klien</label>
+            <div class="control"><span>0812-3456-7890</span></div>
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label>Email klien (opsional)</label>
+            <div class="control"><span style="color:var(--page-text-faint)">nama@email.com</span></div>
+          </div>
+        </div>
+        <div class="btnrow">
+          <span class="btn gold">Simpan &amp; Download PDF</span>
+          <span class="hint">PDF pakai logo &amp; warna CONNECTeam (navy / merah / emas).</span>
+        </div>
+      </div>
+
+      <p class="callout">
+        Not shown here: the PDF itself — its layout is <code>premium-engine</code>'s fixed quotation
+        document; only <code>PdfTheme</code> (logo, brand colors) is ours to change. See Plan 05c's
+        theme mapping. Error states reuse the engine's own vocabulary: an out-of-bounds birth date
+        renders inline as "Usia di luar ketentuan produk ini" instead of calling the server.
+      </p>
+    </div>
+  </div></div>
+
+</div>
+</body>
+</html>
