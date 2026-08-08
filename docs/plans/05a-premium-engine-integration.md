@@ -2,7 +2,8 @@
 
 ## Status
 
-**Proposed (2026-08-08)**, not yet built. First of three sub-plans
+**Implemented 2026-08-08** in
+[PR #52](https://github.com/ogautama/connecteam-web/pull/52). First of three sub-plans
 replacing [Plan 05](05-calculator-tool.md)'s original scope — see that
 doc's Status section for why. 05b and 05c build on this one.
 
