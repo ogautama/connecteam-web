@@ -2,7 +2,9 @@
 
 ## Status
 
-**Implemented 2026-08-08.** Third of three sub-plans replacing
+**Implemented 2026-08-08** in
+[PR #54](https://github.com/ogautama/connecteam-web/pull/54). Third of three
+sub-plans replacing
 [Plan 05](05-calculator-tool.md)'s original scope — see
 [Plan 05a](05a-premium-engine-integration.md) for the full pivot rationale
 and what `premium-engine` provides.
