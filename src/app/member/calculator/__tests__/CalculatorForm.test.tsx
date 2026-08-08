@@ -41,7 +41,7 @@ function fillDob(value: string) {
 }
 
 function submit() {
-  fireEvent.click(screen.getByRole("button", { name: "Hitung Premi" }));
+  fireEvent.click(screen.getByRole("button", { name: "Hitung Kontribusi" }));
 }
 
 beforeEach(() => {
@@ -88,7 +88,7 @@ describe("CalculatorForm", () => {
     expect(screen.getByText("Segera hadir")).toBeInTheDocument();
     expect(screen.getByText("PruWell Medical")).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "Hitung Premi" })
+      screen.queryByRole("button", { name: "Hitung Kontribusi" })
     ).not.toBeInTheDocument();
   });
 
@@ -108,7 +108,7 @@ describe("CalculatorForm", () => {
     );
 
     expect(screen.getByText("Segera hadir")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Hitung Premi" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Hitung Kontribusi" })).not.toBeInTheDocument();
   });
 
   test("a valid submission calls the pricing action and shows the priced result", async () => {
@@ -137,7 +137,7 @@ describe("CalculatorForm", () => {
     requestPremium.mockResolvedValue(pricedResponse());
     render(<CalculatorForm />);
 
-    const sumAssured = screen.getByLabelText("Uang pertanggungan");
+    const sumAssured = screen.getByLabelText("Santunan Asuransi");
     expect(sumAssured).toHaveValue("1.000.000.000");
 
     // Not one of the old picklist options — any number goes through.
@@ -157,13 +157,13 @@ describe("CalculatorForm", () => {
     render(<CalculatorForm />);
 
     fillDob("1992-08-17");
-    fireEvent.change(screen.getByLabelText("Uang pertanggungan"), {
+    fireEvent.change(screen.getByLabelText("Santunan Asuransi"), {
       target: { value: "" },
     });
     submit();
 
     expect(
-      await screen.findByText("Isi uang pertanggungan dulu.")
+      await screen.findByText("Isi santunan asuransi dulu.")
     ).toBeInTheDocument();
     expect(requestPremium).not.toHaveBeenCalled();
   });

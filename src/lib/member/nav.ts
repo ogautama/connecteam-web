@@ -201,7 +201,7 @@ export const MEMBER_NAV: MemberNavItem[] = [
   {
     label: "Calculator",
     href: "/member/calculator",
-    description: "Hitung premi produk untuk calon klienmu",
+    description: "Hitung kontribusi produk untuk calon klienmu",
     separatorBefore: true,
   },
   // Leads: open to every role (Plan 16) — an agent sees only the leads

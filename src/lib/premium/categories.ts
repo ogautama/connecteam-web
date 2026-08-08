@@ -39,7 +39,7 @@ export const BENEFIT_CATEGORIES: BenefitCategory[] = [
   {
     id: "kritis",
     label: "Kritis",
-    benefit: "UP cair saat terdiagnosis penyakit kritis",
+    benefit: "Santunan cair saat terdiagnosis penyakit kritis",
     productId: "critical_PCA",
     productName: "Pru Critical Amanah",
   },

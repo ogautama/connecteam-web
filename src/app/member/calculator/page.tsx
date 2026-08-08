@@ -22,7 +22,7 @@ export default async function CalculatorPage() {
           Calculator
         </h1>
         <p className="mt-1 text-ink-500">
-          Hitung premi produk untuk calon klienmu.
+          Hitung kontribusi produk untuk calon klienmu.
         </p>
       </div>
       <CalculatorForm />

@@ -50,14 +50,19 @@ function termLabel(term: number): string {
  * The engine's zod messages are stable `validation.*` keys — this is their
  * Indonesian copy. Every key `makePremiumInputSchema` can emit for input this
  * form can actually produce (typed DOB; the rest are constrained selects).
+ *
+ * Sharia terminology throughout (both products are syariah, user's call
+ * 2026-08-08): "Kontribusi" never "Premi", "Santunan Asuransi" never
+ * "UP"/"Uang Pertanggungan". Engine identifiers (annualPremium, sumAssured)
+ * are API names and stay.
  */
 const VALIDATION_MESSAGES: Record<string, string> = {
   "validation.dateOfBirth.required": "Isi tanggal lahir klien dulu.",
   "validation.dateOfBirth.future": "Tanggal lahir tidak boleh di masa depan.",
   "validation.dateOfBirth.ageOutOfRange": "Usia di luar ketentuan produk ini.",
-  "validation.sumAssured.required": "Isi uang pertanggungan dulu.",
-  "validation.sumAssured.notPositive": "Uang pertanggungan harus lebih dari 0.",
-  "validation.sumAssured.tooLarge": `Uang pertanggungan maksimum ${rupiah.format(
+  "validation.sumAssured.required": "Isi santunan asuransi dulu.",
+  "validation.sumAssured.notPositive": "Santunan asuransi harus lebih dari 0.",
+  "validation.sumAssured.tooLarge": `Santunan asuransi maksimum ${rupiah.format(
     MAX_SUM_ASSURED
   )}.`,
 };
@@ -69,7 +74,7 @@ const SERVER_ERROR_MESSAGES: Record<string, string> = {
   RATE_NOT_AVAILABLE: "Tarif untuk kombinasi ini belum tersedia.",
   UNKNOWN_PLAN: "Plan ini tidak tersedia untuk produk ini.",
 };
-const GENERIC_ERROR_MESSAGE = "Gagal menghitung premi. Coba lagi.";
+const GENERIC_ERROR_MESSAGE = "Gagal menghitung kontribusi. Coba lagi.";
 
 /** "YYYY-MM-DD" (the date input's value) → local Date. Never `new
  * Date(string)` — that parses as UTC and can shift the DOB by a day. */
@@ -247,7 +252,7 @@ export default function CalculatorForm({
               Segera hadir
             </span>
             <p className="mt-3 text-sm text-ink-500">
-              {category.productName} belum tersedia di mesin premi — tab ini
+              {category.productName} belum bisa dihitung di sini — tab ini
               aktif begitu produknya dirilis.
             </p>
           </div>
@@ -296,7 +301,7 @@ export default function CalculatorForm({
 
               <div className="flex flex-col gap-1">
                 <label htmlFor="sumAssured" className={labelClass}>
-                  Uang pertanggungan
+                  Santunan Asuransi
                 </label>
                 <div className="flex items-center gap-2 rounded-lg border border-ink-100 bg-white px-3 py-2">
                   <span className="text-ink-500">Rp</span>
@@ -374,7 +379,7 @@ export default function CalculatorForm({
               disabled={pending}
               className="self-start rounded-full bg-brand-navy-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-navy-800 disabled:opacity-60"
             >
-              {pending ? "Menghitung…" : "Hitung Premi"}
+              {pending ? "Menghitung…" : "Hitung Kontribusi"}
             </button>
           </form>
         )}
@@ -386,7 +391,7 @@ export default function CalculatorForm({
           <div className="p-6">
             {stale && (
               <p className="mb-4 rounded-lg border border-brand-yellow-200 bg-brand-yellow-50 px-3 py-2 text-sm font-semibold text-brand-yellow-700">
-                ⚠︎ Input berubah — tekan “Hitung Premi” lagi untuk harga
+                ⚠︎ Input berubah — tekan “Hitung Kontribusi” lagi untuk harga
                 terbaru.
               </p>
             )}
@@ -396,7 +401,8 @@ export default function CalculatorForm({
                   {result.productDisplayName}
                 </span>
                 <span>
-                  {result.planType} · UP {rupiah.format(result.sumAssured)} ·{" "}
+                  {result.planType} · Santunan Asuransi{" "}
+                  {rupiah.format(result.sumAssured)} ·{" "}
                   {termLabel(result.paymentTerm)} · usia asuransi{" "}
                   {result.insuranceAge} · {result.smokingStatus}
                 </span>
@@ -404,7 +410,7 @@ export default function CalculatorForm({
               <div className="mt-4 flex flex-wrap gap-10">
                 <div>
                   <p className="text-xs font-semibold tracking-wide text-ink-500 uppercase">
-                    Premi tahunan
+                    Kontribusi tahunan
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-ink-900">
                     {rupiah.format(result.annualPremium)}
@@ -417,7 +423,7 @@ export default function CalculatorForm({
                 </div>
                 <div>
                   <p className="text-xs font-semibold tracking-wide text-ink-500 uppercase">
-                    Premi bulanan
+                    Kontribusi bulanan
                   </p>
                   <p className="text-2xl font-extrabold tracking-tight text-ink-900">
                     {rupiah.format(result.monthlyPremium)}
