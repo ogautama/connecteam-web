@@ -81,7 +81,21 @@ afterEach(() => {
   vi.restoreAllMocks();
   Reflect.deleteProperty(navigator, "canShare");
   Reflect.deleteProperty(navigator, "share");
+  Reflect.deleteProperty(window, "matchMedia");
 });
+
+/**
+ * jsdom implements neither the media query nor the two Web Share methods —
+ * every test that wants the share-sheet branch has to opt into all three, so
+ * the default (nothing mocked) already exercises "no share sheet available"
+ * on its own, matching plain desktop Chrome without any stubbing at all.
+ */
+function mockTouchDevice(coarse = true) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: vi.fn((query: string) => ({ matches: coarse, media: query })),
+  });
+}
 
 function renderButton(props: Partial<React.ComponentProps<typeof ShareCardButton>> = {}) {
   return render(
@@ -112,7 +126,8 @@ describe("ShareCardButton", () => {
     expect(URL.createObjectURL).toHaveBeenCalledWith(blob);
   });
 
-  test("hands the file to the native share sheet when one accepts files", async () => {
+  test("hands the file to the native share sheet on a touch-primary device", async () => {
+    mockTouchDevice();
     const share = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "canShare", {
       configurable: true,
@@ -130,6 +145,58 @@ describe("ShareCardButton", () => {
     expect(files[0].type).toBe("image/png");
     // The download fallback must not also fire.
     expect(click).not.toHaveBeenCalled();
+  });
+
+  test("skips the share sheet on a mouse-driven device even if one exists", async () => {
+    // This is the actual reported bug: a desktop share panel that never gets
+    // acted on hangs `deliver()` until the timeout gives up on it, which
+    // felt like the button "took minutes." Below that timeout, a
+    // mouse/keyboard device shouldn't attempt it at all.
+    mockTouchDevice(false);
+    const share = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: vi.fn(() => true),
+    });
+    Object.defineProperty(navigator, "share", { configurable: true, value: share });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+    renderButton();
+    fireEvent.click(screen.getByRole("button", { name: "Simpan gambar hasilnya" }));
+
+    await waitFor(() => expect(click).toHaveBeenCalled());
+    expect(share).not.toHaveBeenCalled();
+  });
+
+  test("gives up on a share sheet that never settles, rather than hanging", async () => {
+    vi.useFakeTimers();
+    try {
+      mockTouchDevice();
+      Object.defineProperty(navigator, "canShare", {
+        configurable: true,
+        value: vi.fn(() => true),
+      });
+      // A share sheet left open: the promise just never resolves.
+      Object.defineProperty(navigator, "share", {
+        configurable: true,
+        value: vi.fn(() => new Promise(() => {})),
+      });
+      const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+      renderButton();
+      fireEvent.click(screen.getByRole("button", { name: "Simpan gambar hasilnya" }));
+
+      // Nothing yet — still within the timeout budget.
+      await vi.advanceTimersByTimeAsync(7000);
+      expect(click).not.toHaveBeenCalled();
+
+      // Past it: the download fallback takes over instead of leaving the
+      // button stuck on "Menyiapkan gambar…" indefinitely.
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(click).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("the QR carries the test link on the referrer's code", async () => {
@@ -157,6 +224,7 @@ describe("ShareCardButton", () => {
   });
 
   test("a dismissed share sheet is not an error, and doesn't fall back to a download", async () => {
+    mockTouchDevice();
     const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
     Object.defineProperty(navigator, "canShare", {
       configurable: true,
@@ -185,6 +253,7 @@ describe("ShareCardButton", () => {
     // plus font loading first — on a slow connection that budget can run out
     // before `share()` is even called, and it rejects for a reason that has
     // nothing to do with whether a plain download would still work.
+    mockTouchDevice();
     const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
     Object.defineProperty(navigator, "canShare", {
       configurable: true,

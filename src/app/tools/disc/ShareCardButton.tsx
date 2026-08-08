@@ -15,13 +15,12 @@ type Status = "idle" | "working" | "error";
 
 /**
  * "Simpan gambar hasilnya" — produces the 9:16 card (Plan 23) and hands it
- * over: the native share sheet where the browser has one with file support
- * (which is where this is used — a phone, on the way to a WhatsApp status),
- * a plain download everywhere else, and the download again if the share
- * sheet was offered but failed for any reason other than the visitor
- * cancelling it (`deliver`) — `navigator.share()` has to run inside the
- * click's transient activation window, and the QR/font prep ahead of it can
- * eat into that on a slow connection.
+ * over: the native share sheet on a touch-primary device (a phone, on the
+ * way to a WhatsApp status — the button's actual purpose), a plain download
+ * everywhere else, and the download again if the share sheet was offered but
+ * failed or simply never settled (`deliver`, `tryShare`) — its promise only
+ * resolves once the visitor acts on it, so left alone it can hang
+ * indefinitely on a panel nobody is looking at.
  *
  * Everything browser-shaped lives here so `lib/disc/shareCard` stays a
  * function of a canvas context: the QR encoder, font loading, `toBlob`, and
@@ -199,27 +198,70 @@ function toBlob(canvas: HTMLCanvasElement): Promise<Blob> {
 /* Delivery                                                            */
 /* ------------------------------------------------------------------ */
 
+// navigator.share()'s promise only resolves once the visitor acts on the
+// native panel — leave it open and it hangs indefinitely, which is exactly
+// what "the download takes minutes" turned out to be: not a slow
+// computation, a promise waiting on a dialog nobody was looking at. Past
+// this, give up on it and hand over the download instead; whatever the
+// visitor does with the still-open panel afterwards is theirs to finish.
+const SHARE_TIMEOUT_MS = 8000;
+
+/**
+ * Whether the share sheet is worth offering at all. It only serves this
+ * button's actual purpose — a phone, on the way to a WhatsApp status — where
+ * tapping it and picking a target is a two-second reflex. On a mouse-driven
+ * desktop it's a native OS panel the visitor didn't ask for, frequently
+ * without an obvious "save to disk" option in it, and it's what produced the
+ * multi-minute hang: `pointer: coarse` is the standard signal for
+ * touch-primary input, which tracks "phone or tablet" far better than
+ * sniffing the user agent.
+ */
+function prefersShareSheet(): boolean {
+  return (
+    typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches
+  );
+}
+
+/**
+ * Resolves `true` when nothing more needs to happen — the share succeeded,
+ * or the visitor explicitly cancelled it — and `false` when the download
+ * fallback should run instead, which covers every other failure including a
+ * share that simply never settled within `SHARE_TIMEOUT_MS`.
+ */
+async function tryShare(file: File): Promise<boolean> {
+  try {
+    await Promise.race([
+      navigator.share({ files: [file] }),
+      new Promise((_, reject) => {
+        setTimeout(
+          () => reject(new DOMException("share timed out", "TimeoutError")),
+          SHARE_TIMEOUT_MS,
+        );
+      }),
+    ]);
+    return true;
+  } catch (error) {
+    // A dismissed share sheet is the user changing their mind — leave it
+    // there, don't force a download on them. Every other failure (including
+    // the timeout above, and `share()` rejecting because the click's
+    // transient activation window closed while `renderCard` was still
+    // awaiting the QR/font prep) falls through to the download.
+    return error instanceof DOMException && error.name === "AbortError";
+  }
+}
+
 async function deliver(blob: Blob, fileName: string): Promise<void> {
   const file = new File([blob], fileName, { type: "image/png" });
 
   // `canShare` with the actual file, not just `navigator.share` — desktop
   // Chrome has a share sheet that refuses files, and calling it would throw
   // after the visitor already picked a target.
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file] });
-      return;
-    } catch (error) {
-      // A dismissed share sheet is the user changing their mind — leave it
-      // there, don't force a download on them. Any other failure falls
-      // through to the download below instead of leaving the visitor with
-      // nothing: `share()` needs to run inside the click's transient
-      // activation window, and `renderCard` awaits a dynamic import and
-      // font loading first — on a slow connection that's enough for the
-      // window to close and `share()` to reject for a reason that has
-      // nothing to do with whether a download would still work fine.
-      if (error instanceof DOMException && error.name === "AbortError") return;
-    }
+  if (
+    prefersShareSheet() &&
+    navigator.canShare?.({ files: [file] }) &&
+    (await tryShare(file))
+  ) {
+    return;
   }
 
   const url = URL.createObjectURL(blob);

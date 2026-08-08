@@ -204,6 +204,44 @@ describe("drawShareCard", () => {
     expect(hostIndex).toBeLessThan(captionIndex);
   });
 
+  test("shrinks then wraps a long host instead of running it off the card", () => {
+    // The real bug report: a Vercel preview branch URL
+    // ("connecteam-web-git-plan-23-disc-…-projects.vercel.app") ran straight
+    // off the right edge — the shrink floor alone wasn't enough, and unlike
+    // the unit name below, there was no wrap fallback at all.
+    const short = "connecteam.id";
+    const long =
+      "connecteam-web-git-plan-23-disc-share-card-ogautama-3223s-projects.vercel.app";
+
+    const drawn = (siteHost: string) => {
+      const { ctx, calls } = recordingContext();
+      drawShareCard(ctx, cardData({ siteHost }));
+      const fillTexts = calls.filter((c) => c.op === "fillText");
+      // A URL has no spaces to break on, so a wrapped line is a raw
+      // substring chunk rather than a whole "word" — matching on content
+      // would false-hit "eam" from the wordmark, itself a substring of
+      // "connecteam.id". The host block is everything drawn between the
+      // wordmark and the footer's caption (drawn right after it, per the
+      // card's bottom-up layout), which is unambiguous regardless of how
+      // many lines the host wrapped to.
+      const start = fillTexts.findIndex((c) => c.args[0] === "eam") + 1;
+      const end = fillTexts.findIndex((c) => c.args[0] === "Scan buat ikut tesnya");
+      return fillTexts.slice(start, end).map((c) => {
+          const [text, x] = c.args as [string, number, number];
+          const size = Number(/(\d+(?:\.\d+)?)px/.exec(c.font ?? "")![1]);
+          return { text, size, right: x + text.length * size * 0.55 };
+        });
+    };
+
+    const brief = drawn(short);
+    const wordy = drawn(long);
+
+    expect(brief).toHaveLength(1);
+    expect(wordy.length).toBeGreaterThan(1);
+    wordy.forEach((line) => expect(line.right).toBeLessThanOrEqual(CARD_WIDTH));
+    expect(wordy.map((l) => l.text).join("")).toBe(long);
+  });
+
   test("carries the referral footer: caption and unit, labelled just \"Unit\"", () => {
     const { ctx, calls } = recordingContext();
     drawShareCard(ctx, cardData());

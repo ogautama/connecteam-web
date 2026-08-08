@@ -173,23 +173,52 @@ function setFont(
   ctx.letterSpacing = `${tracking}px`;
 }
 
-/** Greedy word wrap against the current font. */
+/**
+ * Greedy word wrap against the current font. A word wider than `maxWidth` on
+ * its own — the real case, not a hypothetical: a Vercel preview branch URL
+ * printed under the wordmark — has no space to break on, so it's chopped at
+ * the character level instead of being left to run off the card whole.
+ */
 function wrapText(ctx: Ctx, text: string, maxWidth: number): string[] {
   const words = text.split(/\s+/).filter(Boolean);
   if (words.length === 0) return [];
 
   const lines: string[] = [];
-  let line = words[0];
-  for (const word of words.slice(1)) {
-    const candidate = `${line} ${word}`;
+  let line = "";
+
+  function place(word: string): void {
+    const candidate = line ? `${line} ${word}` : word;
     if (ctx.measureText(candidate).width <= maxWidth) {
       line = candidate;
-    } else {
-      lines.push(line);
-      line = word;
+      return;
     }
+    if (line) {
+      lines.push(line);
+      line = "";
+    }
+    if (ctx.measureText(word).width <= maxWidth) {
+      line = word;
+      return;
+    }
+    breakWord(word);
   }
-  lines.push(line);
+
+  function breakWord(word: string): void {
+    let chunk = "";
+    for (const char of word) {
+      const candidate = chunk + char;
+      if (chunk && ctx.measureText(candidate).width > maxWidth) {
+        lines.push(chunk);
+        chunk = char;
+      } else {
+        chunk = candidate;
+      }
+    }
+    line = chunk;
+  }
+
+  words.forEach(place);
+  if (line) lines.push(line);
   return lines;
 }
 
@@ -315,9 +344,25 @@ function drawWordmark(ctx: Ctx, data: ShareCardData): void {
   ctx.fillStyle = RED_400;
   ctx.fillText("eam", PAD_X + ctx.measureText(connect).width, PAD_Y);
 
-  fitFont(ctx, data.siteHost, CONTENT_WIDTH, data.fontFamily, 400, 9.5 * C, 9 * C);
+  // Shrink then wrap — the same two escape hatches the footer's unit name
+  // gets. This is usually a short production domain, but a Vercel preview
+  // branch URL can run to 70+ characters, and canvas text doesn't wrap or
+  // clip itself: left with only a shrink floor it was still running straight
+  // off the edge of the card.
+  const hostSize = fitFont(
+    ctx,
+    data.siteHost,
+    CONTENT_WIDTH,
+    data.fontFamily,
+    400,
+    9.5 * C,
+    8 * C,
+  );
+  const hostLines = wrapText(ctx, data.siteHost, CONTENT_WIDTH);
   ctx.fillStyle = NAVY_300;
-  ctx.fillText(data.siteHost, PAD_X, PAD_Y + wordmarkSize * 1.2);
+  hostLines.forEach((line, index) => {
+    ctx.fillText(line, PAD_X, PAD_Y + wordmarkSize * 1.2 + index * hostSize * 1.35);
+  });
 }
 
 function drawKicker(ctx: Ctx, family: string, bottom: number): void {
