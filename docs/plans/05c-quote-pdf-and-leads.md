@@ -19,7 +19,7 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
 
 ## Scope
 
-- **Client-quote form step**: once 05b shows a live price, an "Simpan &
+- **Client-quote form step**: once 05b shows a priced result, an "Simpan &
   buat quotation" step collects the client's name + phone/email (mirrors
   `saveDiscLead`'s name/contact pattern in
   `src/app/tools/disc/actions.ts`), plus whatever `makeQuoteInputSchema`
@@ -48,14 +48,22 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
     `getLeadForViewer` doesn't filter by source — so a calculator lead's
     id *is* reachable and would render garbage or crash on
     `DISC_PROFILES[undefined]`.
+  **Visibility is deliberate, not inherited by accident**: calculator
+  leads flow through the same downline-scoped `getLeadsForViewer`, so
+  every leader up the chain sees an agent's quotes — client name, contact,
+  product, premium. That's client financial data, a step beyond a
+  prospect's DISC result, and it's the intended behaviour (recorded
+  2026-08-08): leads visibility follows Plan 16's hierarchy model
+  regardless of source.
   Scope: the list gains a source switcher (two tabs, DISC / Calculator,
   DISC remaining the default so existing behaviour is unchanged) with
   per-source columns — the Calculator view shows product, plan, sum
   assured, and premium in place of "Profil"; the detail page branches on
   `lead.source`, keeping the existing DISC layout untouched and adding a
   calculator layout (client name/contact, product + plan, sum assured,
-  premium breakdown, quoting agent, date — and a "download PDF again"
-  button wired to `pdf.ts`, regenerating from the stored `inputs`). The
+  premium breakdown, quoting agent, date — display only, no "download PDF
+  again" button; see the recompute-every-time rule under `pdf.ts` below).
+  The
   page intro copy ("Hasil tes DISC dari link referral kamu…") and the
   `Leads` nav description in `src/lib/member/nav.ts` both get updated to
   stop implying DISC-only.
@@ -85,6 +93,20 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
   - Recomputes the price server-side rather than trusting a client-
     submitted number (same discipline as the package's own
     `examples/vercel/premium-pdf.ts`).
+  - **Recompute every time, at the current date — decided 2026-08-08
+    (user's call).** This is a live calculator: every PDF generation is a
+    fresh server-side pricing at today's date, and the PDF itself is
+    never stored anywhere — it's returned as a download the agent saves
+    locally. There is deliberately **no** "regenerate this PDF from a
+    saved Lead" path: premium depends on the client's insurance age at
+    the quote date and on the current rate tables, so a regeneration
+    months later could silently disagree with what the client was
+    originally told. Instead of pinning regeneration to the original
+    quote date and guarding against rate drift (considered, rejected as
+    complexity a live calculator doesn't need), wanting the PDF again
+    simply means running the calculator again — a fresh quote at
+    today's rates, honestly. The `Lead` row remains the historical
+    record of what was quoted and when.
   - Pulls agent identity from the signed-in member's `MemberIntake`
     (`fullName`, `activePhone`) rather than having the agent type it in
     per quote.
@@ -110,9 +132,10 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
 
 - Emailing/WhatsApp-ing the PDF automatically — v1 is a direct download;
   the agent sends it to their client themselves.
-- Storing the generated PDF file in Supabase Storage — it's regenerated on
-  demand from the `Lead` row's `inputs` if ever needed again, not persisted
-  as a file.
+- Storing the generated PDF anywhere (Supabase Storage or otherwise) — it
+  exists only as the download the agent saves locally. Needing it again
+  means a fresh run of the live calculator, not a regeneration (see the
+  recompute-every-time rule in Scope).
 
 ## Unit tests
 
@@ -143,11 +166,12 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
 ## Verification
 
 - `npm run dev`, complete a full quote end-to-end in the browser pane:
-  price a product, save it against a test client, confirm a new row shows
-  up on `/member/leads`'s Calculator tab (and that the DISC tab still
-  shows DISC leads untouched), open the calculator lead's detail page,
-  download the PDF and open it — check the CONNECTeam logo/colors rendered
-  instead of `premium-engine`'s `DEFAULT_THEME`.
+  price a product, save it against a test client, download the PDF from
+  the calculator flow and open it — check the CONNECTeam logo/colors
+  rendered instead of `premium-engine`'s `DEFAULT_THEME`. Then confirm the
+  new row shows up on `/member/leads`'s Calculator tab (and that the DISC
+  tab still shows DISC leads untouched) and its detail page renders the
+  calculator layout (display only — no PDF button there).
 - After the first Preview deploy, hit the PDF path once specifically —
   this is the README's called-out failure mode: passes every local/CI
   check, only 500s in an actual Vercel deployment if `includeFiles` is

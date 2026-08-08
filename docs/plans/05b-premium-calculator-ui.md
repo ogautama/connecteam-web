@@ -77,7 +77,7 @@ premium against new inputs.
 ## Out of scope
 
 - Saving a result against a named client, PDF generation (05c) — this page
-  is "get a live price," full stop.
+  is "get a price," full stop.
 - Products beyond `life_PHE`/`critical_PCA` (blocked on `premium-engine`
   itself, not this repo).
 
@@ -97,9 +97,11 @@ premium against new inputs.
 ## Verification
 
 - `npm run dev`, exercise `/member/calculator` in the browser pane signed
-  in as a test member: pick each of the two live products, submit a valid
-  input for each and confirm the price updates live, then submit an
-  out-of-range input and confirm a validation message instead of a price.
+  in as a test member: pick each of the two shipped products, submit a
+  valid input for each and confirm a priced result renders, edit an input
+  and confirm the shown price is marked stale until the next submit, then
+  submit an out-of-range input and confirm a validation message instead of
+  a price.
 - Confirm the old hub placeholder is gone from `/member/onboarding` and the
   sidebar's Calculator entry navigates straight to the new route.
 - Visit `/member/onboarding?section=calculator` directly — the sidebar has
