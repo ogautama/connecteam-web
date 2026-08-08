@@ -58,7 +58,7 @@ describe("requestPremium", () => {
     getCurrentUser.mockResolvedValue(null);
 
     await expect(requestPremium(goldenPayload())).rejects.toThrow(
-      "Harus masuk sebagai member untuk menghitung premi."
+      "Harus masuk sebagai member untuk menghitung kontribusi."
     );
   });
 

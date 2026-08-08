@@ -26,16 +26,23 @@ describe("visibleNavItems", () => {
   it("shows an agent the dashboard plus every top-level section", () => {
     const labels = visibleNavItems("agent").map((item) => item.label);
 
+    // Content sections first, then the tools cluster (Calculator, Leads) —
+    // Calculator moved out of the Selling/References slot on 2026-08-08.
     expect(labels).toEqual([
       "Dashboard",
       "Onboarding",
       "Recruiting",
       "Selling",
-      "Calculator",
       "References",
       "Directory",
+      "Calculator",
       "Leads",
     ]);
+  });
+
+  it("draws the tools divider above Calculator, and only there", () => {
+    const withSeparator = MEMBER_NAV.filter((item) => item.separatorBefore);
+    expect(withSeparator.map((item) => item.label)).toEqual(["Calculator"]);
   });
 
   it("shows Leads to an agent too — it's not role-gated", () => {
@@ -125,6 +132,10 @@ describe("navItemHref", () => {
   it("leaves real routes alone", () => {
     expect(navItemHref(dashboard)).toBe("/member");
   });
+
+  it("resolves Calculator to its own route, not a hub section (Plan 05b)", () => {
+    expect(navItemHref(calculator)).toBe("/member/calculator");
+  });
 });
 
 describe("isValidSection", () => {
@@ -138,6 +149,13 @@ describe("isValidSection", () => {
     expect(isValidSection(undefined)).toBe(false);
     expect(isValidSection("events")).toBe(false);
     expect(isValidSection("directory")).toBe(true); // still a valid top-level id
+  });
+
+  it("rejects 'calculator' now that it's a real route — old ?section= links fall back", () => {
+    // The sidebar advertised /member/onboarding?section=calculator from Plan 07
+    // until Plan 05b; bookmarks carrying it must land on the hub's default
+    // section rather than a broken page.
+    expect(isValidSection("calculator")).toBe(false);
   });
 });
 
@@ -184,7 +202,7 @@ describe("memberSections", () => {
     expect(sections.every((item) => item.description)).toBe(true);
   });
 
-  it("excludes Calculator — not a real destination yet (Plan 05)", () => {
+  it("excludes Calculator — implicitly now, via its href-only shape (Plan 05b)", () => {
     expect(memberSections("agent").map((i) => i.label)).not.toContain("Calculator");
   });
 

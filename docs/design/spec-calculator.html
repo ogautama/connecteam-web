@@ -254,7 +254,7 @@
     </aside>
     <div class="main">
       <h3>Calculator</h3>
-      <p class="pagesub">Hitung premi produk untuk calon klienmu, lalu simpan sebagai quotation PDF.</p>
+      <p class="pagesub">Hitung kontribusi produk untuk calon klienmu, lalu simpan sebagai quotation PDF.</p>
 
       <div class="cattabs">
         <div class="cattab sel">
@@ -263,7 +263,7 @@
         </div>
         <div class="cattab">
           <div class="cname">Kritis</div>
-          <div class="cdesc">UP cair saat terdiagnosis penyakit kritis</div>
+          <div class="cdesc">Santunan cair saat terdiagnosis penyakit kritis</div>
         </div>
         <div class="cattab">
           <div class="cname">Kesehatan</div>
@@ -286,7 +286,7 @@
           <div class="seg"><span class="on">Non Smoker</span><span>Smoker</span></div>
         </div>
         <div class="field">
-          <label>Uang pertanggungan</label>
+          <label>Santunan Asuransi</label>
           <div class="control"><span>Rp 1.000.000.000</span><span class="chev">▾</span></div>
         </div>
         <div class="field">
@@ -300,8 +300,7 @@
       </div>
 
       <div class="btnrow">
-        <span class="btn">Hitung Premi</span>
-        <span class="hint">Harga dihitung di server saat kamu menekan tombol — bukan per ketikan.</span>
+        <span class="btn">Hitung Kontribusi</span>
       </div>
     </div>
   </div></div>
@@ -312,7 +311,10 @@
   this frame is design intent for when the engine ships it, so the tab structure doesn't get
   rebuilt then. Until the engine prices it, the Kesehatan tab renders with a "Segera hadir"
   notice instead of this form. Field set below is provisional (coverage options are real, from
-  the product; the rest mirrors the other tabs pending the engine's actual input schema).</p>
+  the product; the rest mirrors the other tabs pending the engine's actual input schema).
+  <strong>Terminology is per-product:</strong> PruWell Medical is <em>konvensional</em>, so this
+  tab keeps "Premi"/"UP" — unlike the Jiwa/Kritis tabs, whose syariah products use
+  "Kontribusi"/"Santunan Asuransi".</p>
 
   <div class="frame"><div class="frame-inner" style="min-height:0">
     <div class="main">
@@ -323,7 +325,7 @@
         </div>
         <div class="cattab">
           <div class="cname">Kritis</div>
-          <div class="cdesc">UP cair saat terdiagnosis penyakit kritis</div>
+          <div class="cdesc">Santunan cair saat terdiagnosis penyakit kritis</div>
         </div>
         <div class="cattab sel">
           <div class="cname">Kesehatan</div>
@@ -367,16 +369,16 @@
         <div class="body">
           <div class="meta">
             <span class="chip">PruHeritage Essential</span>
-            <span>Essential · UP Rp 1 M · 10 tahun · usia asuransi 34 · Non Smoker</span>
+            <span>Essential · Santunan Asuransi Rp 1 M · 10 tahun · usia asuransi 34 · Non Smoker</span>
           </div>
           <div class="prem">
             <div class="cell">
-              <div class="cap">Premi tahunan</div>
+              <div class="cap">Kontribusi tahunan</div>
               <div class="val">Rp 28.930.000</div>
               <div class="was">Rp 30.450.000</div>
             </div>
             <div class="cell">
-              <div class="cap">Premi bulanan</div>
+              <div class="cap">Kontribusi bulanan</div>
               <div class="val">Rp 2.460.000</div>
               <div class="was">Rp 2.590.000</div>
             </div>
@@ -394,25 +396,25 @@
   <!-- ============================================================ STATE C -->
   <h2 class="state">State C — stale result (input edited after submit)</h2>
   <p class="state-note">Any input change dims the shown price and blocks the quotation CTA until the
-  next "Hitung Premi" — an agent must never read an old premium against new inputs.</p>
+  next "Hitung Kontribusi" — an agent must never read an old premium against new inputs.</p>
 
   <div class="frame"><div class="frame-inner" style="min-height:0">
     <div class="main">
       <div class="result stale">
         <div class="bar"></div>
         <div class="body">
-          <div class="stalenote">⚠︎ Input berubah — tekan "Hitung Premi" lagi untuk harga terbaru.</div>
+          <div class="stalenote">⚠︎ Input berubah — tekan "Hitung Kontribusi" lagi untuk harga terbaru.</div>
           <div class="meta">
             <span class="chip">PruHeritage Essential</span>
-            <span>Essential · UP Rp 1 M · 10 tahun · usia asuransi 34 · Non Smoker</span>
+            <span>Essential · Santunan Asuransi Rp 1 M · 10 tahun · usia asuransi 34 · Non Smoker</span>
           </div>
           <div class="prem">
             <div class="cell">
-              <div class="cap">Premi tahunan</div>
+              <div class="cap">Kontribusi tahunan</div>
               <div class="val">Rp 28.930.000</div>
             </div>
             <div class="cell">
-              <div class="cap">Premi bulanan</div>
+              <div class="cap">Kontribusi bulanan</div>
               <div class="val">Rp 2.460.000</div>
             </div>
           </div>

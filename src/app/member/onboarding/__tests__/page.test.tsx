@@ -198,6 +198,14 @@ describe("member hub page", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Onboarding" })).toBeInTheDocument();
   });
 
+  test("a stale ?section=calculator bookmark falls back the same way (Plan 05b)", async () => {
+    // The sidebar advertised this URL from Plan 07 until the calculator became
+    // its own route — history/bookmarks may still carry it.
+    render(await renderAt("calculator"));
+
+    expect(screen.getByRole("heading", { level: 1, name: "Onboarding" })).toBeInTheDocument();
+  });
+
   test("shows overall onboarding progress regardless of active section", async () => {
     render(await renderAt("selling", ["know-yourself"]));
 

@@ -26,7 +26,9 @@ export async function requestPremium(
 ): Promise<HandledPremiumResponse> {
   const user = await getCurrentUser();
   if (!user) {
-    throw new Error("Harus masuk sebagai member untuk menghitung premi.");
+    // Sharia terminology — "kontribusi", never "premi" (both products are
+    // syariah; user's call 2026-08-08).
+    throw new Error("Harus masuk sebagai member untuk menghitung kontribusi.");
   }
 
   return handlePremiumRequest(body, new Date());

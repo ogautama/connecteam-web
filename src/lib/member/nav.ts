@@ -23,7 +23,6 @@ export type HubSectionId =
   | "selling-learning-center"
   | "selling-bank-form"
   | "selling-sales-tools"
-  | "calculator"
   | "references"
   | "references-recording"
   | "references-commission"
@@ -52,6 +51,9 @@ export type MemberNavItem = {
   description?: string;
   /** Whole item is leader-only — hidden outright from agents. */
   leaderOnly?: boolean;
+  /** Sidebar draws a divider above this item — marks where the content
+   * sections end and the tools (Calculator, Leads, Add Member) begin. */
+  separatorBefore?: boolean;
   /** Nested beneath a parent in the sidebar (one level only). */
   children?: MemberNavItem[];
 };
@@ -115,11 +117,6 @@ export const MEMBER_NAV: MemberNavItem[] = [
         description: "Tabel premi, medical, dan alat bantu jualan lain",
       },
     ],
-  },
-  {
-    label: "Calculator",
-    section: "calculator",
-    description: "Hitung potensi income",
   },
   {
     label: "References",
@@ -195,10 +192,20 @@ export const MEMBER_NAV: MemberNavItem[] = [
       },
     ],
   },
-  // Not a hub section — its own route, open to every role (Plan 16): an
-  // agent sees only the leads their own referral link brought in, a leader
-  // their whole downline. Kept apart from the hub sections, same as Add
-  // Member below it.
+  // The tools cluster — real routes, not hub sections, set apart from the
+  // content sections above by a sidebar divider (separatorBefore).
+  //
+  // Calculator: a hub placeholder until Plan 05b made it a real route;
+  // moved from its old slot between Selling and References down here with
+  // the other tools (user's call, 2026-08-08).
+  {
+    label: "Calculator",
+    href: "/member/calculator",
+    description: "Hitung kontribusi produk untuk calon klienmu",
+    separatorBefore: true,
+  },
+  // Leads: open to every role (Plan 16) — an agent sees only the leads
+  // their own referral link brought in, a leader their whole downline.
   {
     label: "Leads",
     href: "/member/leads",
@@ -254,15 +261,13 @@ export function showsLeaderBadge(item: MemberNavItem, role: Role): boolean {
 /**
  * The dashboard's quick-link cards — top-level hub sections only (Onboarding,
  * Recruiting, Selling, References, Directory). Filtering on `.section` drops
- * both route-only items (Dashboard, Add Member carry no `section`) in one
- * go; Calculator is excluded explicitly since it isn't a real destination yet
- * (Plan 05, deferred behind `CALCULATOR_LIVE`). No children flattened in —
- * unlike the sidebar, the dashboard doesn't drill into a section's own items.
+ * every route-only item (Dashboard, Calculator, Leads, Add Member carry no
+ * `section`) in one go — by design, tools don't get a card. No children
+ * flattened in — unlike the sidebar, the dashboard doesn't drill into a
+ * section's own items.
  */
 export function memberSections(role: Role): MemberNavItem[] {
-  return visibleNavItems(role).filter(
-    (item) => item.section !== undefined && item.section !== "calculator"
-  );
+  return visibleNavItems(role).filter((item) => item.section !== undefined);
 }
 
 export function isValidSection(value: string | undefined): value is HubSectionId {
