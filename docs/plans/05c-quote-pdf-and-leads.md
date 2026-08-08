@@ -20,7 +20,7 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
 ## Scope
 
 - **Client-quote form step**: once 05b shows a priced result, an "Simpan &
-  buat quotation" step collects the client's name + phone/email (mirrors
+  buat PDF" step collects the client's name + phone/email (mirrors
   `saveDiscLead`'s name/contact pattern in
   `src/app/tools/disc/actions.ts`), plus whatever `makeQuoteInputSchema`
   requires beyond the pricing-only schema.
