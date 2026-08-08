@@ -56,8 +56,21 @@ premium against new inputs.
 - **`/member/calculator/page.tsx`** — gated the same way the rest of
   `/member/**` already is (existing proxy/auth check), renders the form.
 - **Form**, built only against `premium-engine`'s `/public` entry:
-  - Product picker sourced from `Object.values(PRODUCTS)` — display name,
-    not a hardcoded list of two.
+  - **Benefit-first picker (revised 2026-08-08, user's call — see
+    [spec-calculator.html](../design/spec-calculator.html))**: the
+    top-level choice is three benefit-category tabs — **Jiwa** (PruHeritage
+    Essential), **Kritis** (PruCritical Amanah), **Kesehatan** (PruWell
+    Medical, future) — because the selling emphasis is the benefit, not
+    the product name; the product shows as a subdued chip line under the
+    tabs. The engine's `PRODUCTS` registry has no category field, so the
+    category↔product mapping and each tab's benefit copy live in an
+    app-side map keyed by `ProductId`. All three tabs render from day one;
+    a tab whose product the installed engine version doesn't price
+    (Kesehatan, until PruWell Medical ships in `premium-engine`) shows a
+    "Segera hadir" notice instead of a form. Everything below the tab —
+    fields, bounds, plans — still comes from the registry's
+    `ProductDefinition`, so a future engine version bump plus one app-side
+    map entry lights the tab up without rebuilding the picker.
   - Per-product fields driven by the selected `ProductDefinition`'s bounds/
     plans/`sumAssuredOptions` (age bounds, gender, smoking status, sum
     assured, plan) — the form must not know product-specific field logic
@@ -87,21 +100,28 @@ premium against new inputs.
   `isValidSection("calculator")` returns `false`; `memberSections()` still
   excludes Calculator (now implicitly, via its `href`-only shape) the same
   way it already excludes Leads/Add Member.
-- Form component: renders one option per `PRODUCTS` entry; selecting a
-  product swaps in that product's fields/bounds; a valid submission shows a
-  priced result; an invalid submission (e.g. DOB outside bounds) shows a
-  validation message and does **not** call the pricing action (mock it and
-  assert it was never called); editing an input after a result is shown
-  marks the result stale.
+- Form component: renders the three benefit tabs; selecting a tab swaps in
+  its product's fields/bounds from the registry; a tab mapped to a product
+  the installed engine doesn't export renders the "Segera hadir" notice
+  (fixture: a map entry pointing at a fake `ProductId`); a valid
+  submission shows a priced result; an invalid submission (e.g. DOB
+  outside bounds) shows a validation message and does **not** call the
+  pricing action (mock it and assert it was never called); editing an
+  input after a result is shown marks the result stale.
+- Category map: every `ProductId` the engine exports appears in exactly
+  one category (a completeness test over `Object.keys(PRODUCTS)` — fails
+  loudly when a future engine version adds a product nobody categorized,
+  instead of silently hiding it).
 
 ## Verification
 
 - `npm run dev`, exercise `/member/calculator` in the browser pane signed
-  in as a test member: pick each of the two shipped products, submit a
-  valid input for each and confirm a priced result renders, edit an input
-  and confirm the shown price is marked stale until the next submit, then
-  submit an out-of-range input and confirm a validation message instead of
-  a price.
+  in as a test member: switch through all three tabs — Jiwa and Kritis
+  each render their product's form, Kesehatan shows "Segera hadir" — then
+  submit a valid input on each live tab and confirm a priced result
+  renders, edit an input and confirm the shown price is marked stale until
+  the next submit, then submit an out-of-range input and confirm a
+  validation message instead of a price.
 - Confirm the old hub placeholder is gone from `/member/onboarding` and the
   sidebar's Calculator entry navigates straight to the new route.
 - Visit `/member/onboarding?section=calculator` directly — the sidebar has
