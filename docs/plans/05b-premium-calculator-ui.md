@@ -15,9 +15,20 @@ and what `premium-engine` provides.
 
 A real `/member/calculator` page: a product-driven form (works for
 whatever's in `premium-engine`'s `PRODUCTS` registry — today just
-`life_PHE` and `critical_PCA`) that shows a live priced result as the agent
-fills it in. Replaces the "Segera hadir" hub placeholder that's sat in the
-quest hub sidebar since Plan 07 with the actual tool.
+`life_PHE` and `critical_PCA`) that prices on an explicit "Hitung" submit.
+Replaces the "Segera hadir" hub placeholder that's sat in the quest hub
+sidebar since Plan 07 with the actual tool.
+
+**Pricing is submit-triggered, not as-you-type — decided here, 2026-08-08,
+so it isn't relitigated in review.** Rates are server-only by design (the
+package's iron rule), so *every* price is a Server Action round trip — and
+this deployment has a known latency footgun: Vercel functions defaulted to
+`iad1` while users (and Supabase) are in the Singapore region. Debounced
+price-as-you-type would make that lag a constant presence in the form;
+price-on-submit makes it a single wait the agent expects. Changing an
+input after a result is shown should visibly mark the shown price as stale
+(disable/dim it) until the next submit, so an agent never reads an old
+premium against new inputs.
 
 ## Scope
 
@@ -53,11 +64,13 @@ quest hub sidebar since Plan 07 with the actual tool.
     beyond what the registry describes, since that's what lets a third
     product show up later without a UI change.
   - Client-side validation via `makePremiumInputSchema(product)`.
-  - On valid input, calls 05a's pricing action and shows the priced
-    annual/monthly premium; a validation error renders inline instead of
-    calling the action (mirrors `handlePremiumRequest`'s own `422` shape
-    for anything that slips past client-side validation, e.g. a stale
-    cached bound).
+  - On submit with valid input, calls 05a's pricing action and shows the
+    priced annual/monthly premium (see the submit-triggered decision under
+    Goal); a validation error renders inline instead of calling the action
+    (mirrors `handlePremiumRequest`'s own `422` shape for anything that
+    slips past client-side validation, e.g. a stale cached bound). Editing
+    any input after a result is shown marks that result stale until the
+    next submit.
 - Styling matches the existing `/member` shell (its Tailwind tokens), not
   `MarketingLayout` — this page never renders for a logged-out visitor.
 
@@ -78,7 +91,8 @@ quest hub sidebar since Plan 07 with the actual tool.
   product swaps in that product's fields/bounds; a valid submission shows a
   priced result; an invalid submission (e.g. DOB outside bounds) shows a
   validation message and does **not** call the pricing action (mock it and
-  assert it was never called).
+  assert it was never called); editing an input after a result is shown
+  marks the result stale.
 
 ## Verification
 
@@ -88,4 +102,10 @@ quest hub sidebar since Plan 07 with the actual tool.
   out-of-range input and confirm a validation message instead of a price.
 - Confirm the old hub placeholder is gone from `/member/onboarding` and the
   sidebar's Calculator entry navigates straight to the new route.
+- Visit `/member/onboarding?section=calculator` directly — the sidebar has
+  advertised that URL since Plan 07, so bookmarks/history may still carry
+  it. Once `"calculator"` leaves `HubSectionId`, `isValidSection` returns
+  false for it; confirm the hub's invalid-section fallback lands on the
+  default section gracefully (no error page). A redirect isn't warranted —
+  just verify the fallback behaves.
 - `npm run lint`, `npx tsc --noEmit`, `npm test`.

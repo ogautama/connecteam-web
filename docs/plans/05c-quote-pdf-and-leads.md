@@ -36,6 +36,29 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
     **not** create a `Lead` row — same guard `handleQuoteRequest` already
     applies server-side; this action just needs to respect the `lead`
     field being absent on that path.
+- **`/member/leads` source-aware rendering — this plan owns it.** The
+  leads page is *not* source-agnostic today, in two ways that both bite
+  (verified 2026-08-08 against the shipped Plan 16 code):
+  - The list (`src/app/member/leads/page.tsx`) hard-fetches
+    `getLeadsForViewer(user.id, "disc")` and renders a DISC-specific
+    "Profil" column from `lead.result as DiscResult` — calculator leads
+    would simply never appear.
+  - The detail page (`[id]/page.tsx`) casts `lead.result as DiscResult`
+    and `lead.inputs as { answers: DiscTrait[] }` unconditionally, and
+    `getLeadForViewer` doesn't filter by source — so a calculator lead's
+    id *is* reachable and would render garbage or crash on
+    `DISC_PROFILES[undefined]`.
+  Scope: the list gains a source switcher (two tabs, DISC / Calculator,
+  DISC remaining the default so existing behaviour is unchanged) with
+  per-source columns — the Calculator view shows product, plan, sum
+  assured, and premium in place of "Profil"; the detail page branches on
+  `lead.source`, keeping the existing DISC layout untouched and adding a
+  calculator layout (client name/contact, product + plan, sum assured,
+  premium breakdown, quoting agent, date — and a "download PDF again"
+  button wired to `pdf.ts`, regenerating from the stored `inputs`). The
+  page intro copy ("Hasil tes DISC dari link referral kamu…") and the
+  `Leads` nav description in `src/lib/member/nav.ts` both get updated to
+  stop implying DISC-only.
 - **`src/lib/premium/theme.ts`** — a `PdfTheme` built from this repo's
   existing brand tokens (`src/app/globals.css`) rather than new hex values
   invented for the occasion. Concrete starting mapping for whoever
@@ -102,6 +125,13 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
 - `theme.ts`: the exported value satisfies the `PdfTheme` type (mostly a
   compile-time check) and its `logo` is a well-formed `data:image/...`
   URI.
+- Leads pages: the list's Calculator tab shows a calculator lead's
+  product/plan/premium columns and omits DISC's "Profil"; the DISC tab
+  still renders exactly as before (regression guard for the existing Plan
+  16 tests); the detail page renders the calculator layout for a
+  `source: "calculator"` lead and the DISC layout for a `source: "disc"`
+  lead — in particular, a calculator lead's detail render must not touch
+  `DISC_PROFILES`.
 - `pdf.ts` action: given a fixture quote, returns non-empty bytes starting
   with the PDF magic header (`%PDF`) rather than asserting on rendered
   visual content; an unauthenticated call is rejected; passing a tampered
@@ -114,9 +144,10 @@ already do) and generate a CONNECTeam-branded PDF quotation to download.
 
 - `npm run dev`, complete a full quote end-to-end in the browser pane:
   price a product, save it against a test client, confirm a new row shows
-  up on `/member/leads`, download the PDF and open it — check the
-  CONNECTeam logo/colors rendered instead of `premium-engine`'s
-  `DEFAULT_THEME`.
+  up on `/member/leads`'s Calculator tab (and that the DISC tab still
+  shows DISC leads untouched), open the calculator lead's detail page,
+  download the PDF and open it — check the CONNECTeam logo/colors rendered
+  instead of `premium-engine`'s `DEFAULT_THEME`.
 - After the first Preview deploy, hit the PDF path once specifically —
   this is the README's called-out failure mode: passes every local/CI
   check, only 500s in an actual Vercel deployment if `includeFiles` is

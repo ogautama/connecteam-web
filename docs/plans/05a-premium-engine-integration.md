@@ -70,7 +70,12 @@ Plan 06 (member shell — `getCurrentUser()`, the `/member/**` auth gate).
 
 - Generate a GitHub PAT scoped **`read:packages`** (Settings → Developer
   settings → Personal access tokens → Tokens (classic)), with read access
-  to `ogautama/premium-engine`'s packages.
+  to `ogautama/premium-engine`'s packages. **Mind the expiry**: classic
+  PATs expire (or get revoked), and when this one dies, every Vercel build
+  fails at `npm install` with no code change to blame. Either pick "No
+  expiration" or calendar the renewal. Symptom to remember: a deploy that
+  suddenly fails at the install step → check `NPM_TOKEN` before debugging
+  anything else.
 - Add `NPM_TOKEN=<token>` to your local shell profile (needed for every
   local `npm install` from here on, not just the first).
 - Vercel dashboard → the **connecteam-web** project (not `premium-engine`'s
@@ -139,3 +144,9 @@ Plan 06 (member shell — `getCurrentUser()`, the `/member/**` auth gate).
 - Confirm the install also works from a clean state (delete `node_modules`
   and reinstall) — catches "works because it was already installed before
   token setup" false positives.
+- **Confirm this plan's own PR gets a green Vercel Preview build.** The
+  local checks above never exercise the `NPM_TOKEN`-in-Vercel wiring — the
+  deploy-time `npm install` is the only thing that does, and it's the whole
+  point of the manual Vercel step. If that env var is missing or wrong, the
+  failure should surface here, in this spike's Preview, not later inside
+  05b's UI branch.
