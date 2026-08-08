@@ -110,22 +110,30 @@
   .main h3 { font-size: 1.25rem; letter-spacing: -.01em; }
   .main .pagesub { color: var(--page-text-muted); font-size: .86rem; margin: .2rem 0 1.4rem; }
 
-  /* product cards */
-  .products { display: flex; gap: .8rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
-  .pcard {
-    flex: 1 1 200px; max-width: 250px;
+  /* benefit-category tabs */
+  .cattabs { display: flex; gap: .7rem; flex-wrap: wrap; margin-bottom: 1.1rem; max-width: 620px; }
+  .cattab {
+    flex: 1 1 150px;
     border: 1.5px solid var(--page-border); border-radius: 14px;
-    padding: .85rem 1rem; cursor: default;
+    padding: .75rem .95rem; cursor: default; position: relative;
   }
-  .pcard .pname { font-weight: 700; font-size: .92rem; }
-  .pcard .ptag  { font-size: .74rem; color: var(--page-text-muted); margin-top: .15rem; }
-  .pcard.sel { border-color: var(--brand-navy); background: var(--accent-soft); position: relative; }
-  .pcard.sel::after {
-    content: "✓"; position: absolute; top: .6rem; right: .8rem;
+  .cattab .cname { font-weight: 800; font-size: .95rem; letter-spacing: -.01em; }
+  .cattab .cdesc { font-size: .72rem; color: var(--page-text-muted); margin-top: .15rem; line-height: 1.35; }
+  .cattab.sel { border-color: var(--brand-navy); background: var(--accent-soft); }
+  .cattab.sel::after {
+    content: "✓"; position: absolute; top: .55rem; right: .75rem;
     color: var(--accent); font-weight: 800; font-size: .85rem;
   }
-  .pcard.ghost { border-style: dashed; opacity: .65; }
-  .pcard.ghost .pname { color: var(--page-text-faint); }
+  /* the product behind the selected benefit — subdued, not the hero */
+  .prodline {
+    font-size: .78rem; color: var(--page-text-muted); margin-bottom: 1.3rem;
+    display: flex; align-items: center; gap: .45rem;
+  }
+  .prodline .pchip {
+    border: 1px solid var(--page-border); border-radius: 999px;
+    padding: .08rem .6rem; font-weight: 600; color: var(--page-text);
+    background: var(--page-surface); font-size: .74rem;
+  }
 
   /* form */
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: .95rem 1.1rem; max-width: 620px; }
@@ -222,11 +230,13 @@
   route (like Leads / Add Member), replacing the "Segera hadir" hub placeholder.</p>
 
   <!-- ============================================================ STATE A -->
-  <h2 class="state">State A — form, product selected, before first submit</h2>
-  <p class="state-note">Product cards are rendered from <code>PRODUCTS</code> — a third product added to the
-  engine later shows up with zero UI changes. The dashed card is a static hint, not a real entry.
-  Fields swap per product: Pru Heritage Essential has one plan (Essential) and "until age" payment
-  terms; Pru Critical Amanah has Basic/Plus and no discount.</p>
+  <h2 class="state">State A — Jiwa tab, before first submit</h2>
+  <p class="state-note">The picker leads with the <strong>benefit</strong>, not the product name:
+  three tabs — Jiwa / Kritis / Kesehatan. The product behind the selected benefit shows as a
+  subdued chip line under the tabs. The engine's <code>PRODUCTS</code> registry has no category
+  field, so the tab↔product mapping (plus each tab's benefit copy) lives app-side, keyed by
+  <code>ProductId</code>. Fields swap per product: PruHeritage Essential has one plan and
+  "until age" payment terms; PruCritical Amanah has Basic/Plus and no discount.</p>
 
   <div class="frame"><div class="frame-inner">
     <aside class="side">
@@ -246,20 +256,21 @@
       <h3>Calculator</h3>
       <p class="pagesub">Hitung premi produk untuk calon klienmu, lalu simpan sebagai quotation PDF.</p>
 
-      <div class="products">
-        <div class="pcard sel">
-          <div class="pname">Pru Heritage Essential</div>
-          <div class="ptag">Asuransi jiwa · plan Essential</div>
+      <div class="cattabs">
+        <div class="cattab sel">
+          <div class="cname">Jiwa</div>
+          <div class="cdesc">Warisan &amp; perlindungan jiwa untuk keluarga</div>
         </div>
-        <div class="pcard">
-          <div class="pname">Pru Critical Amanah</div>
-          <div class="ptag">Penyakit kritis · Basic / Plus</div>
+        <div class="cattab">
+          <div class="cname">Kritis</div>
+          <div class="cdesc">UP cair saat terdiagnosis penyakit kritis</div>
         </div>
-        <div class="pcard ghost">
-          <div class="pname">Produk lain</div>
-          <div class="ptag">Segera hadir</div>
+        <div class="cattab">
+          <div class="cname">Kesehatan</div>
+          <div class="cdesc">Biaya rawat inap sesuai wilayah pertanggungan</div>
         </div>
       </div>
+      <div class="prodline">Produk: <span class="pchip">PruHeritage Essential</span></div>
 
       <div class="grid">
         <div class="field">
@@ -295,10 +306,58 @@
     </div>
   </div></div>
 
+  <!-- ============================================================ STATE A2 -->
+  <h2 class="state">State A2 — Kesehatan tab (design intent; engine support later)</h2>
+  <p class="state-note">PruWell Medical is <strong>not in <code>premium-engine@0.1.0</code></strong> —
+  this frame is design intent for when the engine ships it, so the tab structure doesn't get
+  rebuilt then. Until the engine prices it, the Kesehatan tab renders with a "Segera hadir"
+  notice instead of this form. Field set below is provisional (coverage options are real, from
+  the product; the rest mirrors the other tabs pending the engine's actual input schema).</p>
+
+  <div class="frame"><div class="frame-inner" style="min-height:0">
+    <div class="main">
+      <div class="cattabs">
+        <div class="cattab">
+          <div class="cname">Jiwa</div>
+          <div class="cdesc">Warisan &amp; perlindungan jiwa untuk keluarga</div>
+        </div>
+        <div class="cattab">
+          <div class="cname">Kritis</div>
+          <div class="cdesc">UP cair saat terdiagnosis penyakit kritis</div>
+        </div>
+        <div class="cattab sel">
+          <div class="cname">Kesehatan</div>
+          <div class="cdesc">Biaya rawat inap sesuai wilayah pertanggungan</div>
+        </div>
+      </div>
+      <div class="prodline">Produk: <span class="pchip">PruWell Medical</span></div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Tanggal lahir klien</label>
+          <div class="control"><span>17/08/1992</span><span class="chev">📅</span></div>
+        </div>
+        <div class="field">
+          <label>Jenis kelamin</label>
+          <div class="seg"><span class="on">Pria</span><span>Wanita</span></div>
+        </div>
+        <div class="field" style="grid-column: 1 / -1">
+          <label>Wilayah pertanggungan</label>
+          <div class="control"><span>Asia kecuali Singapura, Hong Kong &amp; Jepang</span><span class="chev">▾</span></div>
+        </div>
+      </div>
+      <p class="hint" style="margin-top:.6rem">Pilihan wilayah: Indonesia · Asia kecuali SG/HK/JP · Seluruh Asia · Dunia kecuali USA · Seluruh dunia</p>
+
+      <div class="btnrow">
+        <span class="btn">Hitung Premi</span>
+      </div>
+    </div>
+  </div></div>
+
   <!-- ============================================================ STATE B -->
   <h2 class="state">State B — priced result (after submit)</h2>
   <p class="state-note">Submit-triggered by decision (server-only rates + Singapore-region latency).
-  Discount row only appears for Pru Heritage Essential — Critical Amanah has no discount bands.
+  Discount row only appears for PruHeritage Essential — Critical Amanah has no discount bands.
   "Simpan &amp; buat PDF" opens State D's capture card. <strong>Angka di bawah ilustratif.</strong></p>
 
   <div class="frame"><div class="frame-inner" style="min-height:0">
@@ -307,7 +366,7 @@
         <div class="bar"></div>
         <div class="body">
           <div class="meta">
-            <span class="chip">Pru Heritage Essential</span>
+            <span class="chip">PruHeritage Essential</span>
             <span>Essential · UP Rp 1 M · 10 tahun · usia asuransi 34 · Non Smoker</span>
           </div>
           <div class="prem">
@@ -344,7 +403,7 @@
         <div class="body">
           <div class="stalenote">⚠︎ Input berubah — tekan "Hitung Premi" lagi untuk harga terbaru.</div>
           <div class="meta">
-            <span class="chip">Pru Heritage Essential</span>
+            <span class="chip">PruHeritage Essential</span>
             <span>Essential · UP Rp 1 M · 10 tahun · usia asuransi 34 · Non Smoker</span>
           </div>
           <div class="prem">
